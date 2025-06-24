@@ -5,6 +5,21 @@ VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerServer", "PokerServer.csproj", "{BB43A5F2-FF86-4761-A895-77F6D79E683C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6BD664EC-E1B4-4EB7-9489-1387C2214499}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{1D5BB70F-2319-4B01-8CF3-C4008D429259}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Users.Domain", "src\Modules\Users\Poker.Users.Domain\Poker.Users.Domain.csproj", "{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62} = {4CC05AFA-5826-4839-97FA-0AA7A4F42B62}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0DC053B3-4CAC-48A8-91A0-2F3EA050D05C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Common.Domain", "src\Common\Poker.Common.Domain\Poker.Common.Domain.csproj", "{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +30,23 @@ Global
 		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1} = {6BD664EC-E1B4-4EB7-9489-1387C2214499}
+		{1D5BB70F-2319-4B01-8CF3-C4008D429259} = {3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1}
+		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1} = {1D5BB70F-2319-4B01-8CF3-C4008D429259}
+		{0DC053B3-4CAC-48A8-91A0-2F3EA050D05C} = {6BD664EC-E1B4-4EB7-9489-1387C2214499}
+		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62} = {0DC053B3-4CAC-48A8-91A0-2F3EA050D05C}
 	EndGlobalSection
 EndGlobal
