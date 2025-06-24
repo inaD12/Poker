@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerServer", "PokerServer.csproj", "{BB43A5F2-FF86-4761-A895-77F6D79E683C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6BD664EC-E1B4-4EB7-9489-1387C2214499}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1}"
@@ -20,16 +18,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0DC053
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Common.Domain", "src\Common\Poker.Common.Domain\Poker.Common.Domain.csproj", "{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{FAC2BB13-B80C-481F-A282-4376C6255D66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerServer", "src\Api\PokerServer.csproj", "{9D093060-250F-4045-B9CA-FED96EC4A887}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB43A5F2-FF86-4761-A895-77F6D79E683C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -38,6 +36,10 @@ Global
 		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D093060-250F-4045-B9CA-FED96EC4A887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D093060-250F-4045-B9CA-FED96EC4A887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D093060-250F-4045-B9CA-FED96EC4A887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D093060-250F-4045-B9CA-FED96EC4A887}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +50,7 @@ Global
 		{0B5DB4DB-7200-4E7F-B2A5-46BC41F6B8B1} = {1D5BB70F-2319-4B01-8CF3-C4008D429259}
 		{0DC053B3-4CAC-48A8-91A0-2F3EA050D05C} = {6BD664EC-E1B4-4EB7-9489-1387C2214499}
 		{4CC05AFA-5826-4839-97FA-0AA7A4F42B62} = {0DC053B3-4CAC-48A8-91A0-2F3EA050D05C}
+		{FAC2BB13-B80C-481F-A282-4376C6255D66} = {6BD664EC-E1B4-4EB7-9489-1387C2214499}
+		{9D093060-250F-4045-B9CA-FED96EC4A887} = {FAC2BB13-B80C-481F-A282-4376C6255D66}
 	EndGlobalSection
 EndGlobal
