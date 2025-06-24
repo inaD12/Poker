@@ -14,7 +14,9 @@ public sealed class User : Entity
 	public int GamesWon { get; private set; }
 	public decimal TotalEarnings { get; private set; }
 
+#pragma warning disable CS8618
 	private User()
+#pragma warning restore CS8618
 	{
 	}
 
