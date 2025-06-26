@@ -9,4 +9,8 @@ public static class ErrorMessages
 	public const string PlayerAlreadyAllIn = "Player is already all-in";
 	public const string BetTooSmall = "Bet is too small, must at least call the current bet";
 	public const string MinimumRaiseNotMet = "Minimum raise not met";
+	public const string TwoPlayersRequired = "A game requires at least two players";
+	public const string SixPlayersMaximum = "A game can have a maximum of six players";
+	public const string InsufficientFunds = "Insufficient funds";
+	public const string NotYourTurn = "It's not your turn";
 }

@@ -62,4 +62,13 @@ public sealed class Hand
 		Bet += amount;
 		return Result.Success();
 	}
+
+	public Result ResetBet()
+	{
+		if (IsFolded)
+			return Result.Failure(ResponseList.PlayerFolded);
+
+		Bet = 0;
+		return Result.Success();
+	}
 }

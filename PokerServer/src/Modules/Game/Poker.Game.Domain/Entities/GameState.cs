@@ -1,5 +1,6 @@
 ﻿using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Enums;
+using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Domain.Entities;
 	
@@ -39,16 +40,16 @@ public sealed class GameState
 		MinimumRaise = minimumRaise;
 	}
 
-	public static GameState Create(
+	internal static Result<GameState> Create(
 		List<string> playerOrder,
 		int currentTurnPlayerPosition,
 		int dealerPosition,
 		int minimumRaise)
 	{
 		if (playerOrder is null || playerOrder.Count < 2)
-			throw new ArgumentException("A game requires at least two players.");
+			return Result<GameState>.Failure(ResponseList.TwoPlayersRequired);
 
-		return new GameState(
+		var gs =  new GameState(
 			communityCards: new List<Card>(5),
 			currentPot: 0,
 			hands: new Dictionary<string, Hand>(),
@@ -59,9 +60,11 @@ public sealed class GameState
 			currentBet: 0,
 			minimumRaise: minimumRaise
 		);
+
+		return Result<GameState>.Success(gs);
 	}
 
-	public void DealHands(List<Hand> hands)
+	internal void DealHands(List<Hand> hands)
 	{
 		if (Phase != GamePhase.PreFlop)
 			throw new InvalidOperationException("Cannot deal hands outside PreFlop phase.");
@@ -82,7 +85,7 @@ public sealed class GameState
 		Hands = handDict;
 	}
 
-	public void Flop(List<Card> flopCards)
+	internal void Flop(List<Card> flopCards)
 	{
 		if (Phase != GamePhase.PreFlop)
 			throw new InvalidOperationException("Flop can only be dealt after PreFlop phase.");
@@ -92,53 +95,66 @@ public sealed class GameState
 
 		CommunityCards.AddRange(flopCards);
 		Phase = GamePhase.Flop;
-		CurrentBet = 0;
 	}
 
-	public void Turn(Card turnCard)
+	internal void Turn(Card turnCard)
 	{
 		if (Phase != GamePhase.Flop)
 			throw new InvalidOperationException("Turn can only be dealt after Flop phase.");
 
-
 		CommunityCards.Add(turnCard);
 		Phase = GamePhase.Turn;
-		CurrentBet = 0;
 	}
 
-	public void River(Card riverCard)
+	internal void River(Card riverCard)
 	{
 		if (Phase != GamePhase.Turn)
 			throw new InvalidOperationException("River can only be dealt after Turn phase.");
 
-
 		CommunityCards.Add(riverCard);
 		Phase = GamePhase.River;
-		CurrentBet = 0;
 	}
 
-	public void NextPlayer()
+	internal void NextPlayer()
 	{
-		if (PlayerOrder.Count < 2)
-			throw new InvalidOperationException("Not enough players in game.");
-
 		CurrentTurnPlayerPosition = (CurrentTurnPlayerPosition + 1) % PlayerOrder.Count;
 	}
 
-	public void AddToPot(int amount)
+	internal void AddToPot(int amount)
 	{
 		if (amount <= 0)
 			throw new ArgumentException("Amount to add to pot must be greater than zero.");
 		CurrentPot += amount;
 	}
 
-	public void UpdateCurrentBet(int amount)
+	internal void UpdateCurrentBet(int amount)
 	{
 		if (amount < 0)
 			throw new ArgumentException("Current bet cannot be negative.");
 
 		CurrentBet = amount;
 	}
+	internal void ResetBetsForNextRound()
+	{
+		foreach (var hand in Hands.Values)
+		{
+			if (!hand.IsFolded && !hand.IsAllIn)
+				hand.ResetBet();
+		}
+		CurrentBet = 0;
+	}
 
+	internal void SetFirstActivePlayer()
+	{
+		for (int i = 0; i < PlayerOrder.Count; i++)
+		{
+			string playerId = PlayerOrder[i];
+			if (!Hands[playerId].IsFolded && !Hands[playerId].IsAllIn)
+			{
+				CurrentTurnPlayerPosition = i;
+				return;
+			}
+		}
+	}
 }
 

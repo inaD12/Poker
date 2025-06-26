@@ -15,4 +15,8 @@ public static class ResponseList
 	public static Response PlayerAlreadyAllIn => Response.Create(ErrorMessages.PlayerAlreadyAllIn, HttpStatusCode.Conflict);
 	public static Response BetTooSmall => Response.Create(ErrorMessages.BetTooSmall, HttpStatusCode.BadRequest);
 	public static Response MinimumRaiseNotMet => Response.Create(ErrorMessages.MinimumRaiseNotMet, HttpStatusCode.BadRequest);
+	public static Response TwoPlayersRequired => Response.Create(ErrorMessages.TwoPlayersRequired, HttpStatusCode.BadRequest);
+	public static Response SixPlayersMaximum => Response.Create(ErrorMessages.SixPlayersMaximum, HttpStatusCode.BadRequest);
+	public static Response InsufficientFunds => Response.Create(ErrorMessages.InsufficientFunds, HttpStatusCode.BadRequest);
+	public static Response NotYourTurn => Response.Create(ErrorMessages.NotYourTurn, HttpStatusCode.Conflict);
 }
