@@ -1,5 +1,6 @@
 ﻿using Poker.Common.Domain;
 using Poker.Common.Domain.Results;
+using Poker.Game.Domain.DTOs;
 using Poker.Game.Domain.Enums;
 using Poker.Game.Domain.Responses;
 using Poker.Game.Domain.Services;
@@ -159,6 +160,31 @@ public sealed class Game : Entity
 
 		AdvanceTurn();
 		return Result.Success();
+	}
+
+	public GameStateDto GetGameState(string requestingPlayerId)
+	{
+		var players = _playerManager.GetPlayers()
+			.Select(p => new PlayerStateDto(
+				Id: p.Id,
+				Balance: p.Balance,
+				IsFolded: p.Hand?.IsFolded ?? false,
+				IsAllIn: p.Hand?.IsAllIn ?? false,
+				CurrentBet: p.Hand?.Bet ?? 0,
+				IsCurrentTurn: _playerManager.IsPlayerTurn(p.Id),
+				Cards: p.Id == requestingPlayerId ? p.Hand?.Cards.ToList() : null
+			))
+			.ToList();
+
+		return new GameStateDto(
+			Phase: _phaseManager.CurrentPhase,
+			CommunityCards: CommunityCards.AsReadOnly(),
+			CurrentPot: CurrentPot,
+			CurrentBet: CurrentBet,
+			MinimumRaise: MinimumRaise,
+			CurrentTurnPlayerId: _playerManager.GetCurrentTurnPlayer()?.Id,
+			Players: players
+		);
 	}
 
 	private void AdvanceTurn()

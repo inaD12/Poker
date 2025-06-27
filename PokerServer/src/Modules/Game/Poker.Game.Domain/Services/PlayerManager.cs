@@ -18,9 +18,11 @@ public class PlayerManager
 	}
 
 	public IReadOnlyList<Player> GetPlayers()
-	{
-		return Players.AsReadOnly();
-	}
+		=> Players.AsReadOnly();
+
+	public Player GetCurrentTurnPlayer()
+		=> Players[CurrentTurnPlayerPosition];
+
 
 	public int GetNextActivePosition()
 	{
