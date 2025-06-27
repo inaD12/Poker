@@ -8,13 +8,15 @@ public sealed class Player: Entity
 {
 	public string Username { get; private set; }
 	public int Balance { get; private set; }
+	public Hand? Hand { get; private set; }
 
 	private Player() { }
 
-	private Player(string username, int balance)
+	private Player(string username, int balance, Hand? hand)
 	{
 		Username = username;
 		Balance = balance;
+		Hand = hand;
 	}
 
 	public static Player Create(string username, int balance)
@@ -24,7 +26,12 @@ public sealed class Player: Entity
 		if (balance < 0)
 			throw new ArgumentException("Balance cannot be negative.", nameof(balance));
 
-		return new Player(username, balance);
+		return new Player(username, balance, null);
+	}
+
+	public void SetHand(Hand hand)
+	{
+		Hand = hand;
 	}
 
 	public void AddToBalance(int amount)

@@ -3,13 +3,13 @@ using Poker.Game.Domain.Enums;
 using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Domain.Entities;
-	
+
 public sealed class GameState
 {
 	public List<Card> CommunityCards { get; private set; }
 	public int CurrentPot { get; private set; }
-	public Dictionary<string, Hand> Hands { get; private set; }
-	public List<string> PlayerOrder { get; private set; }
+	public List<Player> Players { get; private set; }
+	public Dictionary<string, Player> PlayerDictionary { get; private set; }
 	public int CurrentTurnPlayerPosition { get; private set; }
 	public int DealerPosition { get; private set; }
 	public GamePhase Phase { get; private set; }
@@ -21,8 +21,7 @@ public sealed class GameState
 	private GameState(
 		List<Card> communityCards,
 		int currentPot,
-		Dictionary<string, Hand> hands,
-		List<string> playerOrder,
+		List<Player> players,
 		int currentTurnPlayerPosition,
 		int dealerPosition,
 		GamePhase phase,
@@ -31,8 +30,8 @@ public sealed class GameState
 	{
 		CommunityCards = communityCards;
 		CurrentPot = currentPot;
-		Hands = hands;
-		PlayerOrder = playerOrder;
+		Players = players;
+		PlayerDictionary = players.ToDictionary(p => p.Id);
 		CurrentTurnPlayerPosition = currentTurnPlayerPosition;
 		DealerPosition = dealerPosition;
 		Phase = phase;
@@ -41,19 +40,18 @@ public sealed class GameState
 	}
 
 	internal static Result<GameState> Create(
-		List<string> playerOrder,
+		List<Player> players,
 		int currentTurnPlayerPosition,
 		int dealerPosition,
 		int minimumRaise)
 	{
-		if (playerOrder is null || playerOrder.Count < 2)
+		if (players.Count < 2)
 			return Result<GameState>.Failure(ResponseList.TwoPlayersRequired);
 
-		var gs =  new GameState(
+		var gs = new GameState(
 			communityCards: new List<Card>(5),
 			currentPot: 0,
-			hands: new Dictionary<string, Hand>(),
-			playerOrder: playerOrder,
+			players: players,
 			currentTurnPlayerPosition: currentTurnPlayerPosition,
 			dealerPosition: dealerPosition,
 			phase: GamePhase.PreFlop,
@@ -62,27 +60,6 @@ public sealed class GameState
 		);
 
 		return Result<GameState>.Success(gs);
-	}
-
-	internal void DealHands(List<Hand> hands)
-	{
-		if (Phase != GamePhase.PreFlop)
-			throw new InvalidOperationException("Cannot deal hands outside PreFlop phase.");
-
-		if (hands == null || hands.Count != PlayerOrder.Count)
-			throw new ArgumentException("Hands must match the number of players.");
-
-
-		var handDict = hands.ToDictionary(h => h.PlayerId);
-
-		foreach (var playerId in PlayerOrder)
-		{
-			if (!handDict.ContainsKey(playerId))
-				throw new ArgumentException($"No hand found for player {playerId}.");
-		}
-
-		Hands.Clear();
-		Hands = handDict;
 	}
 
 	internal void Flop(List<Card> flopCards)
@@ -117,7 +94,7 @@ public sealed class GameState
 
 	internal void NextPlayer()
 	{
-		CurrentTurnPlayerPosition = (CurrentTurnPlayerPosition + 1) % PlayerOrder.Count;
+		CurrentTurnPlayerPosition = (CurrentTurnPlayerPosition + 1) % Players.Count;
 	}
 
 	internal void AddToPot(int amount)
@@ -136,24 +113,24 @@ public sealed class GameState
 	}
 	internal void ResetBetsForNextRound()
 	{
-		foreach (var hand in Hands.Values)
+		foreach (var player in Players)
 		{
-			if (!hand.IsFolded && !hand.IsAllIn)
-				hand.ResetBet();
+			if (player.Hand != null)
+				player.Hand.ResetBet();
 		}
 		CurrentBet = 0;
 	}
 
 	internal void SetFirstActivePlayer()
 	{
-		for (int i = 0; i < PlayerOrder.Count; i++)
+		for (int i = 0; i < Players.Count; i++)
 		{
-			string playerId = PlayerOrder[i];
-			if (!Hands[playerId].IsFolded && !Hands[playerId].IsAllIn)
-			{
-				CurrentTurnPlayerPosition = i;
-				return;
-			}
+			var player = Players[i];
+			if (player.Hand == null || player.Hand.IsFolded || player.Hand.IsAllIn)
+				continue;
+
+			CurrentTurnPlayerPosition = i;
+			return;
 		}
 	}
 }

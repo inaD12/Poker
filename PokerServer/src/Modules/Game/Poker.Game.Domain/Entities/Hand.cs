@@ -5,7 +5,6 @@ namespace Poker.Game.Domain.Entities;
 
 public sealed class Hand
 {
-	public string PlayerId { get; private set; }
 	public IReadOnlyList<Card> Cards { get; private set; }
 	public int Bet { get; private set; }
 	public bool IsFolded { get; private set; }
@@ -15,20 +14,19 @@ public sealed class Hand
 	private Hand() { }
 #pragma warning restore CS8618
 
-	private Hand(string userId, IReadOnlyList<Card> cards)
+	private Hand(IReadOnlyList<Card> cards)
 	{
 		if (cards.Count != 2)
 			throw new ArgumentException("Hand must have exactly 2 cards.");
 
-		PlayerId = userId;
 		Cards = cards;
 		Bet = 0;
 		IsFolded = false;
 		IsAllIn = false;
 	}
 
-	public static Hand Create(string userId, Card[] cards)
-		=> new Hand(userId, cards);
+	public static Hand Create(Card[] cards)
+		=> new Hand(cards);
 
 	public Result Fold()
 	{
@@ -65,8 +63,8 @@ public sealed class Hand
 
 	public Result ResetBet()
 	{
-		if (IsFolded)
-			return Result.Failure(ResponseList.PlayerFolded);
+		if (IsAllIn)
+			return Result.Failure(ResponseList.PlayerAllIn);
 
 		Bet = 0;
 		return Result.Success();
