@@ -13,4 +13,5 @@ public static class ErrorMessages
 	public const string SixPlayersMaximum = "A game can have a maximum of six players";
 	public const string InsufficientFunds = "Insufficient funds";
 	public const string NotYourTurn = "It's not your turn";
+	public const string AmountCantBeNegative = "Amount cannot be negative";
 }

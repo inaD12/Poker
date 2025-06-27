@@ -2,72 +2,95 @@
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Enums;
 using Poker.Game.Domain.Responses;
+using Poker.Game.Domain.Services;
 
 namespace Poker.Game.Domain.Entities;
 
 public sealed class Game : Entity
 {
-	public GameState GameState { get; private set; }
+	public List<Card> CommunityCards { get; private set; }
+	public int CurrentPot { get; private set; }
+	public int DealerPosition { get; private set; }
+	public int CurrentBet { get; private set; }
+	public int MinimumRaise { get; private set; }
 
 	public readonly Deck Deck;
+	private readonly PlayerManager _playerManager;
+	private readonly PhaseManager _phaseManager;
 
 #pragma warning disable CS8618
 	private Game() { }
 #pragma warning restore CS8618
-	private Game(GameState gameState, Deck deck)
+	private Game(
+		List<Card> communityCards,
+		int currentPot,
+		List<Player> players,
+		int currentTurnPlayerPosition,
+		int dealerPosition,
+		GamePhase phase,
+		int currentBet,
+		int minimumRaise,
+		Deck deck)
 	{
-		GameState = gameState;
+		CommunityCards = communityCards;
+		CurrentPot = currentPot;
+		DealerPosition = dealerPosition;
+		CurrentBet = currentBet;
+		MinimumRaise = minimumRaise;
 		Deck = deck;
+		_playerManager = new PlayerManager(players, currentTurnPlayerPosition);
+		_phaseManager = new PhaseManager(phase);
 	}
 
 	public static Result<Game> StartGame(List<Player> players)
 	{
 		if (players.Count > 6)
 			return Result<Game>.Failure(ResponseList.SixPlayersMaximum);
-
-		var stateResult = GameState.Create(
-			players: players,
-			currentTurnPlayerPosition: 0,
-			dealerPosition: 0,
-			minimumRaise: 10
-		);
-
-		if (stateResult.IsFailure)
-			return Result<Game>.Failure(stateResult.Response);
-
-		var gameState = stateResult.Value!;
+		if (players.Count < 2)
+			return Result<Game>.Failure(ResponseList.TwoPlayersRequired);
 
 		var shuffledDeck = Deck.CreateShuffled();
 		List<Hand> hands = new();
 
-		foreach (var player in gameState.Players)
+		foreach (var player in players)
 		{
 			var hand = Hand.Create(new[] { shuffledDeck.Draw(), shuffledDeck.Draw() });
 			player.SetHand(hand);
 		}
 
-		var gameRoom = new Game(gameState, shuffledDeck);
+		var gameRoom = new Game(
+			communityCards: new List<Card>(),
+			currentPot: 0,
+			players: players,
+			currentTurnPlayerPosition: 0,
+			dealerPosition: 0,
+			phase: GamePhase.PreFlop,
+			currentBet: 0,
+			minimumRaise: 10,
+			shuffledDeck);
 
 		return Result<Game>.Success(gameRoom);
 	}
 
-
-	public Result PlaceBet(string playerId, int amount)
+	public Result PlayerPlaceBet(string playerId, int amount)
 	{
-		var playerResult = GetPlayerIfHisTurn(playerId);
+		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
+		if (amount < 0)
+			return Result.Failure(ResponseList.AmountCantBeNegative);
+
 		var player = playerResult.Value!;
 
-		int toCall = GameState.CurrentBet - player.Hand!.Bet;
+		int toCall = CurrentBet - player.Hand!.Bet;
 		if (amount < toCall)
 			return Result.Failure(ResponseList.BetTooSmall);
 
 		if (amount > toCall)
 		{
 			int raiseAmount = amount - toCall;
-			if (raiseAmount < GameState.MinimumRaise)
+			if (raiseAmount < MinimumRaise)
 				return Result.Failure(ResponseList.MinimumRaiseNotMet);
 		}
 
@@ -78,11 +101,9 @@ public sealed class Game : Entity
 		if (result.IsFailure)
 			return result;
 
-		GameState.AddToPot(amount);
+		CurrentPot += amount;
 		player.RemoveFromBalance(amount);
-
-		if (amount > toCall)
-			GameState.UpdateCurrentBet(player.Hand.Bet);
+		CurrentBet = player.Hand.Bet;
 
 		AdvanceTurn();
 		return Result.Success();
@@ -90,7 +111,7 @@ public sealed class Game : Entity
 
 	public Result PlayerCheck(string playerId)
 	{
-		var playerResult = GetPlayerIfHisTurn(playerId);
+		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -100,7 +121,7 @@ public sealed class Game : Entity
 
 	public Result PlayerFold(string playerId)
 	{
-		var playerResult = GetPlayerIfHisTurn(playerId);
+		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -116,7 +137,7 @@ public sealed class Game : Entity
 
 	public Result PlayerAllIn(string playerId)
 	{
-		var playerResult = GetPlayerIfHisTurn(playerId);
+		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -130,82 +151,33 @@ public sealed class Game : Entity
 		if (result.IsFailure)
 			return result;
 
-		GameState.AddToPot(player.Balance);
+		CurrentPot += player.Balance;
+		player.RemoveFromBalance(player.Balance);
 
-		if (hand.Bet > GameState.CurrentBet)
-			GameState.UpdateCurrentBet(hand.Bet);
+		if (hand.Bet > CurrentBet)
+			CurrentBet = hand.Bet;
 
 		AdvanceTurn();
 		return Result.Success();
 	}
 
-	private Result<Player> GetPlayerIfHisTurn(string playerId)
-	{
-		if (!GameState.PlayerDictionary.TryGetValue(playerId, out var player))
-			return Result<Player>.Failure(ResponseList.PlayerNotInGame);
-		if (!IsPlayerTurn(playerId))
-			return Result<Player>.Failure(ResponseList.NotYourTurn);
-
-		return Result<Player>.Success(player);
-	}
-
-	private bool IsPlayerTurn(string playerId)
-	{
-		if (GameState.Players[GameState.CurrentTurnPlayerPosition].Id != playerId)
-			return false;
-
-		return true;
-	}
-
-	private void AdvanceGamePhase()
-	{
-		switch (GameState.Phase)
-		{
-			case GamePhase.PreFlop:
-				GameState.Flop(new List<Card> { Deck.Draw(), Deck.Draw(), Deck.Draw() });
-				break;
-			case GamePhase.Flop:
-				GameState.Turn(Deck.Draw());
-				break;
-			case GamePhase.Turn:
-				GameState.River(Deck.Draw());
-				break;
-			case GamePhase.River:
-				HandleShowdown();
-				break;
-		}
-	}
-
 	private void AdvanceTurn()
 	{
-		if (OnlyOneActivePlayer())
+		if (_playerManager.OnlyOneActivePlayer())
 		{
 			HandleShowdown();
 		}
-		else if (IsBettingRoundComplete())
+		else if (_playerManager.IsBettingRoundComplete(CurrentBet))
 		{
-			AdvanceGamePhase();
-			GameState.ResetBetsForNextRound();
-			GameState.SetFirstActivePlayer();
+			_phaseManager.AdvancePhase(CommunityCards, Deck, HandleShowdown);
+			_playerManager.ResetHandsForNextRound();
+			CurrentBet = 0;
+			_playerManager.SetFirstActivePlayer();
 		}
 		else
 		{
-			GameState.NextPlayer();
+			_playerManager.GetNextActivePosition();
 		}
-	}
-
-	private bool IsBettingRoundComplete()
-	{
-		var activePlayers = GameState.Players
-			.Where(p => !p.Hand!.IsFolded && !p.Hand.IsAllIn)
-			.ToList();
-
-		return activePlayers.All(p => p.Hand!.Bet == GameState.CurrentBet);
-	}
-
-	private bool OnlyOneActivePlayer()
-	{
-		return GameState.Players.Count(p => !p.Hand!.IsFolded) == 1;
 	}
 
 	private void HandleShowdown()

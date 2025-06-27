@@ -43,6 +43,8 @@ public sealed class Hand
 			return Result.Failure(ResponseList.PlayerAlreadyAllIn);
 		if (IsFolded)
 			return Result.Failure(ResponseList.PlayerFolded);
+		if (amount < 0)
+			return Result.Failure(ResponseList.AmountCantBeNegative);
 
 		IsAllIn = true;
 		Bet += amount;
@@ -56,6 +58,8 @@ public sealed class Hand
 			return Result.Failure(ResponseList.PlayerAllIn);
 		if (IsFolded)
 			return Result.Failure(ResponseList.PlayerFolded);
+		if (amount < 0)
+			return Result.Failure(ResponseList.AmountCantBeNegative);
 
 		Bet += amount;
 		return Result.Success();

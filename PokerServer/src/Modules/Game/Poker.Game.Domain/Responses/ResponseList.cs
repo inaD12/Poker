@@ -19,4 +19,5 @@ public static class ResponseList
 	public static Response SixPlayersMaximum => Response.Create(ErrorMessages.SixPlayersMaximum, HttpStatusCode.BadRequest);
 	public static Response InsufficientFunds => Response.Create(ErrorMessages.InsufficientFunds, HttpStatusCode.BadRequest);
 	public static Response NotYourTurn => Response.Create(ErrorMessages.NotYourTurn, HttpStatusCode.Conflict);
+	public static Response AmountCantBeNegative => Response.Create(ErrorMessages.AmountCantBeNegative, HttpStatusCode.BadRequest);
 }
