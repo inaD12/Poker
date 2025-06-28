@@ -208,36 +208,37 @@ public sealed class Game : Entity
 
 	private void HandleShowdown()
 	{
-		// TODO: Evaluate hands, determine winner(s), distribute pot, reset game.
+		// TODO: Reset game.
+		var Players = _playerManager.GetPlayers();
 
-		//var activePlayers = GameState.Players
-		//	.Where(p => !p.Hand!.IsFolded)
-		//	.ToList();
+		var activePlayers = Players
+			.Where(p => !p.Hand!.IsFolded)
+			.ToList();
 
-		//if (activePlayers.Count == 1)
-		//{
-		//	var winner = activePlayers[0];
-		//	winner.AddToBalance(GameState.CurrentPot);
-		//	return;
-		//}
+		if (activePlayers.Count == 1)
+		{
+			var winner = activePlayers[0];
+			winner.AddToBalance(CurrentPot);
+			return;
+		}
 
-		//var evaluated = activePlayers
-		//	.Select(p => new
-		//	{
-		//		Player = p,
-		//		Score = HandEvaluator.Evaluate(p.Hand!.Cards.Concat(GameState.CommunityCards))
-		//	})
-		//	.OrderByDescending(x => x.Score)
-		//	.ToList();
+		var evaluated = activePlayers
+			.Select(p => new
+			{
+				Player = p,
+				Score = HandEvaluator.GetHandvalue(p.Hand!.Cards.Concat(CommunityCards).ToList())
+			})
+			.OrderByDescending(x => x.Score)
+			.ToList();
 
-		//var topScore = evaluated.First().Score;
-		//var winners = evaluated.Where(x => x.Score == topScore).ToList();
+		var topScore = evaluated.First().Score;
+		var winners = evaluated.Where(x => x.Score == topScore).ToList();
 
-		//int share = GameState.CurrentPot / winners.Count();
+		int share = CurrentPot / winners.Count();
 
-		//foreach (var winner in winners)
-		//{
-		//	winner.Player.AddToBalance(share);
-		//}
+		foreach (var winner in winners)
+		{
+			winner.Player.AddToBalance(share);
+		}
 	}
 }
