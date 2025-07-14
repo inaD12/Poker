@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Common.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Users.Application", "src\Modules\Users\Poker.Users.Application\Poker.Users.Application.csproj", "{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Game.Domain", "src\Modules\Game\Poker.Game.Domain\Poker.Game.Domain.csproj", "{A2196C34-59A0-4A79-A55E-8536FF3D560C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +56,10 @@ Global
 		{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,5 +74,7 @@ Global
 		{9D093060-250F-4045-B9CA-FED96EC4A887} = {FAC2BB13-B80C-481F-A282-4376C6255D66}
 		{41B3D342-E085-45C4-A703-5B9668BE8548} = {0DC053B3-4CAC-48A8-91A0-2F3EA050D05C}
 		{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9} = {1D5BB70F-2319-4B01-8CF3-C4008D429259}
+		{ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E} = {3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1}
+		{A2196C34-59A0-4A79-A55E-8536FF3D560C} = {ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E}
 	EndGlobalSection
 EndGlobal

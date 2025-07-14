@@ -3,23 +3,23 @@ using Poker.Game.Domain.Enums;
 
 namespace Poker.Game.Domain.Services;
 
-public class HandEvaluator
+public static class HandEvaluator
 {
-	public static int GetHandvalue(List<Card> sCards)
+	public static int EvaluateHand(List<Card> sCards)
 	{
 
 		if (sCards.Count < 5) return 0;
 		sCards.Sort((x, y) => y.Rank.CompareTo(x.Rank));
-		return getHandvalueList(sCards);
+		return GetHandValueList(sCards);
 
 	}
-	private static int getHandvalueList(List<Card> sCards)
+	private static int GetHandValueList(List<Card> sCards)
 	{
 
 		int count = sCards.Count;
-		if (count == 5) return getHandvalue(sCards);
+		if (count == 5) return GetHandValue(sCards);
 
-		int HighestValue = 0;
+		int highestValue = 0;
 		Card missingOne;
 		int tempValue;
 
@@ -29,8 +29,8 @@ public class HandEvaluator
 			missingOne = sCards[i];
 			sCards.RemoveAt(i);
 
-			tempValue = getHandvalueList(sCards);
-			if (tempValue > HighestValue) HighestValue = tempValue;
+			tempValue = GetHandValueList(sCards);
+			if (tempValue > highestValue) highestValue = tempValue;
 
 			sCards.Insert(i, missingOne);
 
@@ -39,14 +39,14 @@ public class HandEvaluator
 		missingOne = sCards[count - 1];
 		sCards.RemoveAt(count - 1);
 
-		tempValue = getHandvalueList(sCards);
-		if (tempValue > HighestValue) HighestValue = tempValue;
+		tempValue = GetHandValueList(sCards);
+		if (tempValue > highestValue) highestValue = tempValue;
 
 		sCards.Add(missingOne);
-		return HighestValue;
+		return highestValue;
 
 	}
-	private static int getHandvalue(List<Card> sortedCards)
+	private static int GetHandValue(List<Card> sortedCards)
 	{
 		// --- Check for Straight or Straight Flush ---
 		if ((sortedCards[0].Rank - 1 == sortedCards[1].Rank) &&

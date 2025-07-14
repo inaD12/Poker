@@ -6,30 +6,30 @@ namespace Poker.Game.Domain.Services;
 
 public class PlayerManager
 {
-	private int CurrentTurnPlayerPosition;
-	private Dictionary<string, Player> PlayerDictionary;
-	private readonly List<Player> Players;
+	private int _currentTurnPlayerPosition;
+	private readonly Dictionary<string, Player> _playerDictionary;
+	private readonly List<Player> _players;
 
 	public PlayerManager(List<Player> players, int currentTurnPlayerPosition)
 	{
-		Players = players;
-		PlayerDictionary = players.ToDictionary(p => p.Id);
-		CurrentTurnPlayerPosition = currentTurnPlayerPosition;
+		_players = players;
+		_playerDictionary = players.ToDictionary(p => p.Id);
+		_currentTurnPlayerPosition = currentTurnPlayerPosition;
 	}
 
 	public IReadOnlyList<Player> GetPlayers()
-		=> Players.AsReadOnly();
+		=> _players.AsReadOnly();
 
 	public Player GetCurrentTurnPlayer()
-		=> Players[CurrentTurnPlayerPosition];
+		=> _players[_currentTurnPlayerPosition];
 
 
 	public int GetNextActivePosition()
 	{
-		for (int i = 1; i <= Players.Count; i++)
+		for (int i = 1; i <= _players.Count; i++)
 		{
-			var next = (CurrentTurnPlayerPosition + i) % Players.Count;
-			var p = Players[next];
+			var next = (_currentTurnPlayerPosition + i) % _players.Count;
+			var p = _players[next];
 			if (!p.Hand!.IsFolded && !p.Hand.IsAllIn)
 				return next;
 		}
@@ -39,7 +39,7 @@ public class PlayerManager
 
 	public bool IsBettingRoundComplete(int currentBet)
 	{
-		var activePlayers = Players
+		var activePlayers = _players
 			.Where(p => !p.Hand!.IsFolded && !p.Hand.IsAllIn)
 			.ToList();
 
@@ -48,12 +48,12 @@ public class PlayerManager
 
 	public bool OnlyOneActivePlayer()
 	{
-		return Players.Count(p => !p.Hand!.IsFolded) == 1;
+		return _players.Count(p => !p.Hand!.IsFolded) == 1;
 	}
 
 	public bool IsPlayerTurn(string playerId)
 	{
-		if (Players[CurrentTurnPlayerPosition].Id != playerId)
+		if (_players[_currentTurnPlayerPosition].Id != playerId)
 			return false;
 
 		return true;
@@ -61,7 +61,7 @@ public class PlayerManager
 
 	public void ResetHandsForNextRound()
 	{
-		foreach (var player in Players)
+		foreach (var player in _players)
 		{
 			if (player.Hand != null)
 				player.Hand.ResetBet();
@@ -70,19 +70,19 @@ public class PlayerManager
 
 	public void SetFirstActivePlayer()
 	{
-		for (int i = 0; i < Players.Count; i++)
+		for (int i = 0; i < _players.Count; i++)
 		{
-			var player = Players[i];
+			var player = _players[i];
 			if (player.Hand == null || player.Hand.IsFolded || player.Hand.IsAllIn)
 				continue;
 
-			CurrentTurnPlayerPosition = i;
+			_currentTurnPlayerPosition = i;
 			return;
 		}
 	}
 	public Result<Player> GetPlayerIfHisTurn(string playerId)
 	{
-		if (!PlayerDictionary.TryGetValue(playerId, out var player))
+		if (!_playerDictionary.TryGetValue(playerId, out var player))
 			return Result<Player>.Failure(ResponseList.PlayerNotInGame);
 		if (!IsPlayerTurn(playerId))
 			return Result<Player>.Failure(ResponseList.NotYourTurn);

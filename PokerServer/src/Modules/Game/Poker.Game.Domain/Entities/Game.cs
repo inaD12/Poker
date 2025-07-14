@@ -45,17 +45,19 @@ public sealed class Game : Entity
 
 	public static Result<Game> StartGame(List<Player> players)
 	{
-		if (players.Count > 6)
-			return Result<Game>.Failure(ResponseList.SixPlayersMaximum);
-		if (players.Count < 2)
-			return Result<Game>.Failure(ResponseList.TwoPlayersRequired);
+		switch (players.Count)
+		{
+			case > 6:
+				return Result<Game>.Failure(ResponseList.SixPlayersMaximum);
+			case < 2:
+				return Result<Game>.Failure(ResponseList.TwoPlayersRequired);
+		}
 
 		var shuffledDeck = Deck.CreateShuffled();
-		List<Hand> hands = new();
 
 		foreach (var player in players)
 		{
-			var hand = Hand.Create(new[] { shuffledDeck.Draw(), shuffledDeck.Draw() });
+			var hand = Hand.Create([shuffledDeck.Draw(), shuffledDeck.Draw()]);
 			player.SetHand(hand);
 		}
 
@@ -209,9 +211,9 @@ public sealed class Game : Entity
 	private void HandleShowdown()
 	{
 		// TODO: Reset game.
-		var Players = _playerManager.GetPlayers();
+		var players = _playerManager.GetPlayers();
 
-		var activePlayers = Players
+		var activePlayers = players
 			.Where(p => !p.Hand!.IsFolded)
 			.ToList();
 
@@ -226,7 +228,7 @@ public sealed class Game : Entity
 			.Select(p => new
 			{
 				Player = p,
-				Score = HandEvaluator.GetHandvalue(p.Hand!.Cards.Concat(CommunityCards).ToList())
+				Score = HandEvaluator.EvaluateHand(p.Hand!.Cards.Concat(CommunityCards).ToList())
 			})
 			.OrderByDescending(x => x.Score)
 			.ToList();
