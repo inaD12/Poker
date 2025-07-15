@@ -30,6 +30,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{ED2ADEC9-5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Game.Domain", "src\Modules\Game\Poker.Game.Domain\Poker.Game.Domain.csproj", "{A2196C34-59A0-4A79-A55E-8536FF3D560C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Game.Application", "src\Modules\Game\Poker.Game.Application\Poker.Game.Application.csproj", "{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker.Common.Infrastructure", "src\Common\Poker.Common.Infrastructure\Poker.Common.Infrastructure.csproj", "{015A4643-E49A-486C-8CFE-7539E1488B89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +64,14 @@ Global
 		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2196C34-59A0-4A79-A55E-8536FF3D560C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{015A4643-E49A-486C-8CFE-7539E1488B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{015A4643-E49A-486C-8CFE-7539E1488B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{015A4643-E49A-486C-8CFE-7539E1488B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{015A4643-E49A-486C-8CFE-7539E1488B89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,5 +88,7 @@ Global
 		{7FF500E8-B9B3-471F-ABE4-F11A3E373EE9} = {1D5BB70F-2319-4B01-8CF3-C4008D429259}
 		{ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E} = {3DE78F9F-1887-4AD4-BEC3-70B9A18CE6D1}
 		{A2196C34-59A0-4A79-A55E-8536FF3D560C} = {ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E}
+		{E59CF831-C0F7-40DB-8E29-1C2B63B3FDE9} = {ED2ADEC9-5861-4245-A4D3-6A1A42E6F14E}
+		{015A4643-E49A-486C-8CFE-7539E1488B89} = {0DC053B3-4CAC-48A8-91A0-2F3EA050D05C}
 	EndGlobalSection
 EndGlobal
