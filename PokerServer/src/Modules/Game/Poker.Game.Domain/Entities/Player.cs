@@ -6,7 +6,7 @@ namespace Poker.Game.Domain.Entities;
 
 public sealed class Player: Entity
 {
-	public string Username { get; private set; }
+	public string Username { get; private set; } = null!;
 	public int Balance { get; private set; }
 	public Hand? Hand { get; private set; }
 

@@ -23,7 +23,6 @@ public class PlayerManager
 	public Player GetCurrentTurnPlayer()
 		=> _players[_currentTurnPlayerPosition];
 
-
 	public int GetNextActivePosition()
 	{
 		for (int i = 1; i <= _players.Count; i++)

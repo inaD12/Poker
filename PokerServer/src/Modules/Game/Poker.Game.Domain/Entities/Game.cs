@@ -2,6 +2,7 @@
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.DTOs;
 using Poker.Game.Domain.Enums;
+using Poker.Game.Domain.Events;
 using Poker.Game.Domain.Responses;
 using Poker.Game.Domain.Services;
 
@@ -14,10 +15,10 @@ public sealed class Game : Entity
 	public int DealerPosition { get; private set; }
 	public int CurrentBet { get; private set; }
 	public int MinimumRaise { get; private set; }
+	public GamePhase CurrentPhase { get; private set; }
 
-	public readonly Deck Deck;
+	private readonly Deck _deck;
 	private readonly PlayerManager _playerManager;
-	private readonly PhaseManager _phaseManager;
 
 #pragma warning disable CS8618
 	private Game() { }
@@ -36,11 +37,11 @@ public sealed class Game : Entity
 		CommunityCards = communityCards;
 		CurrentPot = currentPot;
 		DealerPosition = dealerPosition;
+		CurrentPhase = phase;
 		CurrentBet = currentBet;
 		MinimumRaise = minimumRaise;
-		Deck = deck;
+		_deck = deck;
 		_playerManager = new PlayerManager(players, currentTurnPlayerPosition);
-		_phaseManager = new PhaseManager(phase);
 	}
 
 	public static Result<Game> StartGame(List<Player> players)
@@ -109,6 +110,14 @@ public sealed class Game : Entity
 		CurrentBet = player.Hand.Bet;
 
 		AdvanceTurn();
+		
+		RaiseDomainEvent(new PlayerTookActionDomainEvent(
+			Id,
+			playerId,
+			PlayerActionType.PlaceBet,
+			_playerManager.GetCurrentTurnPlayer().Id,
+			amount ));
+		
 		return Result.Success();
 	}
 
@@ -119,6 +128,13 @@ public sealed class Game : Entity
 			return Result.Failure(playerResult.Response);
 
 		AdvanceTurn();
+		
+		RaiseDomainEvent(new PlayerTookActionDomainEvent(
+			Id,
+			playerId,
+			PlayerActionType.Check,
+			_playerManager.GetCurrentTurnPlayer().Id));
+		
 		return Result.Success();
 	}
 
@@ -135,6 +151,13 @@ public sealed class Game : Entity
 			return result;
 
 		AdvanceTurn();
+		
+		RaiseDomainEvent(new PlayerTookActionDomainEvent(
+			Id,
+			playerId,
+			PlayerActionType.Fold,
+			_playerManager.GetCurrentTurnPlayer().Id));
+		
 		return Result.Success();
 	}
 
@@ -154,13 +177,23 @@ public sealed class Game : Entity
 		if (result.IsFailure)
 			return result;
 
-		CurrentPot += player.Balance;
-		player.RemoveFromBalance(player.Balance);
+		int playerBet = player.Balance;
+		
+		CurrentPot += playerBet;
+		player.RemoveFromBalance(playerBet);
 
 		if (hand.Bet > CurrentBet)
 			CurrentBet = hand.Bet;
 
 		AdvanceTurn();
+		
+		RaiseDomainEvent(new PlayerTookActionDomainEvent(
+			Id,
+			playerId,
+			PlayerActionType.AllIn,
+			_playerManager.GetCurrentTurnPlayer().Id,
+			playerBet));
+		
 		return Result.Success();
 	}
 
@@ -179,12 +212,12 @@ public sealed class Game : Entity
 			.ToList();
 
 		return new GameStateDto(
-			Phase: _phaseManager.CurrentPhase,
+			CurrentPhase,
 			CommunityCards: CommunityCards.AsReadOnly(),
 			CurrentPot: CurrentPot,
 			CurrentBet: CurrentBet,
 			MinimumRaise: MinimumRaise,
-			CurrentTurnPlayerId: _playerManager.GetCurrentTurnPlayer()?.Id,
+			CurrentTurnPlayerId: _playerManager.GetCurrentTurnPlayer().Id,
 			Players: players
 		);
 	}
@@ -197,7 +230,14 @@ public sealed class Game : Entity
 		}
 		else if (_playerManager.IsBettingRoundComplete(CurrentBet))
 		{
-			_phaseManager.AdvancePhase(CommunityCards, Deck, HandleShowdown);
+			var cards = AdvancePhase();
+			CommunityCards.AddRange(cards);
+			
+			RaiseDomainEvent(new GamePhaseUpdatedDomainEvent(
+				Id,
+				CurrentPhase,
+				cards));
+			
 			_playerManager.ResetHandsForNextRound();
 			CurrentBet = 0;
 			_playerManager.SetFirstActivePlayer();
@@ -208,9 +248,37 @@ public sealed class Game : Entity
 		}
 	}
 
+	private List<Card> AdvancePhase()
+	{
+		switch (CurrentPhase)
+		{
+			case GamePhase.PreFlop:
+				CurrentPhase = GamePhase.Flop;
+				return[
+					_deck.Draw(),
+					_deck.Draw(),
+					_deck.Draw()];
+			case GamePhase.Flop:
+				CurrentPhase = GamePhase.Turn;
+				return [_deck.Draw()];
+			case GamePhase.Turn:
+				CurrentPhase = GamePhase.River;
+				return [_deck.Draw()];
+			case GamePhase.River:
+				HandleShowdown();
+				break;
+			default:
+				throw new InvalidOperationException("Unknown phase.");
+		}
+		return new List<Card>();
+	}
+	
 	private void HandleShowdown()
 	{
 		// TODO: Reset game.
+		
+		CurrentPhase = GamePhase.Showdown;
+		
 		var players = _playerManager.GetPlayers();
 
 		var activePlayers = players
@@ -236,11 +304,16 @@ public sealed class Game : Entity
 		var topScore = evaluated.First().Score;
 		var winners = evaluated.Where(x => x.Score == topScore).ToList();
 
-		int share = CurrentPot / winners.Count();
+		var share = CurrentPot / winners.Count();
 
 		foreach (var winner in winners)
 		{
 			winner.Player.AddToBalance(share);
 		}
+
+		RaiseDomainEvent(new ShowdownDomainEvent(
+			Id, 
+			winners.Select(w => w.Player.Id).ToList(),
+			share));
 	}
 }

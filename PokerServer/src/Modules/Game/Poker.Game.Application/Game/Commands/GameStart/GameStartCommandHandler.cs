@@ -1,9 +1,7 @@
-using Poker.Common.Application.Abstractions;
 using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
-using Poker.Common.Infrastructure.Abstractions;
 using Poker.Common.Infrastructure.Abstractions.Interfaces;
 using Poker.Game.Application.Game.Models;
 using Poker.Game.Domain.Entities;
@@ -37,7 +35,8 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
         var game = gameResponse.Value!;
 
         _cacheService.Set(game.Id, game);
-        //TODO: db saving(?)
+        
+        //TODO: return GameStateDto to all players, db saving(?)
         
         var gameViewModel = _pokerMapper.Map<GameCommandViewModel>(game.Id);
         return Result<GameCommandViewModel>.Success(gameViewModel);
