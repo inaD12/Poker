@@ -1,4 +1,6 @@
-﻿namespace Poker.Common.Domain;
+﻿using Poker.Common.Domain.Abstractions.Interfaces;
+
+namespace Poker.Common.Domain;
 
 public abstract class Entity
 {

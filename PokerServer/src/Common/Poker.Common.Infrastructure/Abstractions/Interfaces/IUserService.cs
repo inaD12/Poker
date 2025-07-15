@@ -1,7 +1,7 @@
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Results;
 
-namespace Poker.Common.Infrastructure.Abstractions;
+namespace Poker.Common.Infrastructure.Abstractions.Interfaces;
 
 public interface IUserService
 {

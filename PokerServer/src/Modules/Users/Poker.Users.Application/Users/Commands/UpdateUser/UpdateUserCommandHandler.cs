@@ -1,5 +1,7 @@
 ﻿using Poker.Common.Application.Abstractions;
+using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions;
+using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Users.Application.Users.Models;

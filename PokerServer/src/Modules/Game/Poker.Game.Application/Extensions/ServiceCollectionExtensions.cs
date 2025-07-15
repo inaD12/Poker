@@ -12,7 +12,8 @@ public static class ServiceCollectionExtensions
 
         serviceCollection
             .AddMediatR(currentAssembly)
-            .AddMapper(currentAssembly);
+            .AddMapper(currentAssembly)
+            .AddCaching();
 
         return serviceCollection;
     }

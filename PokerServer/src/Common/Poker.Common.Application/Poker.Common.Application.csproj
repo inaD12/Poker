@@ -11,4 +11,9 @@
     <PackageReference Include="MediatR" Version="13.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Poker.Common.Domain\Poker.Common.Domain.csproj" />
+    <ProjectReference Include="..\Poker.Common.Infrastructure\Poker.Common.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,9 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Abstractions;
+using Poker.Common.Application.Abstractions.Interfaces;
+using Poker.Common.Domain.Abstractions.Interfaces;
+using Poker.Common.Infrastructure.Caching;
 
 namespace Poker.Common.Application.Extensions;
 
@@ -23,6 +26,14 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddAutoMapper(assembly);
 
         serviceCollection.AddScoped<IPokerMapper, PokerMapper>();
+
+        return serviceCollection;
+    }
+    
+    public static IServiceCollection AddCaching(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddMemoryCache();
+        serviceCollection.AddScoped<ICacheService, MemoryCacheService>();
 
         return serviceCollection;
     }

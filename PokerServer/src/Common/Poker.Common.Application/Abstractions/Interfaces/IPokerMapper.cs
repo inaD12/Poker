@@ -1,4 +1,4 @@
-﻿namespace Poker.Common.Application.Abstractions;
+﻿namespace Poker.Common.Application.Abstractions.Interfaces;
 
 public interface IPokerMapper
 {

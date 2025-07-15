@@ -1,7 +1,10 @@
 using Poker.Common.Application.Abstractions;
+using Poker.Common.Application.Abstractions.Interfaces;
+using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Common.Infrastructure.Abstractions;
+using Poker.Common.Infrastructure.Abstractions.Interfaces;
 using Poker.Game.Application.Game.Models;
 using Poker.Game.Domain.Entities;
 
@@ -11,11 +14,13 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
 {
     private readonly IUserService _userService;
     private readonly IPokerMapper _pokerMapper;
+    private readonly ICacheService _cacheService;
 
-    public GameStartCommandHandler(IUserService userService, IPokerMapper  pokerMapper)
+    public GameStartCommandHandler(IUserService userService, IPokerMapper  pokerMapper, ICacheService cacheService)
     {
         _userService = userService;
         _pokerMapper = pokerMapper;
+        _cacheService = cacheService;
     }
     
     public async Task<Result<GameCommandViewModel>> Handle(GameStartCommand request, CancellationToken cancellationToken)
@@ -31,7 +36,8 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;
 
-        //TODO: Game caching and db saving(?)
+        _cacheService.Set(game.Id, game);
+        //TODO: db saving(?)
         
         var gameViewModel = _pokerMapper.Map<GameCommandViewModel>(game.Id);
         return Result<GameCommandViewModel>.Success(gameViewModel);

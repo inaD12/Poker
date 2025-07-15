@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Poker.Common.Application.Abstractions;
+using Poker.Common.Application.Abstractions.Interfaces;
 
 namespace Poker.Common.Application.Helpers;
 
