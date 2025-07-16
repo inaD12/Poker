@@ -8,7 +8,7 @@ using Poker.Game.Domain.Services;
 
 namespace Poker.Game.Domain.Entities;
 
-public sealed class Game : Entity
+public sealed class Table : Entity
 {
 	public List<Card> CommunityCards { get; private set; }
 	public int CurrentPot { get; private set; }
@@ -21,9 +21,9 @@ public sealed class Game : Entity
 	private readonly PlayerManager _playerManager;
 
 #pragma warning disable CS8618
-	private Game() { }
+	private Table() { }
 #pragma warning restore CS8618
-	private Game(
+	private Table(
 		List<Card> communityCards,
 		int currentPot,
 		List<Player> players,
@@ -44,14 +44,14 @@ public sealed class Game : Entity
 		_playerManager = new PlayerManager(players, currentTurnPlayerPosition);
 	}
 
-	public static Result<Game> StartGame(List<Player> players)
+	public static Result<Table> StartGame(List<Player> players)
 	{
 		switch (players.Count)
 		{
 			case > 6:
-				return Result<Game>.Failure(ResponseList.SixPlayersMaximum);
+				return Result<Table>.Failure(ResponseList.SixPlayersMaximum);
 			case < 2:
-				return Result<Game>.Failure(ResponseList.TwoPlayersRequired);
+				return Result<Table>.Failure(ResponseList.TwoPlayersRequired);
 		}
 
 		var shuffledDeck = Deck.CreateShuffled();
@@ -62,7 +62,7 @@ public sealed class Game : Entity
 			player.SetHand(hand);
 		}
 
-		var gameRoom = new Game(
+		var gameRoom = new Table(
 			communityCards: new List<Card>(),
 			currentPot: 0,
 			players: players,
@@ -73,7 +73,7 @@ public sealed class Game : Entity
 			minimumRaise: 10,
 			shuffledDeck);
 
-		return Result<Game>.Success(gameRoom);
+		return Result<Table>.Success(gameRoom);
 	}
 
 	public Result PlayerPlaceBet(string playerId, int amount)
@@ -126,7 +126,10 @@ public sealed class Game : Entity
 		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
-
+		
+		if(playerResult.Value!.Hand!.Bet != CurrentBet)
+			return Result.Failure(ResponseList.MustMatchBet);
+		
 		AdvanceTurn();
 		
 		RaiseDomainEvent(new PlayerTookActionDomainEvent(

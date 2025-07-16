@@ -14,4 +14,6 @@ public static class ErrorMessages
 	public const string InsufficientFunds = "Insufficient funds";
 	public const string NotYourTurn = "It's not your turn";
 	public const string AmountCantBeNegative = "Amount cannot be negative";
+	public const string TableNotFound = "Table not found";
+	public const string MustMatchBet = "Player must match bet";
 }

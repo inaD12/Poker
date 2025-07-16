@@ -20,4 +20,6 @@ public static class ResponseList
 	public static Response InsufficientFunds => Response.Create(ErrorMessages.InsufficientFunds, HttpStatusCode.BadRequest);
 	public static Response NotYourTurn => Response.Create(ErrorMessages.NotYourTurn, HttpStatusCode.Conflict);
 	public static Response AmountCantBeNegative => Response.Create(ErrorMessages.AmountCantBeNegative, HttpStatusCode.BadRequest);
+	public static Response TableNotFound => Response.Create(ErrorMessages.TableNotFound, HttpStatusCode.NotFound); 
+	public static Response MustMatchBet => Response.Create(ErrorMessages.MustMatchBet, HttpStatusCode.Conflict);
 }

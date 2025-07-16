@@ -29,7 +29,7 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
         
         var players = _pokerMapper.Map<List<Player>>(usersResponse.Value!);
         
-        var gameResponse = Domain.Entities.Game.StartGame(players);
+        var gameResponse = Domain.Entities.Table.StartGame(players);
         if(gameResponse.IsFailure)
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;
