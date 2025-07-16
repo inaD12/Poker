@@ -6,7 +6,7 @@ using Poker.Game.Domain.Events;
 using Poker.Game.Domain.Responses;
 using Poker.Game.Domain.Services;
 
-namespace Poker.Game.Domain.Entities;
+namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Table : Entity
 {

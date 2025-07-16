@@ -1,7 +1,7 @@
 ﻿using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Responses;
 
-namespace Poker.Game.Domain.Entities;
+namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Hand
 {

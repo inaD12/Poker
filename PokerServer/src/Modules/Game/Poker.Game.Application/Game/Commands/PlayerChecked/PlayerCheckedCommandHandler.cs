@@ -3,6 +3,7 @@ using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Game.Application.Game.Commands.PlayerAllIn;
 using Poker.Game.Domain.Entities;
+using Poker.Game.Domain.Entities.TableAggregate;
 using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Game.Commands.PlayerChecked;

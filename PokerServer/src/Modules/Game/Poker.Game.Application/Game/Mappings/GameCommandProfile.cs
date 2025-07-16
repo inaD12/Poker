@@ -2,6 +2,7 @@ using AutoMapper;
 using Poker.Common.Domain.Dtos;
 using Poker.Game.Application.Game.Models;
 using Poker.Game.Domain.Entities;
+using Poker.Game.Domain.Entities.TableAggregate;
 
 namespace Poker.Game.Application.Game.Mappings;
 

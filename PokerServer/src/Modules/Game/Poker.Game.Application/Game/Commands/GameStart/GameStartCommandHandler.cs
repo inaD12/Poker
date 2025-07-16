@@ -5,6 +5,7 @@ using Poker.Common.Domain.Results;
 using Poker.Common.Infrastructure.Abstractions.Interfaces;
 using Poker.Game.Application.Game.Models;
 using Poker.Game.Domain.Entities;
+using Poker.Game.Domain.Entities.TableAggregate;
 
 namespace Poker.Game.Application.Game.Commands.GameStart;
 
@@ -29,7 +30,7 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
         
         var players = _pokerMapper.Map<List<Player>>(usersResponse.Value!);
         
-        var gameResponse = Domain.Entities.Table.StartGame(players);
+        var gameResponse = Table.StartGame(players);
         if(gameResponse.IsFailure)
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;

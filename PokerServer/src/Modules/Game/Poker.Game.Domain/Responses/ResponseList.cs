@@ -22,4 +22,6 @@ public static class ResponseList
 	public static Response AmountCantBeNegative => Response.Create(ErrorMessages.AmountCantBeNegative, HttpStatusCode.BadRequest);
 	public static Response TableNotFound => Response.Create(ErrorMessages.TableNotFound, HttpStatusCode.NotFound); 
 	public static Response MustMatchBet => Response.Create(ErrorMessages.MustMatchBet, HttpStatusCode.Conflict);
+	public static Response LobbyFull => Response.Create(ErrorMessages.LobbyFull, HttpStatusCode.Conflict);
+	public static Response PlayerAlreadyInTheLobby => Response.Create(ErrorMessages.PlayerAlreadyInTheLobby, HttpStatusCode.Conflict);
 }

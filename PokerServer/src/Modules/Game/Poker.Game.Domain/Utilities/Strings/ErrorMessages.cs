@@ -16,4 +16,6 @@ public static class ErrorMessages
 	public const string AmountCantBeNegative = "Amount cannot be negative";
 	public const string TableNotFound = "Table not found";
 	public const string MustMatchBet = "Player must match bet";
+	public const string LobbyFull = "Lobby is full";
+	public const string PlayerAlreadyInTheLobby = "Player is already in the lobby";
 }

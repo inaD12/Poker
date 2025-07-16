@@ -1,6 +1,6 @@
 ﻿using Poker.Game.Domain.Enums;
 
-namespace Poker.Game.Domain.Entities;
+namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Deck
 {
