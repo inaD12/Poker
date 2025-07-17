@@ -7,6 +7,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+builder.Services.AddSignalR();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

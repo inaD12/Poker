@@ -2,40 +2,37 @@ using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
-using Poker.Common.Infrastructure.Abstractions.Interfaces;
 using Poker.Game.Application.Game.Models;
-using Poker.Game.Domain.Entities;
 using Poker.Game.Domain.Entities.TableAggregate;
+using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Game.Commands.GameStart;
 
 public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, GameCommandViewModel>
 {
-    private readonly IUserService _userService;
     private readonly IPokerMapper _pokerMapper;
-    private readonly ICacheService _cacheService;
+    private readonly ICacheService _cache;
 
-    public GameStartCommandHandler(IUserService userService, IPokerMapper  pokerMapper, ICacheService cacheService)
+    public GameStartCommandHandler(IPokerMapper  pokerMapper, ICacheService cache)
     {
-        _userService = userService;
         _pokerMapper = pokerMapper;
-        _cacheService = cacheService;
+        _cache = cache;
     }
     
     public async Task<Result<GameCommandViewModel>> Handle(GameStartCommand request, CancellationToken cancellationToken)
     {
-        var usersResponse = await _userService.GetUserDataByIds(request.PlayerIds);
-        if(usersResponse.IsFailure)
-            return Result<GameCommandViewModel>.Failure(usersResponse.Response);
-        
-        var players = _pokerMapper.Map<List<Player>>(usersResponse.Value!);
+        var lobby = _cache.Get<Domain.Entities.Lobby>(request.LobbyId);
+        if (lobby is null)
+            return Result<GameCommandViewModel>.Failure(ResponseList.LobbyNotFound);
+
+        var players = lobby.Players;
         
         var gameResponse = Table.StartGame(players);
         if(gameResponse.IsFailure)
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;
 
-        _cacheService.Set(game.Id, game);
+        _cache.Set(game.Id, game);
         
         //TODO: return GameStateDto to all players, db saving(?)
         
