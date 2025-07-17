@@ -7,6 +7,18 @@ namespace Poker.Game.Domain.Entities;
 
 public class Lobby : Entity
 {
+    private Lobby(List<Player> players)
+    {
+        Players = players;
+    }
+
+    public static Result<Lobby> CreateLobby(List<Player> players)
+    {
+        var lobby =  new Lobby(players);
+        
+        return  Result<Lobby>.Success(lobby);
+    }
+    
     private const int MinPlayers = 2;
     private const int MaxPlayers = 6;
 
@@ -27,15 +39,13 @@ public class Lobby : Entity
         return Result.Success();
     }
 
-    public void RemovePlayer(string playerId)
+    public Result RemovePlayer(string playerId)
     {
         var player = Players.FirstOrDefault(p => p.Id == playerId);
-        if (player is not null)
-            Players.Remove(player);
-    }
-
-    public void Clear()
-    {
-        Players.Clear();
+        if (player is  null) 
+            return Result.Failure(ResponseList.PlayerNotInLobby);
+            
+        Players.Remove(player);
+        return Result.Success();
     }
 }

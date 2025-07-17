@@ -24,4 +24,6 @@ public static class ResponseList
 	public static Response MustMatchBet => Response.Create(ErrorMessages.MustMatchBet, HttpStatusCode.Conflict);
 	public static Response LobbyFull => Response.Create(ErrorMessages.LobbyFull, HttpStatusCode.Conflict);
 	public static Response PlayerAlreadyInTheLobby => Response.Create(ErrorMessages.PlayerAlreadyInTheLobby, HttpStatusCode.Conflict);
+	public static Response LobbyNotFound => Response.Create(ErrorMessages.LobbyNotFound, HttpStatusCode.NotFound);
+	public static Response PlayerNotInLobby => Response.Create(ErrorMessages.PlayerNotInLobby, HttpStatusCode.NotFound);
 }

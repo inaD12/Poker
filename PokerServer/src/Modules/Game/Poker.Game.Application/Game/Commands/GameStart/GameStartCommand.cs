@@ -4,4 +4,4 @@ using Poker.Game.Application.Game.Models;
 namespace Poker.Game.Application.Game.Commands.GameStart;
 
 public sealed record GameStartCommand(
-    List<string> PlayerIds) : ICommand<GameCommandViewModel>;
+    string LobbyId) : ICommand<GameCommandViewModel>;

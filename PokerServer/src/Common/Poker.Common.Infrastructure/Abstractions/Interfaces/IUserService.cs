@@ -6,4 +6,5 @@ namespace Poker.Common.Infrastructure.Abstractions.Interfaces;
 public interface IUserService
 {
     Task<Result<List<UserDataDto>>> GetUserDataByIds(List<string> ids); 
+    Task<Result<UserDataDto>> GetUserDataById(string id); 
 }

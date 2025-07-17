@@ -18,4 +18,6 @@ public static class ErrorMessages
 	public const string MustMatchBet = "Player must match bet";
 	public const string LobbyFull = "Lobby is full";
 	public const string PlayerAlreadyInTheLobby = "Player is already in the lobby";
+	public const string LobbyNotFound = "Lobby not found";
+	public const string PlayerNotInLobby = "Player is not in lobby";
 }
