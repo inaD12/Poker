@@ -1,7 +1,9 @@
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
+using Poker.Game.Application.Game.Queries.GetPlayerFromGame;
 using Poker.Game.Presentation.Game.Service;
 
 namespace PokerServer.Hubs;
@@ -10,23 +12,31 @@ namespace PokerServer.Hubs;
 public class GameHub : Hub<IGameClient>
 {
     private readonly IGameService _gameService;
+    private readonly ISender _sender;
 
-    public GameHub(IGameService  gameService)
+    public GameHub(IGameService  gameService, ISender sender)
     {
         _gameService = gameService;
+        _sender = sender;
     }
     
     public override async Task OnConnectedAsync()
     {
-        var httpContext = Context.GetHttpContext();
-        var gameId = httpContext?.Request.Query["gameId"].ToString();
-
-        if (string.IsNullOrWhiteSpace(gameId))
+        var (userId, gameId) = GetUserAndGameId();
+        if (userId is null || gameId is null)
         {
             Context.Abort();
             return;
         }
-        //TODO: Check if player is in the game
+            
+        var query = new GetPlayerFromGameQuery(gameId, userId);
+        var result =  await _sender.Send(query);
+        if (result.IsFailure)
+        {
+            Context.Abort();
+            return;
+        }
+
         Context.Items["gameId"] = gameId;
 
         await Groups.AddToGroupAsync(Context.ConnectionId,gameId);

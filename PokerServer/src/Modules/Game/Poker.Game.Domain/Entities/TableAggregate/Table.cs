@@ -6,6 +6,7 @@ using Poker.Game.Domain.Enums;
 using Poker.Game.Domain.Events;
 using Poker.Game.Domain.Responses;
 using Poker.Game.Domain.Services;
+using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
 
@@ -227,6 +228,11 @@ public sealed class Table : Entity
 			Players: players
 		);
 	}
+	
+	public PlayerInfoDto? GetPlayerDto(string playerId)
+		=> _playerManager.GetPlayers()
+			.FirstOrDefault(p => p.Id == playerId)?
+			.ToDto();
 
 	private void AdvanceTurn()
 	{

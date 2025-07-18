@@ -34,7 +34,7 @@ public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, 
 
         _cache.Set(game.Id, game);
         
-        //TODO: return GameStateDto to all players, db saving(?)
+        //TODO: db saving(?)
         
         var gameViewModel = _pokerMapper.Map<GameCommandViewModel>(game.Id);
         return Result<GameCommandViewModel>.Success(gameViewModel);
