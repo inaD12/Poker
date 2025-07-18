@@ -1,3 +1,5 @@
+using PokerServer.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -18,5 +20,8 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<GameHub>("/hubs/game");
+app.MapHub<LobbyHub>("/hubs/lobby");
 
 app.Run();

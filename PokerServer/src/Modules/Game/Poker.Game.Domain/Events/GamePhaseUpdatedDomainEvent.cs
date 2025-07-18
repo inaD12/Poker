@@ -1,4 +1,5 @@
 using Poker.Common.Domain.Abstractions.Interfaces;
+using Poker.Common.Domain.Enums;
 using Poker.Game.Domain.Entities;
 using Poker.Game.Domain.Entities.TableAggregate;
 using Poker.Game.Domain.Enums;

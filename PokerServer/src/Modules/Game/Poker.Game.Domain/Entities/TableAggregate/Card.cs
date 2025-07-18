@@ -1,4 +1,5 @@
-﻿using Poker.Game.Domain.Enums;
+﻿using Poker.Common.Domain.Enums;
+using Poker.Game.Domain.Enums;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
 

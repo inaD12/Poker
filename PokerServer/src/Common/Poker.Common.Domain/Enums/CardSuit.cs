@@ -1,4 +1,4 @@
-﻿namespace Poker.Game.Domain.Enums;
+﻿namespace Poker.Common.Domain.Enums;
 
 public enum CardSuit 
 { 

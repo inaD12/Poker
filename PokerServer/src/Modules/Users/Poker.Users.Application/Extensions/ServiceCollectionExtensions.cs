@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Extensions;
 
-namespace Poker.Game.Application.Extensions;
+namespace Poker.Users.Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {

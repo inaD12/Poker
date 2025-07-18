@@ -18,4 +18,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\Game\Poker.Game.Presentation\Poker.Game.Presentation.csproj" />
+  </ItemGroup>
+
 </Project>

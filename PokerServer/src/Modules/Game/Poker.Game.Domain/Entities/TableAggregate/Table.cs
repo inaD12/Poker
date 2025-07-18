@@ -1,6 +1,7 @@
 ﻿using Poker.Common.Domain;
+using Poker.Common.Domain.Dtos;
+using Poker.Common.Domain.Enums;
 using Poker.Common.Domain.Results;
-using Poker.Game.Domain.DTOs;
 using Poker.Game.Domain.Enums;
 using Poker.Game.Domain.Events;
 using Poker.Game.Domain.Responses;
@@ -210,13 +211,15 @@ public sealed class Table : Entity
 				IsAllIn: p.Hand?.IsAllIn ?? false,
 				CurrentBet: p.Hand?.Bet ?? 0,
 				IsCurrentTurn: _playerManager.IsPlayerTurn(p.Id),
-				Cards: p.Id == requestingPlayerId ? p.Hand?.Cards.ToList() : null
+				Cards: p.Id == requestingPlayerId
+					? p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
+					: null
 			))
 			.ToList();
 
 		return new GameStateDto(
 			CurrentPhase,
-			CommunityCards: CommunityCards.AsReadOnly(),
+			CommunityCards: CommunityCards.Select(c => new CardDto(c.Suit, c.Rank)).ToList(),
 			CurrentPot: CurrentPot,
 			CurrentBet: CurrentBet,
 			MinimumRaise: MinimumRaise,
