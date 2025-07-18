@@ -1,5 +1,7 @@
-﻿namespace Poker.Common.Domain.Abstractions.Interfaces;
+﻿using MediatR;
 
-public interface IDomainEvent
+namespace Poker.Common.Domain.Abstractions.Interfaces;
+
+public interface IDomainEvent: INotification
 {
 }

@@ -239,10 +239,12 @@ public sealed class Table : Entity
 			var cards = AdvancePhase();
 			CommunityCards.AddRange(cards);
 			
+			var cardDtos = cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList();
+
 			RaiseDomainEvent(new GamePhaseUpdatedDomainEvent(
 				Id,
 				CurrentPhase,
-				cards));
+				cardDtos));
 			
 			_playerManager.ResetHandsForNextRound();
 			CurrentBet = 0;

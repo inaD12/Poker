@@ -11,4 +11,5 @@ public interface IGameClient
     Task PlayerAction(string playerId, PlayerActionNotification action);
     Task GamePhaseUpdate(GamePhase gamePhase, List<CardDto> cards);
     Task Showdown(List<string> winnerPlayerIds, int winningsEach);
+    Task YourTurn();
 }

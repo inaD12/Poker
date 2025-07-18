@@ -35,4 +35,9 @@ public class TableNotifier: ITableNotifier
     {
         await _hubContext.Clients.Group(tableId).Showdown(winnerPlayerIds, winningsEach);
     }
+
+    public async Task NotifyNextPlayer(string playerId)
+    {
+        await _hubContext.Clients.User(playerId).YourTurn();
+    }
 }
