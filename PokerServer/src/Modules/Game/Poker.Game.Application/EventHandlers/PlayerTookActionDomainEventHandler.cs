@@ -3,7 +3,7 @@ using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
 using Poker.Game.Application.Extensions;
 using Poker.Game.Domain.Events;
 
-namespace Poker.Game.Application.Consumers;
+namespace Poker.Game.Application.EventHandlers;
 
 public sealed class PlayerTookActionDomainEventHandler : INotificationHandler<PlayerTookActionDomainEvent>
 {

@@ -2,7 +2,7 @@ using MediatR;
 using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
 using Poker.Game.Domain.Events;
 
-namespace Poker.Game.Application.Consumers;
+namespace Poker.Game.Application.EventHandlers;
 
 public sealed class ShowdownDomainEventHandler : INotificationHandler<ShowdownDomainEvent>
 {

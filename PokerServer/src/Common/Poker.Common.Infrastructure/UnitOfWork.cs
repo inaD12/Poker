@@ -1,0 +1,53 @@
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Poker.Common.Domain;
+using Poker.Common.Domain.Abstractions.Interfaces;
+
+namespace Poker.Common.Infrastructure;
+
+internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
+{
+	private readonly TContext _dbContext;
+	private readonly IMediator _notificationPublisher;
+
+	public UnitOfWork(TContext dbContext, IMediator notificationPublisher)
+	{
+		_dbContext = dbContext;
+		_notificationPublisher = notificationPublisher;
+	}
+
+	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			await PublishDomainEventsAsync(cancellationToken);
+
+			await _dbContext.SaveChangesAsync(cancellationToken);
+		}
+		catch (DbUpdateConcurrencyException ex)
+		{
+			throw new Domain.Exceptions.ConcurrencyException("Concurrency exception occurred.", ex);
+		}
+	}
+//TODO: Outbox domain event saving
+	private async Task PublishDomainEventsAsync(CancellationToken cancellationToken)
+	{
+		var domainEvents = _dbContext.ChangeTracker
+			.Entries<Entity>()
+			.Select(e => e.Entity)
+			.SelectMany(e =>
+			{
+				var domainEvents = e.GetDomainEvents();
+
+				e.ClearDomainEvents();
+
+				return domainEvents;
+			})
+			.ToList();
+
+		foreach (var domainEvent in domainEvents)
+		{
+			await _notificationPublisher.Publish(domainEvent, cancellationToken);
+		}
+	}
+}

@@ -1,6 +1,4 @@
-﻿using Poker.Common.Application.Abstractions;
-using Poker.Common.Application.Abstractions.Interfaces;
-using Poker.Common.Domain.Abstractions;
+﻿using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
@@ -34,7 +32,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
 
 		_userRepository.Update(user);
 
-		await _unitOfWork.SaveChangesAsync();
+		await _unitOfWork.SaveChangesAsync(cancellationToken);
 		var userCommandViewModel = _mapper.Map<UserCommandViewModel>(user);
 		return Result<UserCommandViewModel>.Success(userCommandViewModel);
 	}

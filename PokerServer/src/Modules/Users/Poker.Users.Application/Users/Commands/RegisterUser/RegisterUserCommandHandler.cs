@@ -1,6 +1,4 @@
-﻿using Poker.Common.Application.Abstractions;
-using Poker.Common.Application.Abstractions.Interfaces;
-using Poker.Common.Domain.Abstractions;
+﻿using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
@@ -37,7 +35,7 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
 		PasswordHashResult passwordHashResult = _passwordManager.HashPassword(request.Password);
 		var user = User.Create(request.Email, passwordHashResult.PasswordHash, passwordHashResult.Salt, request.Username);
 		await _userRepository.AddAsync(user);
-		await _unitOfWork.SaveChangesAsync();
+		await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 		var userCommandViewModel = _hamsMapper.Map<UserCommandViewModel>(user);
 		return Result<UserCommandViewModel>.Success(userCommandViewModel);

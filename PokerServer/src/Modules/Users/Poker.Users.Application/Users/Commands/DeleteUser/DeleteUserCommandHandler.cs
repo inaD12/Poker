@@ -1,5 +1,4 @@
-﻿using Poker.Common.Domain.Abstractions;
-using Poker.Common.Domain.Abstractions.Interfaces;
+﻿using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Users.Domain.Abstractions;
@@ -25,7 +24,7 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
 			return Result.Failure(ResponseList.UserNotFound);
 
 		_userRepository.Delete(user);
-		await _unitOfWork.SaveChangesAsync();
+		await _unitOfWork.SaveChangesAsync(cancellationToken);
 		return Result.Success();
 	}
 }
