@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
-using Poker.Game.Application.Game.Queries.GetPlayerFromGame;
-using Poker.Game.Presentation.Game.Service;
+using Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
+using Poker.Game.Presentation.Features.Game.Service;
 
 namespace PokerServer.Hubs;
 

@@ -16,4 +16,8 @@
       <ProjectReference Include="..\Poker.Game.Application\Poker.Game.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\" />
+    </ItemGroup>
+
 </Project>

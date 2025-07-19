@@ -2,8 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
-using Poker.Game.Presentation.Game.Service;
-using Poker.Game.Presentation.Lobby.Service;
+using Poker.Game.Presentation.Features.Game.Service;
+using Poker.Game.Presentation.Features.Lobby.Service;
 
 namespace PokerServer.Hubs;
 

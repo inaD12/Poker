@@ -1,3 +1,5 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Extensions;
@@ -11,7 +13,12 @@ public static class ServiceCollectionExtensions
         var currentAssembly = typeof(ServiceCollectionExtensions).Assembly;
 
         serviceCollection
+            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        
+        serviceCollection
             .AddMediatR(currentAssembly)
+            .AddMapper(currentAssembly)
+            .AddValidatorsFromAssembly(currentAssembly)
             .AddMapper(currentAssembly);
 
         return serviceCollection;

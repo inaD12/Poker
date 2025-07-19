@@ -22,8 +22,9 @@ public static class ServiceCollectionExtensions
 			.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
 
 		services
-			.AddUnitOfWork<UsersDBContext>();
-
+			.AddUnitOfWork<UsersDBContext>()
+			.AddDatabaseContext<UsersDBContext>(configuration)
+			.AddDateTimeProvider();
 
 		return services;
 	}
