@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PokerServer.Options;
+namespace Poker.Common.Presentation.Options;
 
 public class CorsOptions
 {

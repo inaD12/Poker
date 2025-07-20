@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Extensions;
+using Poker.Common.Presentation.Endpoints;
 using Poker.Users.Application.Extensions;
 using Poker.Users.Infrastructure.Extensions;
 using Poker.Users.Presentation.Features.Services;
@@ -18,7 +19,8 @@ public static class ServiceCollectionExtensions
 			.AddInfrastructureLayer(configuration);
 
 		serviceCollection
-			.AddMapper(currentAssembly);
+			.AddMapper(currentAssembly)
+			.AddEndpoints(currentAssembly);
 			
 		serviceCollection
 			.AddTransient<IUserService, UserService>();

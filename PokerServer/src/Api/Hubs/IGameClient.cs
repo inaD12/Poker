@@ -1,7 +1,6 @@
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Enums;
 using Poker.Common.Domain.Notifications;
-using Poker.Game.Domain.Enums;
 
 namespace PokerServer.Hubs;
 
