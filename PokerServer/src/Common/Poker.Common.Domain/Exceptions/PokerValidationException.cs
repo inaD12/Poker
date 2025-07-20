@@ -1,14 +1,28 @@
-﻿namespace Poker.Common.Domain.Exceptions;
+﻿using FluentValidation.Results;
+
+namespace Poker.Common.Domain.Exceptions;
 
 public class PokerValidationException : Exception
 {
-	public string PropertyName { get; }
-	public string ErrorMessage { get; }
+	public IReadOnlyCollection<ValidationError> Errors { get; }
 
-	public PokerValidationException(string propertyName, string errorMessage)
-		: base($"Validation failed for '{propertyName}': {errorMessage}")
+	public PokerValidationException(IEnumerable<ValidationFailure> failures)
+		: base("Validation failed.")
 	{
-		PropertyName = propertyName;
-		ErrorMessage = errorMessage;
+		Errors = failures
+			.Select(f => new ValidationError(f.PropertyName, f.ErrorMessage))
+			.ToArray();
+	}
+
+	public class ValidationError
+	{
+		public string Property { get; }
+		public string Message { get; }
+
+		public ValidationError(string property, string message)
+		{
+			Property = property;
+			Message = message;
+		}
 	}
 }

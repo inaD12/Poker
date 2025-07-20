@@ -1,5 +1,6 @@
 ﻿using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
 using Poker.Common.Presentation.Extensions;
+using PokerServer.ExceptionHandlers;
 using PokerServer.Notifiers;
 
 namespace PokerServer.Extensions;
@@ -15,6 +16,7 @@ public static class ServiceCollectionExtensions
 
 		serviceCollection
 			.AddAuthentication(configuration)
+			.AddExceptionHandling()
 			.AddSwagger()
 			.ConfigureCors(configuration)
 			.AddEndpointsApiExplorer()
@@ -22,5 +24,15 @@ public static class ServiceCollectionExtensions
 			.AddControllers();
 
 		return serviceCollection;
+	}
+	
+	private static IServiceCollection AddExceptionHandling(this IServiceCollection services)
+	{
+		services
+			.AddExceptionHandler<ValidationExceptionHandler>()
+			.AddExceptionHandler<GlobalExceptionHandler>()
+			.AddProblemDetails();
+        
+		return services;
 	}
 }

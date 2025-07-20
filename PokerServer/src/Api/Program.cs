@@ -1,4 +1,3 @@
-using System.Reflection;
 using Poker.Common.Presentation.Endpoints;
 using Poker.Common.Utilities;
 using Poker.Game.Presentation.Extensions;
@@ -13,8 +12,6 @@ var config = builder.Configuration;
 
 builder.Host.ConfigureSerilog();
 builder.Services.AddControllers();
-
-var assembly = Assembly.GetExecutingAssembly();
 
 builder.Services
     .AddGameModule(config)
@@ -38,7 +35,7 @@ app.UseCors(AppPolicies.CorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseExceptionHandler();
 
 app.MapHub<GameHub>("/hubs/game");
 app.MapHub<LobbyHub>("/hubs/lobby");
