@@ -29,17 +29,17 @@ public sealed class Player: Entity
 		return new Player(username, balance, null);
 	}
 
-	public void SetHand(Hand hand)
+	internal void SetHand(Hand hand)
 	{
 		Hand = hand;
 	}
 
-	public void AddToBalance(int amount)
+	internal void AddToBalance(int amount)
 	{
 		Balance += amount;
 	}
 
-	public Result RemoveFromBalance(int amount) {
+	internal Result RemoveFromBalance(int amount) {
 		if (amount > Balance)
 			return Result.Failure(ResponseList.InsufficientFunds);
 

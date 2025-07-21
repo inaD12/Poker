@@ -20,7 +20,7 @@ builder.Services
 
 var app = builder.Build();
 
-await app.SetUpDatabaseAsync();
+await app.ApplyMigrations();
 
 if (app.Environment.IsDevelopment())
 {

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Poker.Common\Poker.Common.csproj" />
+    <ProjectReference Include="..\Modules\Game\Poker.Game.Infrastructure\Poker.Game.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Game\Poker.Game.Presentation\Poker.Game.Presentation.csproj" />
   </ItemGroup>
 

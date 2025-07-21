@@ -18,9 +18,8 @@ public sealed class Table : Entity
 	public int CurrentBet { get; private set; }
 	public int MinimumRaise { get; private set; }
 	public GamePhase CurrentPhase { get; private set; }
-
-	private readonly Deck _deck;
-	private readonly PlayerManager _playerManager;
+	public Deck Deck { get; private set; }
+	public PlayerManager PlayerManager { get; private set; }
 
 #pragma warning disable CS8618
 	private Table() { }
@@ -42,8 +41,8 @@ public sealed class Table : Entity
 		CurrentPhase = phase;
 		CurrentBet = currentBet;
 		MinimumRaise = minimumRaise;
-		_deck = deck;
-		_playerManager = new PlayerManager(players, currentTurnPlayerPosition);
+		Deck = deck;
+		PlayerManager = new PlayerManager(players, currentTurnPlayerPosition);
 	}
 
 	public static Result<Table> StartGame(List<Player> players)
@@ -80,7 +79,7 @@ public sealed class Table : Entity
 
 	public Result PlayerPlaceBet(string playerId, int amount)
 	{
-		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+		var playerResult = PlayerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -117,7 +116,7 @@ public sealed class Table : Entity
 			Id,
 			playerId,
 			PlayerActionType.PlaceBet,
-			_playerManager.GetCurrentTurnPlayer().Id,
+			PlayerManager.GetCurrentTurnPlayer().Id,
 			amount ));
 		
 		return Result.Success();
@@ -125,7 +124,7 @@ public sealed class Table : Entity
 
 	public Result PlayerCheck(string playerId)
 	{
-		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+		var playerResult = PlayerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 		
@@ -138,14 +137,14 @@ public sealed class Table : Entity
 			Id,
 			playerId,
 			PlayerActionType.Check,
-			_playerManager.GetCurrentTurnPlayer().Id));
+			PlayerManager.GetCurrentTurnPlayer().Id));
 		
 		return Result.Success();
 	}
 
 	public Result PlayerFold(string playerId)
 	{
-		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+		var playerResult = PlayerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -161,14 +160,14 @@ public sealed class Table : Entity
 			Id,
 			playerId,
 			PlayerActionType.Fold,
-			_playerManager.GetCurrentTurnPlayer().Id));
+			PlayerManager.GetCurrentTurnPlayer().Id));
 		
 		return Result.Success();
 	}
 
 	public Result PlayerAllIn(string playerId)
 	{
-		var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+		var playerResult = PlayerManager.GetPlayerIfHisTurn(playerId);
 		if (playerResult.IsFailure)
 			return Result.Failure(playerResult.Response);
 
@@ -196,7 +195,7 @@ public sealed class Table : Entity
 			Id,
 			playerId,
 			PlayerActionType.AllIn,
-			_playerManager.GetCurrentTurnPlayer().Id,
+			PlayerManager.GetCurrentTurnPlayer().Id,
 			playerBet));
 		
 		return Result.Success();
@@ -204,14 +203,14 @@ public sealed class Table : Entity
 
 	public GameStateDto GetGameState(string requestingPlayerId)
 	{
-		var players = _playerManager.GetPlayers()
+		var players = PlayerManager.Players
 			.Select(p => new PlayerStateDto(
 				Id: p.Id,
 				Balance: p.Balance,
 				IsFolded: p.Hand?.IsFolded ?? false,
 				IsAllIn: p.Hand?.IsAllIn ?? false,
 				CurrentBet: p.Hand?.Bet ?? 0,
-				IsCurrentTurn: _playerManager.IsPlayerTurn(p.Id),
+				IsCurrentTurn: PlayerManager.IsPlayerTurn(p.Id),
 				Cards: p.Id == requestingPlayerId
 					? p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
 					: null
@@ -224,23 +223,23 @@ public sealed class Table : Entity
 			CurrentPot: CurrentPot,
 			CurrentBet: CurrentBet,
 			MinimumRaise: MinimumRaise,
-			CurrentTurnPlayerId: _playerManager.GetCurrentTurnPlayer().Id,
+			CurrentTurnPlayerId: PlayerManager.GetCurrentTurnPlayer().Id,
 			Players: players
 		);
 	}
 	
 	public PlayerInfoDto? GetPlayerDto(string playerId)
-		=> _playerManager.GetPlayers()
+		=> PlayerManager.Players
 			.FirstOrDefault(p => p.Id == playerId)?
 			.ToDto();
 
 	private void AdvanceTurn()
 	{
-		if (_playerManager.OnlyOneActivePlayer())
+		if (PlayerManager.OnlyOneActivePlayer())
 		{
 			HandleShowdown();
 		}
-		else if (_playerManager.IsBettingRoundComplete(CurrentBet))
+		else if (PlayerManager.IsBettingRoundComplete(CurrentBet))
 		{
 			var cards = AdvancePhase();
 			CommunityCards.AddRange(cards);
@@ -252,13 +251,13 @@ public sealed class Table : Entity
 				CurrentPhase,
 				cardDtos));
 			
-			_playerManager.ResetHandsForNextRound();
+			PlayerManager.ResetHandsForNextRound();
 			CurrentBet = 0;
-			_playerManager.SetFirstActivePlayer();
+			PlayerManager.SetFirstActivePlayer();
 		}
 		else
 		{
-			_playerManager.GetNextActivePosition();
+			PlayerManager.GetNextActivePosition();
 		}
 	}
 
@@ -269,15 +268,15 @@ public sealed class Table : Entity
 			case GamePhase.PreFlop:
 				CurrentPhase = GamePhase.Flop;
 				return[
-					_deck.Draw(),
-					_deck.Draw(),
-					_deck.Draw()];
+					Deck.Draw(),
+					Deck.Draw(),
+					Deck.Draw()];
 			case GamePhase.Flop:
 				CurrentPhase = GamePhase.Turn;
-				return [_deck.Draw()];
+				return [Deck.Draw()];
 			case GamePhase.Turn:
 				CurrentPhase = GamePhase.River;
-				return [_deck.Draw()];
+				return [Deck.Draw()];
 			case GamePhase.River:
 				HandleShowdown();
 				break;
@@ -292,8 +291,8 @@ public sealed class Table : Entity
 		// TODO: Reset game.
 		
 		CurrentPhase = GamePhase.Showdown;
-		
-		var players = _playerManager.GetPlayers();
+
+		var players = PlayerManager.Players;
 
 		var activePlayers = players
 			.Where(p => !p.Hand!.IsFolded)

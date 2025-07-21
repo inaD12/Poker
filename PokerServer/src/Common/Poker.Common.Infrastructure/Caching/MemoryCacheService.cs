@@ -12,12 +12,6 @@ public class MemoryCacheService : ICacheService
         _memoryCache = memoryCache;
     }
 
-    public Task RemoveGameAsync(Guid gameId)
-    {
-        _memoryCache.Remove(gameId);
-        return Task.CompletedTask;
-    }
-
     public void Set(string key, object value, TimeSpan? expiration = null)
     {
         var options = new MemoryCacheEntryOptions();

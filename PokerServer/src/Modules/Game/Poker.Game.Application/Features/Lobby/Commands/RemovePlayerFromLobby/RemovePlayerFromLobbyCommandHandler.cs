@@ -1,4 +1,4 @@
-using Poker.Common.Domain.Abstractions.Interfaces;
+using Poker.Common.Application.Services;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Responses;
@@ -7,16 +7,16 @@ namespace Poker.Game.Application.Features.Lobby.Commands.RemovePlayerFromLobby;
 
 public sealed class RemovePlayerFromLobbyCommandHandler : ICommandHandler<RemovePlayerFromLobbyCommand>
 {
-    private readonly ICacheService _cache;
+    private readonly IEntityStore<Domain.Entities.Lobby> _lobbyStore;
 
-    public RemovePlayerFromLobbyCommandHandler(ICacheService cache)
+    public RemovePlayerFromLobbyCommandHandler(IEntityStore<Domain.Entities.Lobby> lobbyStore)
     {
-        _cache = cache;
+        _lobbyStore = lobbyStore;
     }
     
     public async Task<Result> Handle(RemovePlayerFromLobbyCommand request, CancellationToken cancellationToken)
     {
-        var lobby = _cache.Get<Domain.Entities.Lobby>(request.LobbyId);
+        var lobby = await _lobbyStore.GetAsync(request.LobbyId, cancellationToken);
         if (lobby is null)
             return Result.Failure(ResponseList.LobbyNotFound);
         
@@ -24,7 +24,7 @@ public sealed class RemovePlayerFromLobbyCommandHandler : ICommandHandler<Remove
         if(removePlayerResult.IsFailure)
             return removePlayerResult;
         
-        _cache.Set(lobby.Id, lobby);
+        await _lobbyStore.SaveAsync(lobby, cancellationToken);
         return Result.Success();
     }
 }

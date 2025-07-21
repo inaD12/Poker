@@ -1,4 +1,4 @@
-using Poker.Common.Domain.Abstractions.Interfaces;
+using Poker.Common.Application.Services;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Entities.TableAggregate;
@@ -8,16 +8,16 @@ namespace Poker.Game.Application.Features.Game.Commands.PlayerPlacedBet;
 
 internal sealed class PlayerPlacedBetCommandHandler : ICommandHandler<PlayerPlacedBetCommand>
 {
-    private readonly ICacheService _cache;
+    private readonly IEntityStore<Table> _tableStore;
 
-    public PlayerPlacedBetCommandHandler(ICacheService  cache)
+    public PlayerPlacedBetCommandHandler(IEntityStore<Table> tableStore)
     {
-        _cache = cache;
+        _tableStore = tableStore;
     }
     
     public async Task<Result> Handle(PlayerPlacedBetCommand request, CancellationToken cancellationToken)
     {
-        var game = _cache.Get<Table>(request.TableId);
+        var game = await _tableStore.GetAsync(request.TableId, cancellationToken);
         if (game is null)
             return Result.Failure(ResponseList.TableNotFound);
         
@@ -25,7 +25,7 @@ internal sealed class PlayerPlacedBetCommandHandler : ICommandHandler<PlayerPlac
         if (result.IsFailure)
             return result;
         
-        _cache.Set(game.Id, game);
+        await _tableStore.SaveAsync(game,  cancellationToken);
         return result;
     }
 }

@@ -7,6 +7,7 @@ namespace Poker.Game.Domain.Entities;
 
 public class Lobby : Entity
 {
+    private Lobby() { }
     private Lobby(List<Player> players)
     {
         Players = players;

@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
         
 		return services;
 	}
-	public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+	private static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
 	{
 		services
 			.AddOptions<AuthOptions>()
@@ -79,7 +79,7 @@ public static class ServiceCollectionExtensions
 		return services;
 	}
 
-	public static IServiceCollection AddSwagger(this IServiceCollection services)
+	private static IServiceCollection AddSwagger(this IServiceCollection services)
 	{
 		services.AddSwaggerGen(options =>
 		{
@@ -114,7 +114,7 @@ public static class ServiceCollectionExtensions
 		return services;
 	}
 
-	public static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
+	private static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
 	{
 		services
 		   .AddOptions<CorsOptions>()

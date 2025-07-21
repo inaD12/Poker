@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
 			{
 				npgsqlOptions.EnableRetryOnFailure();
 				optionsAction?.Invoke(npgsqlOptions);
-			});
+			}).UseSnakeCaseNamingConvention();
 		});
 
 		services

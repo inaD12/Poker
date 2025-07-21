@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Game.Application.Extensions;
+using Poker.Game.Infrastructure.Extensions;
 using Poker.Game.Presentation.Features.Game.Service;
 using Poker.Game.Presentation.Features.Lobby.Service;
 
@@ -10,10 +11,9 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddGameModule(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
-		var currentAssembly = typeof(ServiceCollectionExtensions).Assembly;
-
 		serviceCollection
-			.AddApplicationLayer(configuration);
+			.AddApplicationLayer(configuration)
+			.AddInfrastructureLayer(configuration);
 
 		serviceCollection
 			.AddTransient<IGameService, GameService>()

@@ -8,10 +8,10 @@ using Poker.Users.Infrastructure.Features.DBContexts;
 
 #nullable disable
 
-namespace Poker.Users.Infrastructure.Migrations
+namespace Poker.Users.Infrastructure.Features.Migrations
 {
-    [DbContext(typeof(UsersDBContext))]
-    [Migration("20250719205558_Initial")]
+    [DbContext(typeof(UsersDbContext))]
+    [Migration("20250721201438_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -19,6 +19,7 @@ namespace Poker.Users.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("users")
                 .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -27,36 +28,45 @@ namespace Poker.Users.Infrastructure.Migrations
             modelBuilder.Entity("Poker.Users.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("id");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("email");
 
                     b.Property<int>("GamesPlayed")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("games_played");
 
                     b.Property<int>("GamesWon")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("games_won");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
 
                     b.Property<string>("Salt")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("salt");
 
                     b.Property<decimal>("TotalEarnings")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("total_earnings");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("username");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_users");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", "users");
                 });
 #pragma warning restore 612, 618
         }

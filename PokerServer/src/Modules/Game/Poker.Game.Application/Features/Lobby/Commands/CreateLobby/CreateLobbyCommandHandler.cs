@@ -1,4 +1,5 @@
 using Poker.Common.Application.Abstractions.Interfaces;
+using Poker.Common.Application.Services;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
@@ -11,14 +12,14 @@ namespace Poker.Game.Application.Features.Lobby.Commands.CreateLobby;
 public sealed class CreateLobbyCommandHandler : ICommandHandler<CreateLobbyCommand, LobbyCommandViewModel>
 {
     private readonly IPokerMapper _pokerMapper;
-    private readonly ICacheService _cache;
     private readonly IUserService _userService;
+    private readonly IEntityStore<Domain.Entities.Lobby> _lobbyStore;
 
-    public CreateLobbyCommandHandler(IPokerMapper  pokerMapper, ICacheService cache, IUserService  userService)
+    public CreateLobbyCommandHandler(IPokerMapper  pokerMapper, IUserService  userService, IEntityStore<Domain.Entities.Lobby> lobbyStore)
     {
         _pokerMapper = pokerMapper;
-        _cache = cache;
         _userService = userService;
+        _lobbyStore = lobbyStore;
     }
     
     public async Task<Result<LobbyCommandViewModel>> Handle(CreateLobbyCommand request, CancellationToken cancellationToken)
@@ -34,7 +35,7 @@ public sealed class CreateLobbyCommandHandler : ICommandHandler<CreateLobbyComma
             return Result<LobbyCommandViewModel>.Failure(lobbyResponse.Response);
         var lobby = lobbyResponse.Value!;
 
-        _cache.Set(lobby.Id, lobby);
+        await _lobbyStore.SaveNewAsync(lobby, cancellationToken);
         
         var lobbyViewModel = _pokerMapper.Map<LobbyCommandViewModel>(lobby.Id);
         return Result<LobbyCommandViewModel>.Success(lobbyViewModel);

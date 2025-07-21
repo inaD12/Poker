@@ -1,5 +1,5 @@
 using Poker.Common.Application.Abstractions.Interfaces;
-using Poker.Common.Domain.Abstractions.Interfaces;
+using Poker.Common.Application.Services;
 using Poker.Common.Domain.Abstractions.Messaging;
 using Poker.Common.Domain.Results;
 using Poker.Game.Application.Features.Game.Models;
@@ -11,17 +11,19 @@ namespace Poker.Game.Application.Features.Game.Commands.GameStart;
 internal sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, GameCommandViewModel>
 {
     private readonly IPokerMapper _pokerMapper;
-    private readonly ICacheService _cache;
+    private readonly IEntityStore<Table> _tableStore;
+    private readonly IEntityStore<Domain.Entities.Lobby> _lobbyStore;
 
-    public GameStartCommandHandler(IPokerMapper  pokerMapper, ICacheService cache)
+    public GameStartCommandHandler(IPokerMapper  pokerMapper, IEntityStore<Table> tableStore, IEntityStore<Domain.Entities.Lobby> lobbyStore)
     {
         _pokerMapper = pokerMapper;
-        _cache = cache;
+        _tableStore = tableStore;
+        _lobbyStore = lobbyStore;
     }
     
     public async Task<Result<GameCommandViewModel>> Handle(GameStartCommand request, CancellationToken cancellationToken)
     {
-        var lobby = _cache.Get<Domain.Entities.Lobby>(request.LobbyId);
+        var lobby = await _lobbyStore.GetAsync(request.LobbyId, cancellationToken);
         if (lobby is null)
             return Result<GameCommandViewModel>.Failure(ResponseList.LobbyNotFound);
 
@@ -32,9 +34,7 @@ internal sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;
 
-        _cache.Set(game.Id, game);
-        
-        //TODO: db saving(?)
+        await _tableStore.SaveNewAsync(game, cancellationToken);
         
         var gameViewModel = _pokerMapper.Map<GameCommandViewModel>(game.Id);
         return Result<GameCommandViewModel>.Success(gameViewModel);

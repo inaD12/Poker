@@ -4,11 +4,11 @@ namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Deck
 {
-	private readonly Stack<Card> _cards;
+	public Stack<Card> Cards {get; private set;}
 
 	private Deck(IEnumerable<Card> cards)
 	{
-		_cards = new Stack<Card>(cards);
+		Cards = new Stack<Card>(cards);
 	}
 
 	public static Deck CreateShuffled()
@@ -23,13 +23,13 @@ public sealed class Deck
 		return new Deck(cards);
 	}
 
-	public Card Draw()
+	internal Card Draw()
 	{
-		if (_cards.Count == 0)
+		if (Cards.Count == 0)
 			throw new InvalidOperationException("The deck is empty.");
 
-		return _cards.Pop();
+		return Cards.Pop();
 	}
 
-	public int Count => _cards.Count;
+	public int Count => Cards.Count;
 }

@@ -29,7 +29,6 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
 			throw new Domain.Exceptions.ConcurrencyException("Concurrency exception occurred.", ex);
 		}
 	}
-//TODO: Outbox domain event saving
 	private async Task PublishDomainEventsAsync(CancellationToken cancellationToken)
 	{
 		var domainEvents = _dbContext.ChangeTracker
