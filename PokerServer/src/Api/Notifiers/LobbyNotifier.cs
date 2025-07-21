@@ -5,7 +5,7 @@ using PokerServer.Hubs;
 
 namespace PokerServer.Notifiers;
 
-public class LobbyNotifier: ILobbyNotifier
+public class LobbyNotifier : ILobbyNotifier
 {
     private readonly IHubContext<LobbyHub, ILobbyClient> _hubContext;
 
@@ -13,7 +13,7 @@ public class LobbyNotifier: ILobbyNotifier
     {
         _hubContext = hubContext;
     }
-    
+
     public async Task NotifyPlayerJoinedAsync(string lobbyId, PlayerInfoDto player)
     {
         await _hubContext.Clients.Group(lobbyId).PlayerJoined(player);

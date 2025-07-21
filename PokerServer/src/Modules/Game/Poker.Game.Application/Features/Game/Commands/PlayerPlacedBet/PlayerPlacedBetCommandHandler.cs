@@ -14,18 +14,18 @@ internal sealed class PlayerPlacedBetCommandHandler : ICommandHandler<PlayerPlac
     {
         _tableStore = tableStore;
     }
-    
+
     public async Task<Result> Handle(PlayerPlacedBetCommand request, CancellationToken cancellationToken)
     {
         var game = await _tableStore.GetAsync(request.TableId, cancellationToken);
         if (game is null)
             return Result.Failure(ResponseList.TableNotFound);
-        
+
         var result = game.PlayerPlaceBet(request.PlayerId, request.Amount);
         if (result.IsFailure)
             return result;
-        
-        await _tableStore.SaveAsync(game,  cancellationToken);
+
+        await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }
 }

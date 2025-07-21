@@ -7,7 +7,7 @@ using PokerServer.Hubs;
 
 namespace PokerServer.Notifiers;
 
-public class TableNotifier: ITableNotifier
+public class TableNotifier : ITableNotifier
 {
     private readonly IHubContext<GameHub, IGameClient> _hubContext;
 
@@ -15,7 +15,7 @@ public class TableNotifier: ITableNotifier
     {
         _hubContext = hubContext;
     }
-    
+
     public async Task NotifyGameStartedAsync(string playerId, GameStateDto state)
     {
         await _hubContext.Clients.User(playerId).GameInfo(state);

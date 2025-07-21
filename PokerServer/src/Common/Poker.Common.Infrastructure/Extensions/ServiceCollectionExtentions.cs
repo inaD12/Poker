@@ -10,51 +10,52 @@ namespace Poker.Common.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddDateTimeProvider(this IServiceCollection services)
-	{
-		services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+    public static IServiceCollection AddDateTimeProvider(this IServiceCollection services)
+    {
+        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
-		return services;
-	}
-	public static IServiceCollection AddUnitOfWork<TContext>(this IServiceCollection services)
-	where TContext : DbContext
-	{
-		services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
+        return services;
+    }
 
-		return services;
-	}
+    public static IServiceCollection AddUnitOfWork<TContext>(this IServiceCollection services)
+        where TContext : DbContext
+    {
+        services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
 
-	public static IServiceCollection AddDatabaseContext<TContext>(
-	   this IServiceCollection services,
-	   IConfiguration configuration,
-	   Action<NpgsqlDbContextOptionsBuilder>? optionsAction = null)
-   where TContext : DbContext
-	{
-		services
-			.AddOptions<DatabaseOptions>()
-			.BindConfiguration(nameof(DatabaseOptions))
-			.ValidateDataAnnotations()
-			.ValidateOnStart();
+        return services;
+    }
 
-		var databaseOptions = configuration
-					.GetSection(nameof(DatabaseOptions))
-					.Get<DatabaseOptions>()!;
+    public static IServiceCollection AddDatabaseContext<TContext>(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        Action<NpgsqlDbContextOptionsBuilder>? optionsAction = null)
+        where TContext : DbContext
+    {
+        services
+            .AddOptions<DatabaseOptions>()
+            .BindConfiguration(nameof(DatabaseOptions))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-		services.AddDbContext<TContext>(options =>
-		{
-			options.UseNpgsql(
-					databaseOptions.ConnectionString,
-			npgsqlOptions =>
-			{
-				npgsqlOptions.EnableRetryOnFailure();
-				optionsAction?.Invoke(npgsqlOptions);
-			}).UseSnakeCaseNamingConvention();
-		});
+        var databaseOptions = configuration
+            .GetSection(nameof(DatabaseOptions))
+            .Get<DatabaseOptions>()!;
 
-		services
-			.AddHealthChecks()
-			.AddDbContextCheck<TContext>();
+        services.AddDbContext<TContext>(options =>
+        {
+            options.UseNpgsql(
+                databaseOptions.ConnectionString,
+                npgsqlOptions =>
+                {
+                    npgsqlOptions.EnableRetryOnFailure();
+                    optionsAction?.Invoke(npgsqlOptions);
+                }).UseSnakeCaseNamingConvention();
+        });
 
-		return services;
-	}
+        services
+            .AddHealthChecks()
+            .AddDbContextCheck<TContext>();
+
+        return services;
+    }
 }

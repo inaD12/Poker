@@ -5,9 +5,11 @@ namespace Poker.Game.Domain.Utilities;
 
 public static class PlayerMapper
 {
-    public static PlayerInfoDto ToDto(this Player player) =>
-        new PlayerInfoDto(
-            Id: player.Id,
-            Username: player.Username
+    public static PlayerInfoDto ToDto(this Player player)
+    {
+        return new PlayerInfoDto(
+            player.Id,
+            player.Username
         );
+    }
 }

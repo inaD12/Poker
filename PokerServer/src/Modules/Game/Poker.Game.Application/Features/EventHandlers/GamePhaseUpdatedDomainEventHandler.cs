@@ -12,10 +12,9 @@ public sealed class GamePhaseUpdatedDomainEventHandler : INotificationHandler<Ga
     {
         _notifier = notifier;
     }
-    
+
     public async Task Handle(GamePhaseUpdatedDomainEvent notification, CancellationToken cancellationToken)
     {
         await _notifier.NotifyGamePhaseUpdateAsync(notification.TableId, notification.Phase, notification.Cards);
     }
 }
-

@@ -12,20 +12,21 @@ namespace Poker.Users.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
-	{
-		services
-			.AddTransient<IPasswordManager, PasswordManager>()
-			.AddTransient<ITokenFactory, TokenFactory>()
-			.AddScoped<IUserRepository, UserRepository>();
+    public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services
+            .AddTransient<IPasswordManager, PasswordManager>()
+            .AddTransient<ITokenFactory, TokenFactory>()
+            .AddScoped<IUserRepository, UserRepository>();
 
-		services
-			.AddUnitOfWork<UsersDbContext>()
-			.AddDateTimeProvider()
-			.AddDatabaseContext<UsersDbContext>(configuration, o => o.MigrationsHistoryTable(
-				tableName: HistoryRepository.DefaultTableName,
-				schema: "users"));
+        services
+            .AddUnitOfWork<UsersDbContext>()
+            .AddDateTimeProvider()
+            .AddDatabaseContext<UsersDbContext>(configuration, o => o.MigrationsHistoryTable(
+                HistoryRepository.DefaultTableName,
+                "users"));
 
-		return services;
-	}
+        return services;
+    }
 }

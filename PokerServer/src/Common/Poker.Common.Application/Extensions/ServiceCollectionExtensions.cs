@@ -24,10 +24,10 @@ public static class ServiceCollectionExtensions
 
         serviceCollection
             .AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
-        
+
         return serviceCollection;
     }
-    
+
     public static IServiceCollection AddMapper(this IServiceCollection serviceCollection, Assembly assembly)
     {
         serviceCollection.AddAutoMapper(assembly);
@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
 
         return serviceCollection;
     }
-    
+
     public static IServiceCollection AddCaching(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddMemoryCache();
@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
 
         return serviceCollection;
     }
-    
+
     public static IServiceCollection AddEntityStore<T, TRepository>(
         this IServiceCollection services,
         string cacheKeyPrefix

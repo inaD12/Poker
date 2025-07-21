@@ -2,7 +2,7 @@
 
 public interface IPokerMapper
 {
-	void Map(object source, object destination);
+    void Map(object source, object destination);
 
-	T Map<T>(object source);
+    T Map<T>(object source);
 }

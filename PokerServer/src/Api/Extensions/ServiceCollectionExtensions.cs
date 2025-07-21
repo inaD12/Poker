@@ -15,132 +15,134 @@ namespace PokerServer.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddApiLayer(this IServiceCollection serviceCollection, IConfiguration configuration)
-	{
-		serviceCollection
-			.AddTransient<ILobbyNotifier, LobbyNotifier>()
-			.AddTransient<ITableNotifier, TableNotifier>()
-			.AddSignalR();
+    public static IServiceCollection AddApiLayer(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
+    {
+        serviceCollection
+            .AddTransient<ILobbyNotifier, LobbyNotifier>()
+            .AddTransient<ITableNotifier, TableNotifier>()
+            .AddSignalR();
 
-		serviceCollection
-			.AddAuthentication(configuration)
-			.AddExceptionHandling()
-			.AddSwagger()
-			.ConfigureCors(configuration)
-			.AddEndpointsApiExplorer()
-			.AddHttpContextAccessor()
-			.AddControllers();
+        serviceCollection
+            .AddAuthentication(configuration)
+            .AddExceptionHandling()
+            .AddSwagger()
+            .ConfigureCors(configuration)
+            .AddEndpointsApiExplorer()
+            .AddHttpContextAccessor()
+            .AddControllers();
 
-		return serviceCollection;
-	}
-	
-	private static IServiceCollection AddExceptionHandling(this IServiceCollection services)
-	{
-		services
-			.AddExceptionHandler<ValidationExceptionHandler>()
-			.AddExceptionHandler<GlobalExceptionHandler>()
-			.AddProblemDetails();
-        
-		return services;
-	}
-	private static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
-	{
-		services
-			.AddOptions<AuthOptions>()
-			.BindConfiguration(nameof(AuthOptions))
-			.ValidateDataAnnotations()
-			.ValidateOnStart();
+        return serviceCollection;
+    }
 
-		var tokenOptions = configuration
-			.GetSection(nameof(AuthOptions))
-			.Get<AuthOptions>()!;
+    private static IServiceCollection AddExceptionHandling(this IServiceCollection services)
+    {
+        services
+            .AddExceptionHandler<ValidationExceptionHandler>()
+            .AddExceptionHandler<GlobalExceptionHandler>()
+            .AddProblemDetails();
 
-		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(opts =>
-			{
-				byte[] signingKeyBytes = Encoding.UTF8
-					.GetBytes(tokenOptions.SecretKey);
+        return services;
+    }
 
-				opts.TokenValidationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = true,
-					ValidIssuer = tokenOptions.Issuer,
-					ValidateAudience = true,
-					ValidAudience = tokenOptions.Audience,
-					ValidateLifetime = true,
-					IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
-				};
-			});
+    private static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOptions<AuthOptions>()
+            .BindConfiguration(nameof(AuthOptions))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-		services
-			.AddAuthorization()
-			.AddScoped<IClaimsExtractor, ClaimsExtractor>();
+        var tokenOptions = configuration
+            .GetSection(nameof(AuthOptions))
+            .Get<AuthOptions>()!;
 
-		return services;
-	}
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(opts =>
+            {
+                var signingKeyBytes = Encoding.UTF8
+                    .GetBytes(tokenOptions.SecretKey);
 
-	private static IServiceCollection AddSwagger(this IServiceCollection services)
-	{
-		services.AddSwaggerGen(options =>
-		{
-			options.SwaggerDoc("v1", new OpenApiInfo
-			{
-				Title = "Poker API",
-				Version = "v1",
-				Description = "API documentation for Poker server"
-			});
-			
-			var securityScheme = new OpenApiSecurityScheme
-			{
-				Name = "JWT Authentication",
-				Description = "Enter JWT Bearer token **_only_**",
-				In = ParameterLocation.Header,
-				Type = SecuritySchemeType.Http,
-				Scheme = "bearer",
-				BearerFormat = "JWT",
-				Reference = new OpenApiReference
-				{
-					Id = JwtBearerDefaults.AuthenticationScheme,
-					Type = ReferenceType.SecurityScheme
-				}
-			};
-			options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-			options.AddSecurityRequirement(new OpenApiSecurityRequirement
-			{
-				{securityScheme, [] }
-			});
-		});
+                opts.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = tokenOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = tokenOptions.Audience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                };
+            });
 
-		return services;
-	}
+        services
+            .AddAuthorization()
+            .AddScoped<IClaimsExtractor, ClaimsExtractor>();
 
-	private static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
-	{
-		services
-		   .AddOptions<CorsOptions>()
-		   .BindConfiguration(nameof(CorsOptions))
-		   .ValidateDataAnnotations()
-		   .ValidateOnStart();
+        return services;
+    }
 
-		var corsOptions = configuration
-			.GetSection(nameof(CorsOptions))
-			.Get<CorsOptions>()!;
+    private static IServiceCollection AddSwagger(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Poker API",
+                Version = "v1",
+                Description = "API documentation for Poker server"
+            });
 
-		services.AddCors(options =>
-		{
-			options.AddDefaultPolicy(builder =>
-			{
-				builder.AllowAnyOrigin()
-					   .AllowAnyMethod()
-					   .AllowAnyHeader();
-			});
+            var securityScheme = new OpenApiSecurityScheme
+            {
+                Name = "JWT Authentication",
+                Description = "Enter JWT Bearer token **_only_**",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Reference = new OpenApiReference
+                {
+                    Id = JwtBearerDefaults.AuthenticationScheme,
+                    Type = ReferenceType.SecurityScheme
+                }
+            };
+            options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                { securityScheme, [] }
+            });
+        });
 
-			options.AddPolicy(AppPolicies.CorsPolicy, builder =>
-			   builder.WithOrigins(corsOptions.AllowedOrigins.Split(", "))
-					  .AllowAnyHeader()
-					  .AllowAnyMethod());
-		});
+        return services;
+    }
 
-		return services;
-	}
+    private static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOptions<CorsOptions>()
+            .BindConfiguration(nameof(CorsOptions))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        var corsOptions = configuration
+            .GetSection(nameof(CorsOptions))
+            .Get<CorsOptions>()!;
+
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+
+            options.AddPolicy(AppPolicies.CorsPolicy, builder =>
+                builder.WithOrigins(corsOptions.AllowedOrigins.Split(", "))
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+        });
+
+        return services;
+    }
 }

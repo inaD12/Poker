@@ -9,7 +9,8 @@ namespace Poker.Game.Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationLayer(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddApplicationLayer(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
     {
         var currentAssembly = typeof(ServiceCollectionExtensions).Assembly;
 
@@ -21,7 +22,7 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddEntityStore<Table, ITableRepository>("table_")
             .AddEntityStore<Lobby, ILobbyRepository>("lobby_");
-        
+
         return serviceCollection;
     }
 }

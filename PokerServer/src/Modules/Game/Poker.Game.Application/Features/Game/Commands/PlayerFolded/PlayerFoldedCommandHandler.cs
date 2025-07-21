@@ -14,18 +14,18 @@ internal sealed class PlayerFoldedCommandHandler : ICommandHandler<PlayerFoldedC
     {
         _tableStore = tableStore;
     }
-    
+
     public async Task<Result> Handle(PlayerFoldedCommand request, CancellationToken cancellationToken)
     {
         var game = await _tableStore.GetAsync(request.TableId, cancellationToken);
         if (game is null)
             return Result.Failure(ResponseList.TableNotFound);
-        
+
         var result = game.PlayerFold(request.PlayerId);
         if (result.IsFailure)
             return result;
-        
-        await _tableStore.SaveAsync(game,  cancellationToken);
+
+        await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }
 }

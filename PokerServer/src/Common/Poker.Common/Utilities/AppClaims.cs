@@ -2,7 +2,6 @@
 
 public abstract class AppClaims
 {
-	public static readonly List<string> All = new() { Id};
-
-	public const string Id = nameof(Id);
+    public const string Id = nameof(Id);
+    public static readonly List<string> All = new() { Id };
 }

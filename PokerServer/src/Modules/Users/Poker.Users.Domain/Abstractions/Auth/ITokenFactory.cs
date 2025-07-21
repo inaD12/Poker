@@ -4,5 +4,5 @@ namespace Poker.Users.Domain.Abstractions.Auth;
 
 public interface ITokenFactory
 {
-	TokenResult CreateToken(string id);
+    TokenResult CreateToken(string id);
 }

@@ -4,32 +4,32 @@ namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Deck
 {
-	public Stack<Card> Cards {get; private set;}
+    private Deck(IEnumerable<Card> cards)
+    {
+        Cards = new Stack<Card>(cards);
+    }
 
-	private Deck(IEnumerable<Card> cards)
-	{
-		Cards = new Stack<Card>(cards);
-	}
+    public Stack<Card> Cards { get; }
 
-	public static Deck CreateShuffled()
-	{
-		var cards = Enum.GetValues<CardSuit>()
-			.SelectMany(suit => Enum.GetValues<CardRank>().Select(rank => Card.Create(suit, rank)))
-			.ToList();
+    public int Count => Cards.Count;
 
-		var rng = new Random();
-		cards = cards.OrderBy(_ => rng.Next()).ToList();
+    public static Deck CreateShuffled()
+    {
+        var cards = Enum.GetValues<CardSuit>()
+            .SelectMany(suit => Enum.GetValues<CardRank>().Select(rank => Card.Create(suit, rank)))
+            .ToList();
 
-		return new Deck(cards);
-	}
+        var rng = new Random();
+        cards = cards.OrderBy(_ => rng.Next()).ToList();
 
-	internal Card Draw()
-	{
-		if (Cards.Count == 0)
-			throw new InvalidOperationException("The deck is empty.");
+        return new Deck(cards);
+    }
 
-		return Cards.Pop();
-	}
+    internal Card Draw()
+    {
+        if (Cards.Count == 0)
+            throw new InvalidOperationException("The deck is empty.");
 
-	public int Count => Cards.Count;
+        return Cards.Pop();
+    }
 }

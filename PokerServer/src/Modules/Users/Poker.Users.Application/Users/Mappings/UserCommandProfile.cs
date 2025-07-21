@@ -7,10 +7,10 @@ namespace Poker.Users.Application.Users.Mappings;
 
 public class UserCommandProfile : Profile
 {
-	public UserCommandProfile()
-	{
-		CreateMap<TokenResult, LoginUserCommandViewModel>();
+    public UserCommandProfile()
+    {
+        CreateMap<TokenResult, LoginUserCommandViewModel>();
 
-		CreateMap<User, UserCommandViewModel>();
-	}
+        CreateMap<User, UserCommandViewModel>();
+    }
 }

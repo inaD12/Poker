@@ -8,23 +8,23 @@ namespace Poker.Users.Application.Users.Commands.DeleteUser;
 
 internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
 {
-	private readonly IUserRepository _userRepository;
-	private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserRepository _userRepository;
 
-	public DeleteUserCommandHandler(IUnitOfWork unitOfWork, IUserRepository userRepository)
-	{
-		_unitOfWork = unitOfWork;
-		_userRepository = userRepository;
-	}
+    public DeleteUserCommandHandler(IUnitOfWork unitOfWork, IUserRepository userRepository)
+    {
+        _unitOfWork = unitOfWork;
+        _userRepository = userRepository;
+    }
 
-	public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
-	{
-		var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
-		if (user == null)
-			return Result.Failure(ResponseList.UserNotFound);
+    public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (user == null)
+            return Result.Failure(ResponseList.UserNotFound);
 
-		_userRepository.Delete(user);
-		await _unitOfWork.SaveChangesAsync(cancellationToken);
-		return Result.Success();
-	}
+        _userRepository.Delete(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
 }

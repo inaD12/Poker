@@ -15,7 +15,7 @@ public sealed class ShowdownDomainEventHandler : INotificationHandler<ShowdownDo
 
     public async Task Handle(ShowdownDomainEvent notification, CancellationToken cancellationToken)
     {
-        await _notifier.NotifyShowdownAsync(notification.TableId, notification.WinnerPlayerIds,  notification.WinningsEach);
+        await _notifier.NotifyShowdownAsync(notification.TableId, notification.WinnerPlayerIds,
+            notification.WinningsEach);
     }
 }
-

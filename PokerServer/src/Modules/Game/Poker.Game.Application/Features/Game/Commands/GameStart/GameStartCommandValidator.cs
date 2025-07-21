@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.GameStart;
 
-internal class GameStartCommandValidator: AbstractValidator<GameStartCommand>
+internal class GameStartCommandValidator : AbstractValidator<GameStartCommand>
 {
     public GameStartCommandValidator()
     {

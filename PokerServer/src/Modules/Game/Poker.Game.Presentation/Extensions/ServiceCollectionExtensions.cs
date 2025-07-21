@@ -9,16 +9,17 @@ namespace Poker.Game.Presentation.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddGameModule(this IServiceCollection serviceCollection, IConfiguration configuration)
-	{
-		serviceCollection
-			.AddApplicationLayer(configuration)
-			.AddInfrastructureLayer(configuration);
+    public static IServiceCollection AddGameModule(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
+    {
+        serviceCollection
+            .AddApplicationLayer(configuration)
+            .AddInfrastructureLayer(configuration);
 
-		serviceCollection
-			.AddTransient<IGameService, GameService>()
-			.AddTransient<ILobbyService, LobbyService>();
+        serviceCollection
+            .AddTransient<IGameService, GameService>()
+            .AddTransient<ILobbyService, LobbyService>();
 
-		return serviceCollection;
-	}
+        return serviceCollection;
+    }
 }

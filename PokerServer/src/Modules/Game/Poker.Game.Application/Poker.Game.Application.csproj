@@ -7,26 +7,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="14.0.0" />
-      <PackageReference Include="MassTransit.Abstractions" Version="8.5.1" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7" />
+        <PackageReference Include="AutoMapper" Version="14.0.0"/>
+        <PackageReference Include="MassTransit.Abstractions" Version="8.5.1"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Common\Poker.Common.Application\Poker.Common.Application.csproj" />
-      <ProjectReference Include="..\..\..\Common\Poker.Common.Domain\Poker.Common.Domain.csproj" />
-      <ProjectReference Include="..\..\Users\Poker.Users.Presentation\Poker.Users.Presentation.csproj" />
-      <ProjectReference Include="..\Poker.Game.Domain\Poker.Game.Domain.csproj" />
+        <ProjectReference Include="..\..\..\Common\Poker.Common.Application\Poker.Common.Application.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Poker.Common.Domain\Poker.Common.Domain.csproj"/>
+        <ProjectReference Include="..\..\Users\Poker.Users.Presentation\Poker.Users.Presentation.csproj"/>
+        <ProjectReference Include="..\Poker.Game.Domain\Poker.Game.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="FluentValidation">
-        <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\fluentvalidation\12.0.0\lib\net8.0\FluentValidation.dll</HintPath>
-      </Reference>
+        <Reference Include="FluentValidation">
+            <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\fluentvalidation\12.0.0\lib\net8.0\FluentValidation.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\" />
+        <Folder Include="Features\"/>
     </ItemGroup>
 
 </Project>

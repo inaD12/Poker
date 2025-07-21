@@ -4,7 +4,7 @@ namespace Poker.Common.Presentation.Abstractions;
 
 public interface IClaimsExtractor
 {
-	string GetUserId();
-	ClaimsExtractorModel GetAllClaims();
-	string GetUserId(string token);
+    string GetUserId();
+    ClaimsExtractorModel GetAllClaims();
+    string GetUserId(string token);
 }

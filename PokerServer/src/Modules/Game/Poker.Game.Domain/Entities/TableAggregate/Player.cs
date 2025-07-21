@@ -4,46 +4,49 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
 
-public sealed class Player: Entity
+public sealed class Player : Entity
 {
-	public string Username { get; private set; } = null!;
-	public int Balance { get; private set; }
-	public Hand? Hand { get; private set; }
+    private Player()
+    {
+    }
 
-	private Player() { }
+    private Player(string username, int balance, Hand? hand)
+    {
+        Username = username;
+        Balance = balance;
+        Hand = hand;
+    }
 
-	private Player(string username, int balance, Hand? hand)
-	{
-		Username = username;
-		Balance = balance;
-		Hand = hand;
-	}
+    public string Username { get; private set; } = null!;
+    public int Balance { get; private set; }
+    public Hand? Hand { get; private set; }
 
-	public static Player Create(string username, int balance)
-	{
-		if (string.IsNullOrWhiteSpace(username))
-			throw new ArgumentException("Username cannot be empty.", nameof(username));
-		if (balance < 0)
-			throw new ArgumentException("Balance cannot be negative.", nameof(balance));
+    public static Player Create(string username, int balance)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new ArgumentException("Username cannot be empty.", nameof(username));
+        if (balance < 0)
+            throw new ArgumentException("Balance cannot be negative.", nameof(balance));
 
-		return new Player(username, balance, null);
-	}
+        return new Player(username, balance, null);
+    }
 
-	internal void SetHand(Hand hand)
-	{
-		Hand = hand;
-	}
+    internal void SetHand(Hand hand)
+    {
+        Hand = hand;
+    }
 
-	internal void AddToBalance(int amount)
-	{
-		Balance += amount;
-	}
+    internal void AddToBalance(int amount)
+    {
+        Balance += amount;
+    }
 
-	internal Result RemoveFromBalance(int amount) {
-		if (amount > Balance)
-			return Result.Failure(ResponseList.InsufficientFunds);
+    internal Result RemoveFromBalance(int amount)
+    {
+        if (amount > Balance)
+            return Result.Failure(ResponseList.InsufficientFunds);
 
-		Balance -= amount;
-		return Result.Success();
-	}
+        Balance -= amount;
+        return Result.Success();
+    }
 }

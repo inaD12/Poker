@@ -6,15 +6,19 @@ namespace Poker.Game.Infrastructure.Features.Snapshots;
 
 public class TableSnapshot : Entity
 {
-    public string TableJson { get; private set; } = null!;
-
-    private TableSnapshot() { }
+    private TableSnapshot()
+    {
+    }
 
     public TableSnapshot(Table table)
     {
         TableJson = JsonSerializer.Serialize(table);
     }
 
+    public string TableJson { get; } = null!;
+
     public Table ToDomain()
-        => JsonSerializer.Deserialize<Table>(TableJson)!;
+    {
+        return JsonSerializer.Deserialize<Table>(TableJson)!;
+    }
 }

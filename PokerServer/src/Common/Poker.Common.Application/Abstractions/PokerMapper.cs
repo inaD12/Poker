@@ -3,7 +3,7 @@ using Poker.Common.Application.Abstractions.Interfaces;
 
 namespace Poker.Common.Application.Abstractions;
 
-public class PokerMapper: IPokerMapper
+public class PokerMapper : IPokerMapper
 {
     private readonly IMapper _mapper;
 

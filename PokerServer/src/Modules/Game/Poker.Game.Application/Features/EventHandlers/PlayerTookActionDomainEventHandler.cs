@@ -13,11 +13,11 @@ public sealed class PlayerTookActionDomainEventHandler : INotificationHandler<Pl
     {
         _notifier = notifier;
     }
-    
+
     public async Task Handle(PlayerTookActionDomainEvent notification, CancellationToken cancellationToken)
     {
-        await _notifier.NotifyPlayerActionAsync(notification.TableId, notification.PlayerId, notification.Action.ToNotification(notification.Amount));
+        await _notifier.NotifyPlayerActionAsync(notification.TableId, notification.PlayerId,
+            notification.Action.ToNotification(notification.Amount));
         await _notifier.NotifyNextPlayer(notification.NextPlayerId);
     }
 }
-

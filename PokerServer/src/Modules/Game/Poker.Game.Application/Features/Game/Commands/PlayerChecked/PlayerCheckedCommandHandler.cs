@@ -20,11 +20,11 @@ internal sealed class PlayerCheckedCommandHandler : ICommandHandler<PlayerChecke
         var game = await _tableStore.GetAsync(request.TableId, cancellationToken);
         if (game is null)
             return Result.Failure(ResponseList.TableNotFound);
-        
+
         var result = game.PlayerCheck(request.PlayerId);
         if (result.IsFailure)
             return result;
-        
+
         await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }

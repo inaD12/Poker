@@ -9,7 +9,10 @@ public class LobbyRepository : ILobbyRepository
 {
     private readonly GameDbContext _context;
 
-    public LobbyRepository(GameDbContext context) => _context = context;
+    public LobbyRepository(GameDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task AddAsync(Lobby lobby, CancellationToken cancellationToken)
     {
@@ -34,7 +37,7 @@ public class LobbyRepository : ILobbyRepository
         if (lobby != null)
             _context.Lobbies.Remove(lobby);
     }
-    
+
     public void Delete(Lobby lobby)
     {
         _context.Remove(lobby);

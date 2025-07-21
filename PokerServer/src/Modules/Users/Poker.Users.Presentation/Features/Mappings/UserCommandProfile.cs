@@ -10,24 +10,24 @@ namespace Poker.Users.Presentation.Features.Mappings;
 
 public class UserCommandProfile : Profile
 {
-	public UserCommandProfile()
-	{
-		CreateMap<LoginUserRequest, LoginUserCommand>();
+    public UserCommandProfile()
+    {
+        CreateMap<LoginUserRequest, LoginUserCommand>();
 
-		CreateMap<RegisterUserRequest, RegisterUserCommand>();
+        CreateMap<RegisterUserRequest, RegisterUserCommand>();
 
-		CreateMap<(UpdateCurrentUserRequest,string id), UpdateUserCommand>()
-			.ConstructUsing(src => new(
-				src.Item2,
-				src.Item1.NewUsername));
+        CreateMap<(UpdateCurrentUserRequest, string id), UpdateUserCommand>()
+            .ConstructUsing(src => new UpdateUserCommand(
+                src.Item2,
+                src.Item1.NewUsername));
 
-		CreateMap<(UpdateUserRequest, string id), UpdateUserCommand>()
-			.ConstructUsing(src => new(
-				src.Item2,
-				src.Item1.NewUsername));
+        CreateMap<(UpdateUserRequest, string id), UpdateUserCommand>()
+            .ConstructUsing(src => new UpdateUserCommand(
+                src.Item2,
+                src.Item1.NewUsername));
 
-		CreateMap<LoginUserCommandViewModel, LoginUserResponse>();
+        CreateMap<LoginUserCommandViewModel, LoginUserResponse>();
 
-		CreateMap<UserCommandViewModel, UserCommandResponse>();
-	}
+        CreateMap<UserCommandViewModel, UserCommandResponse>();
+    }
 }

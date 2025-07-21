@@ -16,30 +16,33 @@ internal class LobbyService : ILobbyService
         _sender = sender;
     }
 
-    public async Task<Result<LobbyCommandViewModel>> CreateLobbyAsync(string startingPlayerId, CancellationToken cancellationToken)
+    public async Task<Result<LobbyCommandViewModel>> CreateLobbyAsync(string startingPlayerId,
+        CancellationToken cancellationToken)
     {
         var command = new CreateLobbyCommand(startingPlayerId);
-        
-        var result =  await _sender.Send(command, cancellationToken);
-        
+
+        var result = await _sender.Send(command, cancellationToken);
+
         return result;
     }
-    
-    public async Task<Result> AddPlayerToLobbyAsync(string lobbyId, string playerId, CancellationToken cancellationToken)
+
+    public async Task<Result> AddPlayerToLobbyAsync(string lobbyId, string playerId,
+        CancellationToken cancellationToken)
     {
         var command = new AddPlayerToLobbyCommand(lobbyId, playerId);
-        
-        var result =  await _sender.Send(command, cancellationToken);
-        
+
+        var result = await _sender.Send(command, cancellationToken);
+
         return result;
     }
-    
-    public async Task<Result> RemovePlayerFromLobbyAsync(string lobbyId, string playerId, CancellationToken cancellationToken)
+
+    public async Task<Result> RemovePlayerFromLobbyAsync(string lobbyId, string playerId,
+        CancellationToken cancellationToken)
     {
         var command = new RemovePlayerFromLobbyCommand(lobbyId, playerId);
-        
-        var result =  await _sender.Send(command, cancellationToken);
-        
+
+        var result = await _sender.Send(command, cancellationToken);
+
         return result;
     }
 }

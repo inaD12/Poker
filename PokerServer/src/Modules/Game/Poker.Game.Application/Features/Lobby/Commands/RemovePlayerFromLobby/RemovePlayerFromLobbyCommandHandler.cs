@@ -13,17 +13,17 @@ public sealed class RemovePlayerFromLobbyCommandHandler : ICommandHandler<Remove
     {
         _lobbyStore = lobbyStore;
     }
-    
+
     public async Task<Result> Handle(RemovePlayerFromLobbyCommand request, CancellationToken cancellationToken)
     {
         var lobby = await _lobbyStore.GetAsync(request.LobbyId, cancellationToken);
         if (lobby is null)
             return Result.Failure(ResponseList.LobbyNotFound);
-        
+
         var removePlayerResult = lobby.RemovePlayer(request.PlayerId);
-        if(removePlayerResult.IsFailure)
+        if (removePlayerResult.IsFailure)
             return removePlayerResult;
-        
+
         await _lobbyStore.SaveAsync(lobby, cancellationToken);
         return Result.Success();
     }

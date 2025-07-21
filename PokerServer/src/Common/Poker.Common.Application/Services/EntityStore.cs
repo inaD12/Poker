@@ -5,10 +5,10 @@ namespace Poker.Common.Application.Services;
 
 internal class EntityStore<T> : IEntityStore<T> where T : Entity
 {
-    private readonly IRepository<T> _repository;
     private readonly ICacheService _cache;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly string _cacheKeyPrefix;
+    private readonly IRepository<T> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public EntityStore(IRepository<T> repository, ICacheService cache, IUnitOfWork unitOfWork, string cacheKeyPrefix)
     {

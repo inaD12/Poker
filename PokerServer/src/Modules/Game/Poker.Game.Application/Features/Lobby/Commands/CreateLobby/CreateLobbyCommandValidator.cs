@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Lobby.Commands.CreateLobby;
 
-public class CreateLobbyCommandValidator: AbstractValidator<CreateLobbyCommand>
+public class CreateLobbyCommandValidator : AbstractValidator<CreateLobbyCommand>
 {
     public CreateLobbyCommandValidator()
     {

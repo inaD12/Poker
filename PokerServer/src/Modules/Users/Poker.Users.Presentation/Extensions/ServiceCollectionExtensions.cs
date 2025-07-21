@@ -10,21 +10,22 @@ namespace Poker.Users.Presentation.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddUsersModule(this IServiceCollection serviceCollection, IConfiguration configuration)
-	{
-		var currentAssembly = typeof(ServiceCollectionExtensions).Assembly;
-		
-		serviceCollection
-			.AddApplicationLayer(configuration)
-			.AddInfrastructureLayer(configuration);
+    public static IServiceCollection AddUsersModule(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
+    {
+        var currentAssembly = typeof(ServiceCollectionExtensions).Assembly;
 
-		serviceCollection
-			.AddMapper(currentAssembly)
-			.AddEndpoints(currentAssembly);
-			
-		serviceCollection
-			.AddTransient<IUserService, UserService>();
+        serviceCollection
+            .AddApplicationLayer(configuration)
+            .AddInfrastructureLayer(configuration);
 
-		return serviceCollection;
-	}
+        serviceCollection
+            .AddMapper(currentAssembly)
+            .AddEndpoints(currentAssembly);
+
+        serviceCollection
+            .AddTransient<IUserService, UserService>();
+
+        return serviceCollection;
+    }
 }

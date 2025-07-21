@@ -6,8 +6,8 @@ namespace Poker.Users.Application.Users.Mappings;
 
 public class UserQueryProfile : Profile
 {
-	public UserQueryProfile()
-	{
-		CreateMap<User, UserQueryViewModel>();
-	}
+    public UserQueryProfile()
+    {
+        CreateMap<User, UserQueryViewModel>();
+    }
 }

@@ -15,12 +15,12 @@ public class GameHub : Hub<IGameClient>
     private readonly IGameService _gameService;
     private readonly ISender _sender;
 
-    public GameHub(IGameService  gameService, ISender sender)
+    public GameHub(IGameService gameService, ISender sender)
     {
         _gameService = gameService;
         _sender = sender;
     }
-    
+
     public override async Task OnConnectedAsync()
     {
         var (userId, gameId) = GetUserAndGameId();
@@ -29,9 +29,9 @@ public class GameHub : Hub<IGameClient>
             Context.Abort();
             return;
         }
-            
+
         var query = new GetPlayerFromGameQuery(gameId, userId);
-        var result =  await _sender.Send(query);
+        var result = await _sender.Send(query);
         if (result.IsFailure)
         {
             Context.Abort();
@@ -40,7 +40,7 @@ public class GameHub : Hub<IGameClient>
 
         Context.Items["gameId"] = gameId;
 
-        await Groups.AddToGroupAsync(Context.ConnectionId,gameId);
+        await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
         await base.OnConnectedAsync();
     }
 
@@ -56,7 +56,7 @@ public class GameHub : Hub<IGameClient>
 
         return Result.Success();
     }
-    
+
     public async Task<Result> Fold(CancellationToken cancellationToken)
     {
         var (userId, gameId) = GetUserAndGameId();
@@ -69,7 +69,7 @@ public class GameHub : Hub<IGameClient>
 
         return Result.Success();
     }
-    
+
     public async Task<Result> AllIn(CancellationToken cancellationToken)
     {
         var (userId, gameId) = GetUserAndGameId();
@@ -82,7 +82,7 @@ public class GameHub : Hub<IGameClient>
 
         return Result.Success();
     }
-    
+
     public async Task<Result> Check(CancellationToken cancellationToken)
     {
         var (userId, gameId) = GetUserAndGameId();
@@ -101,14 +101,11 @@ public class GameHub : Hub<IGameClient>
         var httpContext = Context.GetHttpContext();
         var gameId = httpContext?.Request.Query["gameId"].ToString();
 
-        if (!string.IsNullOrWhiteSpace(gameId))
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId,gameId);
-        }
+        if (!string.IsNullOrWhiteSpace(gameId)) await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
 
         await base.OnDisconnectedAsync(exception);
     }
-    
+
     private (string? userId, string? gameId) GetUserAndGameId()
     {
         var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

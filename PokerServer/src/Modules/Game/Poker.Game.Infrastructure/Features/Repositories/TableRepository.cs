@@ -10,7 +10,10 @@ public class TableRepository : ITableRepository
 {
     private readonly GameDbContext _context;
 
-    public TableRepository(GameDbContext context) => _context = context;
+    public TableRepository(GameDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task AddAsync(Table table, CancellationToken cancellationToken)
     {
@@ -32,14 +35,14 @@ public class TableRepository : ITableRepository
 
         return snapshot?.ToDomain();
     }
-    
-    public async Task DeleteByIdAsync(string id,  CancellationToken cancellationToken)
+
+    public async Task DeleteByIdAsync(string id, CancellationToken cancellationToken)
     {
         var snapshot = await _context.TableSnapshots.FindAsync(id, cancellationToken);
         if (snapshot != null)
             _context.TableSnapshots.Remove(snapshot);
     }
-    
+
     public void Delete(Table table)
     {
         var snapshot = new TableSnapshot(table);

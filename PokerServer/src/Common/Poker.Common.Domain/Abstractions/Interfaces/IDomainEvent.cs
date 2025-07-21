@@ -2,6 +2,6 @@
 
 namespace Poker.Common.Domain.Abstractions.Interfaces;
 
-public interface IDomainEvent: INotification
+public interface IDomainEvent : INotification
 {
 }

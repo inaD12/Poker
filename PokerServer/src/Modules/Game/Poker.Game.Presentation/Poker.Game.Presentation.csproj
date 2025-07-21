@@ -7,18 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="MediatR">
-        <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\mediatr\12.5.0\lib\net6.0\MediatR.dll</HintPath>
-      </Reference>
+        <Reference Include="MediatR">
+            <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\mediatr\12.5.0\lib\net6.0\MediatR.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Poker.Game.Application\Poker.Game.Application.csproj" />
-      <ProjectReference Include="..\Poker.Game.Infrastructure\Poker.Game.Infrastructure.csproj" />
+        <ProjectReference Include="..\Poker.Game.Application\Poker.Game.Application.csproj"/>
+        <ProjectReference Include="..\Poker.Game.Infrastructure\Poker.Game.Infrastructure.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\" />
+        <Folder Include="Features\"/>
     </ItemGroup>
 
 </Project>

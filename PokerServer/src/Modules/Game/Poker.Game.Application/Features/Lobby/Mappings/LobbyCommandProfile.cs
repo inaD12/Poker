@@ -5,7 +5,7 @@ using Poker.Game.Domain.Entities.TableAggregate;
 
 namespace Poker.Game.Application.Features.Lobby.Mappings;
 
-public class LobbyCommandProfile: Profile
+public class LobbyCommandProfile : Profile
 {
     public LobbyCommandProfile()
     {

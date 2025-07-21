@@ -3,7 +3,6 @@
 namespace Poker.Users.Presentation.Features.Models.Requests;
 
 public class UpdateCurrentUserRequest
-{	
-	[Required]
-	public string NewUsername { get; set; }
+{
+    [Required] public string NewUsername { get; set; }
 }

@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
 
-internal class GetPlayerFromGameQueryValidator: AbstractValidator<GetPlayerFromGameQuery>
+internal class GetPlayerFromGameQueryValidator : AbstractValidator<GetPlayerFromGameQuery>
 {
     public GetPlayerFromGameQueryValidator()
     {
@@ -11,7 +11,7 @@ internal class GetPlayerFromGameQueryValidator: AbstractValidator<GetPlayerFromG
             .NotEmpty()
             .MinimumLength(GameBusinessConfiguration.ID_MIN_LENGTH)
             .MaximumLength(GameBusinessConfiguration.ID_MAX_LENGTH);
-        
+
         RuleFor(x => x.PlayerId)
             .NotEmpty()
             .MinimumLength(GameBusinessConfiguration.ID_MIN_LENGTH)

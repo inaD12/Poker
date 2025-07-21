@@ -9,46 +9,48 @@ namespace Poker.Common.Presentation.Helpers;
 
 public class ClaimsExtractor : IClaimsExtractor
 {
-	private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-	public ClaimsExtractor(IHttpContextAccessor httpContextAccessor)
-	{
-		_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-	}
+    public ClaimsExtractor(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    }
 
-	public string GetUserId() => GetClaimValue(AppClaims.Id);
+    public string GetUserId()
+    {
+        return GetClaimValue(AppClaims.Id);
+    }
 
-	private string GetClaimValue(string key)
-	{
-		var user = _httpContextAccessor.HttpContext?.User!;
-		return user.FindFirstValue(key)!;
-	}
+    public ClaimsExtractorModel GetAllClaims()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
 
-	public ClaimsExtractorModel GetAllClaims()
-	{
-		var user = _httpContextAccessor.HttpContext?.User;
+        var claimsDictionary = user!.Claims
+            .ToDictionary(c => c.Type, c => c.Value);
 
-		var claimsDictionary = user!.Claims
-								   .ToDictionary(c => c.Type, c => c.Value);
+        return new ClaimsExtractorModel(claimsDictionary);
+    }
 
-		return new ClaimsExtractorModel(claimsDictionary);
-	}
+    public string GetUserId(string token)
+    {
+        return GetClaimFromToken(token, AppClaims.Id);
+    }
 
-	private string GetClaimFromToken(string token, string key)
-	{
-		var handler = new JwtSecurityTokenHandler();
+    private string GetClaimValue(string key)
+    {
+        var user = _httpContextAccessor.HttpContext?.User!;
+        return user.FindFirstValue(key)!;
+    }
 
-		if (!handler.CanReadToken(token))
-		{
-			throw new ArgumentException("Invalid JWT token.", nameof(token));
-		}
+    private string GetClaimFromToken(string token, string key)
+    {
+        var handler = new JwtSecurityTokenHandler();
 
-		var jwtToken = handler.ReadJwtToken(token);
-		var claimValue = jwtToken.Claims.FirstOrDefault(c => c.Type == key)?.Value;
+        if (!handler.CanReadToken(token)) throw new ArgumentException("Invalid JWT token.", nameof(token));
 
-		return claimValue ?? throw new KeyNotFoundException($"Claim '{key}' not found in token.");
-	}
+        var jwtToken = handler.ReadJwtToken(token);
+        var claimValue = jwtToken.Claims.FirstOrDefault(c => c.Type == key)?.Value;
 
-	public string GetUserId(string token) => GetClaimFromToken(token, AppClaims.Id);
-
+        return claimValue ?? throw new KeyNotFoundException($"Claim '{key}' not found in token.");
+    }
 }

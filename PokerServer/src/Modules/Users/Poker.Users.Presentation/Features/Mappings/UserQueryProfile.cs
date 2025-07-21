@@ -8,16 +8,16 @@ namespace Poker.Users.Presentation.Features.Mappings;
 
 public class UserQueryProfile : Profile
 {
-	public UserQueryProfile()
-	{
-		CreateMap<string, GetUserByIdQuery>()
-			.ConstructUsing(src => new(src));
+    public UserQueryProfile()
+    {
+        CreateMap<string, GetUserByIdQuery>()
+            .ConstructUsing(src => new GetUserByIdQuery(src));
 
-		CreateMap<UserQueryViewModel, UserDataDto>()
-			.ConstructUsing(src => new(
-				src.Id,
-				src.Username));
-		
-		CreateMap<UserQueryViewModel, UserQueryResponse>();
-	}
+        CreateMap<UserQueryViewModel, UserDataDto>()
+            .ConstructUsing(src => new UserDataDto(
+                src.Id,
+                src.Username));
+
+        CreateMap<UserQueryViewModel, UserQueryResponse>();
+    }
 }

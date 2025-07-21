@@ -2,8 +2,10 @@
 
 internal sealed class DateTimeProvider : IDateTimeProvider
 {
-	public DateTime UtcNow => DateTime.UtcNow;
+    public DateTime UtcNow => DateTime.UtcNow;
 
-	public DateTime GetUtcNow(int seconds) => DateTime.UtcNow.AddSeconds(seconds);
-
+    public DateTime GetUtcNow(int seconds)
+    {
+        return DateTime.UtcNow.AddSeconds(seconds);
+    }
 }

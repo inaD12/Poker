@@ -3,6 +3,6 @@ using Poker.Game.Domain.Entities;
 
 namespace Poker.Game.Domain.Abstractions.Interfaces;
 
-public interface ILobbyRepository: IRepository<Lobby>
+public interface ILobbyRepository : IRepository<Lobby>
 {
 }

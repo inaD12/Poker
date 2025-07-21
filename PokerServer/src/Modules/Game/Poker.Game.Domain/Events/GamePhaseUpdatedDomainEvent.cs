@@ -5,6 +5,6 @@ using Poker.Common.Domain.Enums;
 namespace Poker.Game.Domain.Events;
 
 public record GamePhaseUpdatedDomainEvent(
-    string TableId, 
-    GamePhase Phase, 
-    List<CardDto> Cards): IDomainEvent;
+    string TableId,
+    GamePhase Phase,
+    List<CardDto> Cards) : IDomainEvent;

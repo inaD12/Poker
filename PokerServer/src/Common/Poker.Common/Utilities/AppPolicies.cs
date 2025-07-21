@@ -2,5 +2,5 @@
 
 public class AppPolicies
 {
-	public const string CorsPolicy = nameof(CorsPolicy);
+    public const string CorsPolicy = nameof(CorsPolicy);
 }

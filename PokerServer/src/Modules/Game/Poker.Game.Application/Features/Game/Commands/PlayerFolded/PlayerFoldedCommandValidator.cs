@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerFolded;
 
-internal class PlayerFoldedCommandValidator: AbstractValidator<PlayerFoldedCommand>
+internal class PlayerFoldedCommandValidator : AbstractValidator<PlayerFoldedCommand>
 {
     public PlayerFoldedCommandValidator()
     {
@@ -11,7 +11,7 @@ internal class PlayerFoldedCommandValidator: AbstractValidator<PlayerFoldedComma
             .NotEmpty()
             .MinimumLength(GameBusinessConfiguration.ID_MIN_LENGTH)
             .MaximumLength(GameBusinessConfiguration.ID_MAX_LENGTH);
-        
+
         RuleFor(x => x.PlayerId)
             .NotEmpty()
             .MinimumLength(GameBusinessConfiguration.ID_MIN_LENGTH)
