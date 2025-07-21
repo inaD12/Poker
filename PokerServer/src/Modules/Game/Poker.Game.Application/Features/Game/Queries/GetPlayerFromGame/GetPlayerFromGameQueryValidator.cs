@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
 
-public class GetPlayerFromGameQueryValidator: AbstractValidator<GetPlayerFromGameQuery>
+internal class GetPlayerFromGameQueryValidator: AbstractValidator<GetPlayerFromGameQuery>
 {
     public GetPlayerFromGameQueryValidator()
     {

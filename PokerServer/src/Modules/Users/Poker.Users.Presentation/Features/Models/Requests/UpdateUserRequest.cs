@@ -1,6 +1,9 @@
-﻿namespace Poker.Users.Presentation.Features.Models.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Poker.Users.Presentation.Features.Models.Requests;
 
 public class UpdateUserRequest
 {
-	public string? NewUsername { get; set; }
+	[Required]
+	public string NewUsername { get; set; }
 }

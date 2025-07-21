@@ -6,7 +6,7 @@ using Poker.Users.Application.Users.Queries.GetUserById;
 
 namespace Poker.Users.Presentation.Features.Services;
 
-public class UserService: IUserService
+internal class UserService: IUserService
 {
     private readonly ISender _sender;
     private readonly IPokerMapper _mapper;

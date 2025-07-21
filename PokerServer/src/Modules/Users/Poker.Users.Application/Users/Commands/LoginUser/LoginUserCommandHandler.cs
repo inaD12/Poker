@@ -9,7 +9,7 @@ using Poker.Users.Domain.Responses;
 
 namespace Poker.Users.Application.Users.Commands.LoginUser;
 
-public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUserCommandViewModel>
+internal sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUserCommandViewModel>
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IPasswordManager _passwordManager;

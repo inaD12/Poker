@@ -17,8 +17,6 @@ public static class ServiceCollectionExtensions
         
         serviceCollection
             .AddMediatR(currentAssembly)
-            .AddMapper(currentAssembly)
-            .AddValidatorsFromAssembly(currentAssembly)
             .AddMapper(currentAssembly);
 
         return serviceCollection;

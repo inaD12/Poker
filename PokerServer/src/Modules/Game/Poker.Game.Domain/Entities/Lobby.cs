@@ -22,7 +22,7 @@ public class Lobby : Entity
     private const int MinPlayers = 2;
     private const int MaxPlayers = 6;
 
-    public List<Player> Players { get; private set; } = new();
+    public List<Player> Players { get; private set; }
 
     public bool IsFull => Players.Count >= MaxPlayers;
     public bool IsReadyToStart => Players.Count >= MinPlayers;

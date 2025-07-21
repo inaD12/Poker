@@ -6,7 +6,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerChecked;
 
-public sealed class PlayerCheckedCommandHandler : ICommandHandler<PlayerCheckedCommand>
+internal sealed class PlayerCheckedCommandHandler : ICommandHandler<PlayerCheckedCommand>
 {
     private readonly ICacheService _cache;
 

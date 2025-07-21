@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerFolded;
 
-public class PlayerFoldedCommandValidator: AbstractValidator<PlayerFoldedCommand>
+internal class PlayerFoldedCommandValidator: AbstractValidator<PlayerFoldedCommand>
 {
     public PlayerFoldedCommandValidator()
     {

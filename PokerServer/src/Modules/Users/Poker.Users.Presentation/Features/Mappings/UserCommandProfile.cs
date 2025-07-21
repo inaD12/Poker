@@ -8,9 +8,9 @@ using Poker.Users.Presentation.Features.Models.Responses;
 
 namespace Poker.Users.Presentation.Features.Mappings;
 
-public class UserCommandMappings : Profile
+public class UserCommandProfile : Profile
 {
-	public UserCommandMappings()
+	public UserCommandProfile()
 	{
 		CreateMap<LoginUserRequest, LoginUserCommand>();
 

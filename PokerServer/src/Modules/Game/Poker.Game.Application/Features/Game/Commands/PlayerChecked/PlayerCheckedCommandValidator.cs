@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerChecked;
 
-public class PlayerCheckedCommandValidator: AbstractValidator<PlayerCheckedCommand>
+internal class PlayerCheckedCommandValidator: AbstractValidator<PlayerCheckedCommand>
 {
     public PlayerCheckedCommandValidator()
     {

@@ -8,7 +8,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Commands.GameStart;
 
-public sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, GameCommandViewModel>
+internal sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand, GameCommandViewModel>
 {
     private readonly IPokerMapper _pokerMapper;
     private readonly ICacheService _cache;

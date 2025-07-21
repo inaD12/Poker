@@ -26,9 +26,9 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Ent
 
 	public virtual async Task<T?> GetByIdAsync(string id)
 	{
-		var res = await Entities.FindAsync(id);
-
-		return res;
+		return await Entities
+			.AsNoTracking()
+			.FirstOrDefaultAsync(e => e.Id == id);
 	}
 
 	public virtual void Update(T entity)

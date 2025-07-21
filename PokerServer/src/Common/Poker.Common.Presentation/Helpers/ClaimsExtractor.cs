@@ -7,7 +7,7 @@ using Poker.Common.Utilities;
 
 namespace Poker.Common.Presentation.Helpers;
 
-internal class ClaimsExtractor : IClaimsExtractor
+public class ClaimsExtractor : IClaimsExtractor
 {
 	private readonly IHttpContextAccessor _httpContextAccessor;
 

@@ -1,4 +1,5 @@
 using System.Reflection;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Abstractions;
 using Poker.Common.Application.Abstractions.Interfaces;
@@ -19,6 +20,9 @@ public static class ServiceCollectionExtensions
             cf.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 
+        serviceCollection
+            .AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+        
         return serviceCollection;
     }
     

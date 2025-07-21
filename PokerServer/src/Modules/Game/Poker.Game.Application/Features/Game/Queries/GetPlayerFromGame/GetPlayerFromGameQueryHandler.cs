@@ -7,7 +7,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
 
-public sealed class GetPlayerFromGameQueryHandler: IQueryHandler<GetPlayerFromGameQuery, PlayerInfoDto>
+internal sealed class GetPlayerFromGameQueryHandler: IQueryHandler<GetPlayerFromGameQuery, PlayerInfoDto>
 {
     private readonly ICacheService _cache;
 

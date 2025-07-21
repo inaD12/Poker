@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerPlacedBet;
 
-public class PlayerPlacedBetCommandValidator: AbstractValidator<PlayerPlacedBetCommand>
+internal class PlayerPlacedBetCommandValidator: AbstractValidator<PlayerPlacedBetCommand>
 {
     public PlayerPlacedBetCommandValidator()
     {

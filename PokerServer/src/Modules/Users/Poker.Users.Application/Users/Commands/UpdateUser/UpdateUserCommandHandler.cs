@@ -8,7 +8,7 @@ using Poker.Users.Domain.Responses;
 
 namespace Poker.Users.Application.Users.Commands.UpdateUser;
 
-public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UserCommandViewModel>
+internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UserCommandViewModel>
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IUnitOfWork _unitOfWork;

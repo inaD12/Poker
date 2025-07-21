@@ -3,7 +3,7 @@ using Poker.Game.Domain.Utilities;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 
-public class PlayerAllInCommandValidator: AbstractValidator<PlayerAllInCommand>
+internal class PlayerAllInCommandValidator: AbstractValidator<PlayerAllInCommand>
 {
     public PlayerAllInCommandValidator()
     {

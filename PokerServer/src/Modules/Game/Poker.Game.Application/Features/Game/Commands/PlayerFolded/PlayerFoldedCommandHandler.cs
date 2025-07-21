@@ -6,7 +6,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerFolded;
 
-public sealed class PlayerFoldedCommandHandler : ICommandHandler<PlayerFoldedCommand>
+internal sealed class PlayerFoldedCommandHandler : ICommandHandler<PlayerFoldedCommand>
 {
     private readonly ICacheService _cache;
 

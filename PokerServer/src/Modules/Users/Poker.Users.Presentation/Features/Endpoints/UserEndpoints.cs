@@ -78,7 +78,7 @@ internal class UserEndpoints : IEndpoints
 		//.RequireAuthorization();
 	}
 
-	public async Task<IResult> Login(
+	private async Task<IResult> Login(
 		[FromBody] LoginUserRequest request,
 		[FromServices] ISender sender,
 		[FromServices] IPokerMapper mapper,
@@ -93,7 +93,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res, loginUserResponse);
 	}
 
-	public async Task<IResult> Register(
+	private async Task<IResult> Register(
 		[FromBody] RegisterUserRequest request,
 		[FromServices] ISender sender,
 		[FromServices] IPokerMapper mapper,
@@ -108,7 +108,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res, userCommandResponse);
 	}
 
-	public async Task<IResult> UpdateCurrent(
+	private async Task<IResult> UpdateCurrent(
 		[FromBody] UpdateCurrentUserRequest request,
 		[FromServices] IClaimsExtractor claimsExtractor,
 		[FromServices] ISender sender,
@@ -125,7 +125,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res, userCommandResponse);
 	}
 
-	public async Task<IResult> Update(
+	private async Task<IResult> Update(
 		[FromRoute] string id,
 		[FromBody] UpdateUserRequest request,
 		[FromServices] ISender sender,
@@ -141,7 +141,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res, userCommandResponse);
 	}
 
-	public async Task<IResult> GetById(
+	private async Task<IResult> GetById(
 		[FromRoute] string id,
 		[FromServices] ISender sender,
 		[FromServices] IPokerMapper mapper,
@@ -156,7 +156,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res, appointmentCommandResponse);
 	}
 
-	public async Task<IResult> DeleteById(
+	private async Task<IResult> DeleteById(
 		[FromRoute] string id,
 		[FromServices] ISender sender,
 		CancellationToken cancellationToken)
@@ -166,7 +166,7 @@ internal class UserEndpoints : IEndpoints
 		return ControllerResponse.ParseAndReturnMessage(res);
 	}
 
-	public async Task<IResult> DeleteCurrent(
+	private async Task<IResult> DeleteCurrent(
 		[FromServices] IClaimsExtractor claimsExtractor,
 		[FromServices] ISender sender,
 		CancellationToken cancellationToken)

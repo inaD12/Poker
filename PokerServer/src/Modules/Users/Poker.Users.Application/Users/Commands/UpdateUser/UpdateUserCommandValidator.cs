@@ -3,7 +3,7 @@ using Poker.Users.Domain.Utilities;
 
 namespace Poker.Users.Application.Users.Commands.UpdateUser;
 
-public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
+internal class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
 	public UpdateUserCommandValidator()
 	{

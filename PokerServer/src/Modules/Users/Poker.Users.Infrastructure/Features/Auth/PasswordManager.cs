@@ -6,21 +6,21 @@ namespace Poker.Users.Infrastructure.Features.Auth;
 
 public class PasswordManager : IPasswordManager
 {
-	private const int _keySize = 64;
-	private const int _iterations = 1000;
-	private HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
+	private const int KeySize = 64;
+	private const int Iterations = 1000;
+	private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
 
 	public PasswordHashResult HashPassword(string password)
 	{
-		byte[] saltByteArray = RandomNumberGenerator.GetBytes(_keySize);
+		byte[] saltByteArray = RandomNumberGenerator.GetBytes(KeySize);
 		string salt = Convert.ToHexString(saltByteArray);
 
 		byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
 			password,
 			saltByteArray,
-			_iterations,
+			Iterations,
 			_hashAlgorithm,
-			_keySize);
+			KeySize);
 
 		string stringHash = Convert.ToHexString(hash);
 
@@ -32,9 +32,9 @@ public class PasswordManager : IPasswordManager
 		byte[] hashFromPass = Rfc2898DeriveBytes.Pbkdf2(
 			password,
 			Convert.FromHexString(salt),
-			_iterations,
+			Iterations,
 			_hashAlgorithm,
-			_keySize);
+			KeySize);
 
 		return CryptographicOperations.FixedTimeEquals(hashFromPass, Convert.FromHexString(hash));
 	}

@@ -3,7 +3,7 @@ using Poker.Users.Domain.Utilities;
 
 namespace Poker.Users.Application.Users.Commands.DeleteUser;
 
-public class DeleteUserCommandValidator : AbstractValidator<DeleteUserCommand>
+internal class DeleteUserCommandValidator : AbstractValidator<DeleteUserCommand>
 {
 	public DeleteUserCommandValidator()
 	{

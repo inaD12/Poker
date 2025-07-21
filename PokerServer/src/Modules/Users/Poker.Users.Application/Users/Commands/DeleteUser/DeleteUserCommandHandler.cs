@@ -6,7 +6,7 @@ using Poker.Users.Domain.Responses;
 
 namespace Poker.Users.Application.Users.Commands.DeleteUser;
 
-public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
+internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IUnitOfWork _unitOfWork;

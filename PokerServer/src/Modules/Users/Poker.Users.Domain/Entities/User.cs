@@ -76,7 +76,7 @@ public sealed class User : Entity
 		{
 			GamesWon++;
 
-			if (earnings.HasValue && earnings > 0)
+			if (earnings is > 0)
 				TotalEarnings += earnings.Value;
 		}
 	}

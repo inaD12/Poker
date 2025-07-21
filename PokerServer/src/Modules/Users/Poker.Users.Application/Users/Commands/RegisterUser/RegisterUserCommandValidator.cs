@@ -3,7 +3,7 @@ using Poker.Users.Domain.Utilities;
 
 namespace Poker.Users.Application.Users.Commands.RegisterUser;
 
-public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
+internal class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
 	public RegisterUserCommandValidator()
 	{

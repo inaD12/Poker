@@ -9,7 +9,7 @@ public static class EndpointMapper
     {
         var endpointTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(t => typeof(IEndpoints).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+            .Where(t => typeof(IEndpoints).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false });
 
         foreach (var endpointType in endpointTypes)
         {

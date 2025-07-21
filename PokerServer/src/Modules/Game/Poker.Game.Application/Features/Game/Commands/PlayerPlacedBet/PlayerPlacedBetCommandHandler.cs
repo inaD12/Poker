@@ -6,7 +6,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerPlacedBet;
 
-public sealed class PlayerPlacedBetCommandHandler : ICommandHandler<PlayerPlacedBetCommand>
+internal sealed class PlayerPlacedBetCommandHandler : ICommandHandler<PlayerPlacedBetCommand>
 {
     private readonly ICacheService _cache;
 

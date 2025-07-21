@@ -11,7 +11,7 @@ using Poker.Users.Domain.Responses;
 
 namespace Poker.Users.Application.Users.Commands.RegisterUser;
 
-public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, UserCommandViewModel>
+internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, UserCommandViewModel>
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IPasswordManager _passwordManager;

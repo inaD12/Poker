@@ -6,7 +6,7 @@ using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 
-public sealed class PlayerAllInCommandHandler : ICommandHandler<PlayerAllInCommand>
+internal sealed class PlayerAllInCommandHandler : ICommandHandler<PlayerAllInCommand>
 {
     private readonly ICacheService _cache;
 

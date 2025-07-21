@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Poker.Common.Application.Extensions;
@@ -14,7 +13,6 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddMediatR(currentAssembly)
             .AddMapper(currentAssembly)
-            .AddValidatorsFromAssembly(currentAssembly)
             .AddCaching();
 
         return serviceCollection;

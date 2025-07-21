@@ -1,23 +1,44 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
+using Poker.Common.Presentation.Abstractions;
+using Poker.Game.Application.Features.Lobby.Models;
 using Poker.Game.Presentation.Features.Game.Service;
 using Poker.Game.Presentation.Features.Lobby.Service;
 
 namespace PokerServer.Hubs;
 
-//[Authorize]
+[Authorize]
 public class LobbyHub : Hub<ILobbyClient>
 {
     private readonly ILobbyService _lobbyService;
     private readonly IGameService _gameService;
+    private readonly IClaimsExtractor _claimsExtractorService;
 
-    public LobbyHub(ILobbyService  lobbyService, IGameService  gameService)
+    public LobbyHub(ILobbyService  lobbyService, IGameService  gameService, IClaimsExtractor  claimsExtractorService)
     {
         _lobbyService = lobbyService;
         _gameService = gameService;
+        _claimsExtractorService = claimsExtractorService;
     }
+    
+    public async Task<Result<LobbyCommandViewModel>> CreateLobby()
+    {
+        var userId = _claimsExtractorService.GetUserId();
+        //var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
+            return Result<LobbyCommandViewModel>.Failure(SharedResponses.InternalError);
+
+        var result = await _lobbyService.CreateLobbyAsync(userId, CancellationToken.None);
+        if (result.IsFailure)
+            return Result<LobbyCommandViewModel>.Failure(result.Response);
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, result.Value!.Id, CancellationToken.None);
+        return result;
+    }
+    
     public async Task<Result> JoinLobby(string lobbyId, CancellationToken cancellationToken)
     {
         var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
