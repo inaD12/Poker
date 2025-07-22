@@ -64,6 +64,7 @@ public class PlayerManager
                 player.Hand.ResetBet();
     }
 
+
     public void SetFirstActivePlayer()
     {
         for (var i = 0; i < Players.Count; i++)

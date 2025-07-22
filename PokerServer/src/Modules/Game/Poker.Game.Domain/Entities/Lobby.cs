@@ -14,19 +14,21 @@ public class Lobby : Entity
     {
     }
 
-    private Lobby(List<Player> players)
+    private Lobby(List<Player> players, string hostingPlayerId)
     {
         Players = players;
+        HostingPlayerId = hostingPlayerId;
     }
 
     public List<Player> Players { get; }
+    public string HostingPlayerId {get; private set;}
 
     public bool IsFull => Players.Count >= MaxPlayers;
     public bool IsReadyToStart => Players.Count >= MinPlayers;
 
-    public static Result<Lobby> CreateLobby(List<Player> players)
+    public static Result<Lobby> CreateLobby(List<Player> players, string  hostingPlayerId)
     {
-        var lobby = new Lobby(players);
+        var lobby = new Lobby(players, hostingPlayerId);
 
         return Result<Lobby>.Success(lobby);
     }

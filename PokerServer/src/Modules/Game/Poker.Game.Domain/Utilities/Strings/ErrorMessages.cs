@@ -20,4 +20,7 @@ public static class ErrorMessages
     public const string PlayerAlreadyInTheLobby = "Player is already in the lobby";
     public const string LobbyNotFound = "Lobby not found";
     public const string PlayerNotInLobby = "Player is not in lobby";
+    public const string HostNotFromPlayers = "Host must be one of the players";
+    public const string OnlyHostCanStartNextHand = "Only host can start next hand";
+    public const string HandNotFinished = "Hand hasn't finished yet";
 }

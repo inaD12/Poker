@@ -22,8 +22,7 @@ internal sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand
         _lobbyStore = lobbyStore;
     }
 
-    public async Task<Result<GameCommandViewModel>> Handle(GameStartCommand request,
-        CancellationToken cancellationToken)
+    public async Task<Result<GameCommandViewModel>> Handle(GameStartCommand request, CancellationToken cancellationToken)
     {
         var lobby = await _lobbyStore.GetAsync(request.LobbyId, cancellationToken);
         if (lobby is null)
@@ -31,7 +30,7 @@ internal sealed class GameStartCommandHandler : ICommandHandler<GameStartCommand
 
         var players = lobby.Players;
 
-        var gameResponse = Table.StartGame(players);
+        var gameResponse = Table.StartGame(players, lobby.HostingPlayerId);
         if (gameResponse.IsFailure)
             return Result<GameCommandViewModel>.Failure(gameResponse.Response);
         var game = gameResponse.Value!;

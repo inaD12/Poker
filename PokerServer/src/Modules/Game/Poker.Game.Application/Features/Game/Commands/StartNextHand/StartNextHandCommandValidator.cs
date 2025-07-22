@@ -1,11 +1,12 @@
 using FluentValidation;
+using Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 using Poker.Game.Domain.Utilities;
 
-namespace Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
+namespace Poker.Game.Application.Features.Game.Commands.StartNextHand;
 
-internal class GetPlayerFromGameQueryValidator : AbstractValidator<GetPlayerFromGameQuery>
+internal class StartNextHandCommandValidator : AbstractValidator<PlayerAllInCommand>
 {
-    public GetPlayerFromGameQueryValidator()
+    public StartNextHandCommandValidator()
     {
         RuleFor(x => x.TableId)
             .NotEmpty()

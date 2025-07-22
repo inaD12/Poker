@@ -31,7 +31,7 @@ public sealed class CreateLobbyCommandHandler : ICommandHandler<CreateLobbyComma
 
         var player = _pokerMapper.Map<Player>(userResponse.Value!);
 
-        var lobbyResponse = Domain.Entities.Lobby.CreateLobby([player]);
+        var lobbyResponse = Domain.Entities.Lobby.CreateLobby([player], request.StartingPlayerId);
         if (lobbyResponse.IsFailure)
             return Result<LobbyCommandViewModel>.Failure(lobbyResponse.Response);
         var lobby = lobbyResponse.Value!;

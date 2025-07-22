@@ -23,6 +23,9 @@
         <Reference Include="FluentValidation">
             <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\fluentvalidation\12.0.0\lib\net8.0\FluentValidation.dll</HintPath>
         </Reference>
+        <Reference Include="Serilog">
+          <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\serilog\4.2.0\lib\net8.0\Serilog.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>

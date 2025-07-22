@@ -26,6 +26,7 @@ public sealed class Table : Entity
         GamePhase phase,
         int currentBet,
         int minimumRaise,
+        string hostPlayerId,
         Deck deck)
     {
         CommunityCards = communityCards;
@@ -34,6 +35,7 @@ public sealed class Table : Entity
         CurrentPhase = phase;
         CurrentBet = currentBet;
         MinimumRaise = minimumRaise;
+        HostPlayerId = hostPlayerId;
         Deck = deck;
         PlayerManager = new PlayerManager(players, currentTurnPlayerPosition);
     }
@@ -43,12 +45,17 @@ public sealed class Table : Entity
     public int DealerPosition { get; private set; }
     public int CurrentBet { get; private set; }
     public int MinimumRaise { get; }
+    public bool WaitingForNextHand { get; private set; } = false;
+    public string HostPlayerId { get; private set; }
     public GamePhase CurrentPhase { get; private set; }
-    public Deck Deck { get; }
+    public Deck Deck { get; private set; }
     public PlayerManager PlayerManager { get; }
 
-    public static Result<Table> StartGame(List<Player> players)
+    public static Result<Table> StartGame(List<Player> players, string hostPlayerId)
     {
+        if (players.All(p => p.Id != hostPlayerId))
+            return Result<Table>.Failure(ResponseList.HostNotFromPlayers);
+        
         switch (players.Count)
         {
             case > 6:
@@ -74,6 +81,7 @@ public sealed class Table : Entity
             GamePhase.PreFlop,
             0,
             10,
+            hostPlayerId,
             shuffledDeck);
 
         return Result<Table>.Success(gameRoom);
@@ -203,8 +211,11 @@ public sealed class Table : Entity
         return Result.Success();
     }
 
-    public GameStateDto GetGameState(string requestingPlayerId)
+    public Result<GameStateDto> GetGameState(string requestingPlayerId)
     {
+        if (PlayerManager.Players.All(p => p.Id != requestingPlayerId))
+            return Result<GameStateDto>.Failure(ResponseList.PlayerNotInGame);
+        
         var players = PlayerManager.Players
             .Select(p => new PlayerStateDto(
                 p.Id,
@@ -219,15 +230,56 @@ public sealed class Table : Entity
             ))
             .ToList();
 
-        return new GameStateDto(
+        var dto = new GameStateDto(
             CurrentPhase,
             CommunityCards.Select(c => new CardDto(c.Suit, c.Rank)).ToList(),
             CurrentPot,
             CurrentBet,
             MinimumRaise,
             PlayerManager.GetCurrentTurnPlayer().Id,
-            players
-        );
+            PlayerManager.Players[DealerPosition].Id,
+            players);
+            
+        return Result<GameStateDto>.Success(dto);
+    }
+    public Result StartNextHand(string playerId)
+    {
+        if (playerId != HostPlayerId)
+            return Result.Failure(ResponseList.OnlyHostCanStartNextHand);
+
+        if (!WaitingForNextHand)
+            return Result.Failure(ResponseList.HandNotFinished);
+
+        var players = PlayerManager.Players;
+        
+        switch (players.Count)
+        {
+            case > 6:
+                return Result.Failure(ResponseList.SixPlayersMaximum);
+            case < 2:
+                return Result.Failure(ResponseList.TwoPlayersRequired);
+        }
+
+        var shuffledDeck = Deck.CreateShuffled();
+
+        foreach (var player in players)
+        {
+            var hand = Hand.Create([shuffledDeck.Draw(), shuffledDeck.Draw()]);
+            player.SetHand(hand);
+        }
+
+        CommunityCards.Clear();
+        CurrentPot = 0;
+        CurrentBet = 0;
+        WaitingForNextHand = false;
+
+        CurrentPhase = GamePhase.PreFlop;
+        Deck = shuffledDeck;
+        DealerPosition = (DealerPosition + 1) % players.Count;
+        PlayerManager.SetFirstActivePlayer();
+
+        RaiseDomainEvent(new NewHandDomainEvent(Id));
+        return Result.Success();
     }
 
     public PlayerInfoDto? GetPlayerDto(string playerId)
@@ -295,7 +347,7 @@ public sealed class Table : Entity
 
     private void HandleShowdown()
     {
-        // TODO: Reset game.
+        WaitingForNextHand = true;
 
         CurrentPhase = GamePhase.Showdown;
 

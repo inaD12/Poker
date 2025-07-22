@@ -10,6 +10,8 @@ public class LobbyCommandProfile : Profile
     public LobbyCommandProfile()
     {
         CreateMap<UserDataDto, Player>();
-        CreateMap<string, LobbyCommandViewModel>();
+        CreateMap<string, LobbyCommandViewModel>()
+            .ConstructUsing(src => new LobbyCommandViewModel(src));
+
     }
 }

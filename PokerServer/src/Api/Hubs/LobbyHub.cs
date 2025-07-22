@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
@@ -24,28 +23,27 @@ public class LobbyHub : Hub<ILobbyClient>
         _claimsExtractorService = claimsExtractorService;
     }
 
-    public async Task<Result<LobbyCommandViewModel>> CreateLobby()
+    public async Task<Result<LobbyCommandViewModel>> CreateLobby(CancellationToken cancellationToken)
     {
-        var userId = _claimsExtractorService.GetUserId();
-        //var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
+        var playerId = _claimsExtractorService.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
             return Result<LobbyCommandViewModel>.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.CreateLobbyAsync(userId, CancellationToken.None);
+        var result = await _lobbyService.CreateLobbyAsync(playerId, CancellationToken.None);
         if (result.IsFailure)
             return Result<LobbyCommandViewModel>.Failure(result.Response);
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, result.Value!.Id, CancellationToken.None);
+        await Groups.AddToGroupAsync(Context.ConnectionId, result.Value!.Id, cancellationToken);
         return result;
     }
 
     public async Task<Result> JoinLobby(string lobbyId, CancellationToken cancellationToken)
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
+        var playerId = _claimsExtractorService.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.AddPlayerToLobbyAsync(lobbyId, userId, cancellationToken);
+        var result = await _lobbyService.AddPlayerToLobbyAsync(lobbyId, playerId, cancellationToken);
         if (result.IsFailure)
             return result;
 
@@ -55,11 +53,11 @@ public class LobbyHub : Hub<ILobbyClient>
 
     public async Task<Result> LeaveLobby(string lobbyId, CancellationToken cancellationToken)
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
+        var playerId = _claimsExtractorService.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.RemovePlayerFromLobbyAsync(lobbyId, userId, cancellationToken);
+        var result = await _lobbyService.RemovePlayerFromLobbyAsync(lobbyId, playerId, cancellationToken);
         if (result.IsFailure)
             return result;
 
@@ -73,19 +71,22 @@ public class LobbyHub : Hub<ILobbyClient>
         if (gameResult.IsFailure)
             return Result.Failure(gameResult.Response);
 
-        var gameId = gameResult.Value!.Id;
+        var tableId = gameResult.Value!.Id;
 
-        await Clients.Group(lobbyId).GameStarted(gameId);
+        await Clients.Group(lobbyId).GameStarted(tableId);
         return Result.Success();
     }
-
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var httpContext = Context.GetHttpContext();
-        var gameId = httpContext?.Request.Query["gameId"].ToString();
+        var lobbyId = httpContext?.Request.Query["lobbyId"].ToString();
 
-        if (!string.IsNullOrWhiteSpace(gameId)) await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+        var playerId = _claimsExtractorService.GetUserId();
+        if (!string.IsNullOrWhiteSpace(lobbyId) && !string.IsNullOrWhiteSpace(playerId))
+        {
+            await _lobbyService.RemovePlayerFromLobbyAsync(lobbyId, playerId, CancellationToken.None);
+        }
 
         await base.OnDisconnectedAsync(exception);
     }

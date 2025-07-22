@@ -1,10 +1,9 @@
 using System.Security.Claims;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
-using Poker.Game.Application.Features.Game.Queries.GetPlayerFromGame;
+using Poker.Common.Presentation.Abstractions;
 using Poker.Game.Presentation.Features.Game.Service;
 
 namespace PokerServer.Hubs;
@@ -13,103 +12,107 @@ namespace PokerServer.Hubs;
 public class GameHub : Hub<IGameClient>
 {
     private readonly IGameService _gameService;
-    private readonly ISender _sender;
+    private readonly IClaimsExtractor _claimsExtractor;
 
-    public GameHub(IGameService gameService, ISender sender)
+    public GameHub(IGameService gameService, IClaimsExtractor claimsExtractor)
     {
         _gameService = gameService;
-        _sender = sender;
+        _claimsExtractor = claimsExtractor;
     }
 
     public override async Task OnConnectedAsync()
     {
-        var (userId, gameId) = GetUserAndGameId();
-        if (userId is null || gameId is null)
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
         {
             Context.Abort();
             return;
         }
 
-        var query = new GetPlayerFromGameQuery(gameId, userId);
-        var result = await _sender.Send(query);
-        if (result.IsFailure)
+        var result = await _gameService.GetTableAsync(tableId, playerId, CancellationToken.None);
+        if (result.IsFailure || result.Value!.Players.All(p => p.Id != playerId))
         {
             Context.Abort();
             return;
         }
+        Context.Items["gameId"] = tableId;
 
-        Context.Items["gameId"] = gameId;
-
-        await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+        await Groups.AddToGroupAsync(Context.ConnectionId, tableId);
+        
+        var gameState = result.Value!;
+        await Clients.Caller.ReceiveGameState(gameState);
+        
         await base.OnConnectedAsync();
     }
 
     public async Task<Result> PlaceBet(int amount, CancellationToken cancellationToken)
     {
-        var (userId, gameId) = GetUserAndGameId();
-        if (userId is null || gameId is null)
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerPlacedBetAsync(gameId, userId, amount, cancellationToken);
-        if (result.IsFailure)
-            return result;
-
-        return Result.Success();
+        var result = await _gameService.PlayerPlacedBetAsync(tableId, playerId, amount, cancellationToken);
+        
+        return result;
     }
 
     public async Task<Result> Fold(CancellationToken cancellationToken)
     {
-        var (userId, gameId) = GetUserAndGameId();
-        if (userId is null || gameId is null)
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerFoldedAsync(gameId, userId, cancellationToken);
-        if (result.IsFailure)
-            return result;
+        var result = await _gameService.PlayerFoldedAsync(tableId, playerId, cancellationToken);
 
-        return Result.Success();
+        return result;
     }
 
     public async Task<Result> AllIn(CancellationToken cancellationToken)
     {
-        var (userId, gameId) = GetUserAndGameId();
-        if (userId is null || gameId is null)
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerAllInAsync(gameId, userId, cancellationToken);
-        if (result.IsFailure)
-            return result;
-
-        return Result.Success();
+        var result = await _gameService.PlayerAllInAsync(tableId, playerId, cancellationToken);
+        
+        return result;
     }
 
     public async Task<Result> Check(CancellationToken cancellationToken)
     {
-        var (userId, gameId) = GetUserAndGameId();
-        if (userId is null || gameId is null)
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerCheckedAsync(gameId, userId, cancellationToken);
-        if (result.IsFailure)
-            return result;
+        var result = await _gameService.PlayerCheckedAsync(tableId, playerId, cancellationToken);
 
-        return Result.Success();
+        return result;
     }
 
+    public async Task<Result> StartNextHand(CancellationToken cancellationToken)
+    {
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
+            return Result.Failure(SharedResponses.InternalError);
+
+        var result = await _gameService.StartNextHandAsync(tableId, playerId, cancellationToken);
+        
+        return result;
+    }
+    
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var httpContext = Context.GetHttpContext();
-        var gameId = httpContext?.Request.Query["gameId"].ToString();
-
-        if (!string.IsNullOrWhiteSpace(gameId)) await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is not null && tableId is not null)
+           // await _gameService.RemovePlayerFromGameAsync(lobbyId, playerId, CancellationToken.None);
 
         await base.OnDisconnectedAsync(exception);
     }
 
     private (string? userId, string? gameId) GetUserAndGameId()
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var gameId = Context.Items.TryGetValue("gameId", out var id) && id is string gid ? gid : null;
+        var userId = _claimsExtractor.GetUserId();
+        var gameId = Context.Items.TryGetValue("tableId", out var id) && id is string gid ? gid : null;
         return (userId, gameId);
     }
 }

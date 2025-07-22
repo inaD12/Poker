@@ -1,11 +1,14 @@
 using MediatR;
+using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Results;
 using Poker.Game.Application.Features.Game.Commands.GameStart;
 using Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 using Poker.Game.Application.Features.Game.Commands.PlayerChecked;
 using Poker.Game.Application.Features.Game.Commands.PlayerFolded;
 using Poker.Game.Application.Features.Game.Commands.PlayerPlacedBet;
+using Poker.Game.Application.Features.Game.Commands.StartNextHand;
 using Poker.Game.Application.Features.Game.Models;
+using Poker.Game.Application.Features.Game.Queries.GetTable;
 
 namespace Poker.Game.Presentation.Features.Game.Service;
 
@@ -60,6 +63,24 @@ internal class GameService : IGameService
         var command = new PlayerPlacedBetCommand(tableId, playerId, amount);
 
         var result = await _sender.Send(command, cancellationToken);
+
+        return result;
+    }
+    
+    public async Task<Result> StartNextHandAsync(string tableId, string playerId, CancellationToken cancellationToken)
+    {
+        var command = new StartNextHandCommand(tableId, playerId);
+        
+        var result = await _sender.Send(command, cancellationToken);
+
+        return result;
+    }
+    
+    public async Task<Result<GameStateDto>> GetTableAsync(string tableId, string playerId, CancellationToken cancellationToken)
+    {
+        var query = new GetTableQuery(tableId, playerId);
+        
+        var result = await _sender.Send(query,  cancellationToken);
 
         return result;
     }
