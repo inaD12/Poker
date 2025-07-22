@@ -9,9 +9,11 @@ public abstract class Entity
     public Entity()
     {
         Id = Guid.NewGuid().ToString();
+        CreatedAt = DateTime.UtcNow;
     }
 
     public string Id { get; set; }
+    public DateTime CreatedAt { get; init; }
 
     public IReadOnlyList<IDomainEvent> GetDomainEvents()
     {

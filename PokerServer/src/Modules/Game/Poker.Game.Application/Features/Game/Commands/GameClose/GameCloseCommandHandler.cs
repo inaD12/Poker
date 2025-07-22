@@ -20,12 +20,14 @@ internal sealed class GameCloseCommandHandler : ICommandHandler<GameCloseCommand
 
     public async Task<Result> Handle(GameCloseCommand request, CancellationToken cancellationToken)
     {
-        var resGame = await _tableStore.GetAsync(request.TableId, cancellationToken);
-        if (resGame is null)
+        var game = await _tableStore.GetAsync(request.TableId, cancellationToken);
+        if (game is null)
             return Result.Failure(ResponseList.TableNotFound);
         
-        if(resGame.HostPlayerId != request.PlayerId)
+        if(game.HostPlayerId != request.PlayerId)
             return Result.Failure(ResponseList.NotHost);
+        if(!game.WaitingForNextHand)
+            return Result.Failure(ResponseList.HandNotFinished);
         
         await _tableStore.DeleteAsync(request.TableId, cancellationToken);
         await _tableNotifier.NotifyGameClosingAsync(request.TableId);

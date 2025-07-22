@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Poker.Common.Domain.Models;
 using Poker.Game.Domain.Abstractions.Interfaces;
 using Poker.Game.Domain.Entities;
 using Poker.Game.Infrastructure.Features.DBContexts;
@@ -41,5 +42,16 @@ public class LobbyRepository : ILobbyRepository
     public void Delete(Lobby lobby)
     {
         _context.Remove(lobby);
+    }
+    
+    public async Task<PagedList<Lobby>> GetAllLobbiesPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var lobbiesQuery =  _context.Lobbies
+            .OrderByDescending(l => l.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+
+        var lobbies = await PagedList<Lobby>.CreateAsync(lobbiesQuery, pageNumber, pageSize, cancellationToken);
+        return  lobbies;
     }
 }

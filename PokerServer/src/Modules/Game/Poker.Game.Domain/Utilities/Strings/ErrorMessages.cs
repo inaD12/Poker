@@ -26,4 +26,5 @@ public static class ErrorMessages
     public const string NotHost = "Only the host can do this";
     public const string UsernameEmpty = "Username cannot be empty";
     public const string BalanceNegative = "Balance cannot be negative";
+    public const string NoLobbiesFound = "No lobbies exist at the moment";
 }

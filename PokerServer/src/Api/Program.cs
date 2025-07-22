@@ -8,12 +8,11 @@ using Serilog;
 
 //TODO: change host when original one leaves,
 //delete game/lobby if left empty/not enough players,
-//StopGame only after showdown,
 //LeaveGame,
 //Game reconnection(find which game player is in),
-//GetAllLobbies,
+//GetLobby,
 //distribute funds to users module after game,
-//Optional: timeouts, chat, game history, admin controls, refunds if game is canceled, rejoin period
+//Optional: timeouts, chat, game history, admin controls, refunds if game is canceled, rejoin period, extract lobby to its module?
 
 var builder = WebApplication.CreateBuilder(args);
 
