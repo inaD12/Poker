@@ -6,6 +6,16 @@ using PokerServer.Extensions;
 using PokerServer.Hubs;
 using Serilog;
 
+//TODO: change host when original one leaves,
+//delete game/lobby if left empty/not enough players,
+//StopGame only after showdown,
+//LeaveGame,
+//Game reconnection(find which game player is in),
+//GetAllLobbies,
+//distribute funds to users module after game,
+//get full dto from users module for display 
+//Optional: timeouts, chat, game history, admin controls, refunds if game is canceled, rejoin period
+
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
