@@ -100,6 +100,17 @@ public class GameHub : Hub<IGameClient>
         return result;
     }
     
+    public async Task<Result> CloseGame(CancellationToken cancellationToken)
+    {
+        var (playerId, tableId) = GetUserAndGameId();
+        if (playerId is null || tableId is null)
+            return Result.Failure(SharedResponses.InternalError);
+
+        var result = await _gameService.GameCloseAsync(tableId, playerId, cancellationToken);
+        
+        return result;
+    }
+    
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var (playerId, tableId) = GetUserAndGameId();

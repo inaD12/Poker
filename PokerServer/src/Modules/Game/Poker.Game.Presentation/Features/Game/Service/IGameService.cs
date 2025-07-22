@@ -13,4 +13,5 @@ public interface IGameService
     Task<Result> PlayerPlacedBetAsync(string tableId, string playerId, int amount, CancellationToken cancellationToken);
     Task<Result> StartNextHandAsync(string tableId, string playerId, CancellationToken cancellationToken);
     Task<Result<GameStateDto>> GetTableAsync(string tableId, string playerId, CancellationToken cancellationToken);
+    Task<Result> GameCloseAsync(string tableId, string playerId, CancellationToken cancellationToken);
 }

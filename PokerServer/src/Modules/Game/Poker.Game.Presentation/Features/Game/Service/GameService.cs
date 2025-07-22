@@ -1,6 +1,7 @@
 using MediatR;
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Results;
+using Poker.Game.Application.Features.Game.Commands.GameClose;
 using Poker.Game.Application.Features.Game.Commands.GameStart;
 using Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 using Poker.Game.Application.Features.Game.Commands.PlayerChecked;
@@ -79,6 +80,15 @@ internal class GameService : IGameService
     public async Task<Result<GameStateDto>> GetTableAsync(string tableId, string playerId, CancellationToken cancellationToken)
     {
         var query = new GetTableQuery(tableId, playerId);
+        
+        var result = await _sender.Send(query,  cancellationToken);
+
+        return result;
+    }
+
+    public async Task<Result> GameCloseAsync(string tableId, string playerId, CancellationToken cancellationToken)
+    {
+        var query = new GameCloseCommand(tableId, playerId);
         
         var result = await _sender.Send(query,  cancellationToken);
 

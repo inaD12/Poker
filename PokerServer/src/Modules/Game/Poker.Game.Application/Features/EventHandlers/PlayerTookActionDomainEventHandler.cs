@@ -18,6 +18,6 @@ public sealed class PlayerTookActionDomainEventHandler : INotificationHandler<Pl
     {
         await _notifier.NotifyPlayerActionAsync(notification.TableId, notification.PlayerId,
             notification.Action.ToNotification(notification.Amount));
-        await _notifier.NotifyNextPlayer(notification.NextPlayerId);
+        await _notifier.NotifyNextPlayerAsync(notification.NextPlayerId);
     }
 }

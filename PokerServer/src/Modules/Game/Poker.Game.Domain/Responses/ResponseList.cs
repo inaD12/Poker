@@ -27,6 +27,7 @@ public static class ResponseList
     public static Response LobbyNotFound => Response.Create(ErrorMessages.LobbyNotFound, HttpStatusCode.NotFound);
     public static Response PlayerNotInLobby => Response.Create(ErrorMessages.PlayerNotInLobby, HttpStatusCode.NotFound);
     public static Response HostNotFromPlayers => Response.Create(ErrorMessages.HostNotFromPlayers, HttpStatusCode.Conflict);
-    public static Response OnlyHostCanStartNextHand => Response.Create(ErrorMessages.OnlyHostCanStartNextHand, HttpStatusCode.Conflict);
+    public static Response OnlyHostCanStartNextHand => Response.Create(ErrorMessages.OnlyHostCanStartNextHand, HttpStatusCode.Unauthorized);
     public static Response HandNotFinished => Response.Create(ErrorMessages.HandNotFinished, HttpStatusCode.Conflict);
+    public static Response NotHost => Response.Create(ErrorMessages.NotHost, HttpStatusCode.Unauthorized);
 }
