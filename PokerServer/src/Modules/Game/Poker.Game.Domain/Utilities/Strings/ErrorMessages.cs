@@ -24,4 +24,6 @@ public static class ErrorMessages
     public const string OnlyHostCanStartNextHand = "Only host can start next hand";
     public const string HandNotFinished = "Hand hasn't finished yet";
     public const string NotHost = "Only the host can do this";
+    public const string UsernameEmpty = "Username cannot be empty";
+    public const string BalanceNegative = "Balance cannot be negative";
 }

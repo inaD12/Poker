@@ -10,25 +10,33 @@ public sealed class Player : Entity
     {
     }
 
-    private Player(string username, int balance, Hand? hand)
+    private Player(string username, int balance, Hand? hand, int gamesPlayed, int gamesWon, decimal totalEarnings)
     {
         Username = username;
         Balance = balance;
         Hand = hand;
+        GamesPlayed = gamesPlayed;
+        GamesWon = gamesWon;
+        TotalEarnings = totalEarnings;
     }
 
     public string Username { get; private set; } = null!;
     public int Balance { get; private set; }
     public Hand? Hand { get; private set; }
+    
+    public int GamesPlayed { get; private set; }
+    public int GamesWon { get; private set; }
+    public decimal TotalEarnings { get; private set; }
 
-    public static Player Create(string username, int balance)
+    public static Result<Player> Create(string username, int balance)
     {
         if (string.IsNullOrWhiteSpace(username))
-            throw new ArgumentException("Username cannot be empty.", nameof(username));
+            return Result<Player>.Failure(ResponseList.UsernameEmpty);
         if (balance < 0)
-            throw new ArgumentException("Balance cannot be negative.", nameof(balance));
+            return Result<Player>.Failure(ResponseList.BalanceNegative);
 
-        return new Player(username, balance, null);
+        var player = new Player(username, balance, null, 0, 0, 0);
+        return Result<Player>.Success(player);
     }
 
     internal void SetHand(Hand hand)

@@ -33,7 +33,10 @@ public class LobbyHub : Hub<ILobbyClient>
         if (result.IsFailure)
             return Result<LobbyCommandViewModel>.Failure(result.Response);
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, result.Value!.Id, cancellationToken);
+        string lobbyId = result.Value!.Id;
+        Context.Items["lobbyId"] = lobbyId;
+        
+        await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, cancellationToken);
         return result;
     }
 
@@ -47,6 +50,7 @@ public class LobbyHub : Hub<ILobbyClient>
         if (result.IsFailure)
             return result;
 
+        Context.Items["lobbyId"] = lobbyId;
         await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, cancellationToken);
         return Result.Success();
     }

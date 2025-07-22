@@ -9,7 +9,10 @@ public static class PlayerMapper
     {
         return new PlayerInfoDto(
             player.Id,
-            player.Username
+            player.Username,
+            player.GamesPlayed,
+            player.GamesWon,
+            player.TotalEarnings
         );
     }
 }

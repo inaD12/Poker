@@ -35,7 +35,7 @@ public class GameHub : Hub<IGameClient>
             Context.Abort();
             return;
         }
-        Context.Items["gameId"] = tableId;
+        Context.Items["tableId"] = tableId;
 
         await Groups.AddToGroupAsync(Context.ConnectionId, tableId);
         
@@ -115,7 +115,7 @@ public class GameHub : Hub<IGameClient>
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is not null && tableId is not null)
-           // await _gameService.RemovePlayerFromGameAsync(lobbyId, playerId, CancellationToken.None);
+           // await _gameService.PlayerDisconnectedAsync(lobbyId, playerId, CancellationToken.None);
 
         await base.OnDisconnectedAsync(exception);
     }

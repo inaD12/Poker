@@ -16,7 +16,10 @@ public class UserQueryProfile : Profile
         CreateMap<UserQueryViewModel, UserDataDto>()
             .ConstructUsing(src => new UserDataDto(
                 src.Id,
-                src.Username));
+                src.Username,
+                src.GamesPlayed,
+                src.GamesWon,
+                src.TotalEarnings));
 
         CreateMap<UserQueryViewModel, UserQueryResponse>();
     }

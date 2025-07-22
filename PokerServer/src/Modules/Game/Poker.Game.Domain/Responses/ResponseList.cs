@@ -30,4 +30,6 @@ public static class ResponseList
     public static Response OnlyHostCanStartNextHand => Response.Create(ErrorMessages.OnlyHostCanStartNextHand, HttpStatusCode.Unauthorized);
     public static Response HandNotFinished => Response.Create(ErrorMessages.HandNotFinished, HttpStatusCode.Conflict);
     public static Response NotHost => Response.Create(ErrorMessages.NotHost, HttpStatusCode.Unauthorized);
+    public static Response UsernameEmpty => Response.Create(ErrorMessages.UsernameEmpty, HttpStatusCode.BadRequest);
+    public static Response BalanceNegative => Response.Create(ErrorMessages.BalanceNegative, HttpStatusCode.BadRequest);
 }
