@@ -28,7 +28,7 @@ public sealed class NewHandDomainEventHandler : INotificationHandler<NewHandDoma
 
         }
 
-        foreach (var player in table.PlayerManager.Players)
+        foreach (var player in table.Players)
         {
             var resGameStateDto = table.GetGameState(player.Id);
             if (resGameStateDto.IsFailure)

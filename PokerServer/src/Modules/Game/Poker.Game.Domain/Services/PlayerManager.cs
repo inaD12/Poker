@@ -6,85 +6,151 @@ namespace Poker.Game.Domain.Services;
 
 public class PlayerManager
 {
-    public PlayerManager(List<Player> players, int currentTurnPlayerPosition)
+    public PlayerManager(List<Player> players, int currentTurnPlayerPosition, string hostPlayerId, int dealerPosition)
     {
-        Players = players;
-        PlayerDictionary = players.ToDictionary(p => p.Id);
-        CurrentTurnPlayerPosition = currentTurnPlayerPosition;
+        _players = players;
+        _playerDictionary = players.ToDictionary(p => p.Id);
+        _currentTurnPlayerPosition = currentTurnPlayerPosition;
+        HostPlayerId = hostPlayerId;
+        DealerPosition = dealerPosition;
     }
 
-    public int CurrentTurnPlayerPosition { get; private set; }
-    public List<Player> Players { get; }
-    public Dictionary<string, Player> PlayerDictionary { get; }
+    private int _currentTurnPlayerPosition;
+    private readonly List<Player> _players;
+    private readonly Dictionary<string, Player> _playerDictionary;
+    public string HostPlayerId {get; private set;}
+    public int DealerPosition {get; set;}
 
-    public Player GetCurrentTurnPlayer()
-    {
-        return Players[CurrentTurnPlayerPosition];
-    }
+    internal IReadOnlyCollection<Player> Players => _players.AsReadOnly();
+    internal Player Dealer => _players[DealerPosition];
+    internal Player CurrentTurnPlayer =>  _players[_currentTurnPlayerPosition];
+    internal Player? GetPlayer(string playerId) =>
+        _playerDictionary.GetValueOrDefault(playerId);
+    internal int ActivePlayerCount => 
+        Players.Count(p => p.Hand is not null && !p.Hand.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected);
 
-    public int GetNextActivePosition()
+    internal void SetNextActivePosition()
     {
-        for (var i = 1; i <= Players.Count; i++)
+        for (var i = 1; i <= _players.Count; i++)
         {
-            var next = (CurrentTurnPlayerPosition + i) % Players.Count;
-            var p = Players[next];
-            if (!p.Hand!.IsFolded && !p.Hand.IsAllIn)
-                return next;
+            var next = (_currentTurnPlayerPosition + i) % _players.Count;
+            var p = _players[next];
+            
+            if (p.IsDisconnected)
+                p.Hand!.Fold();
+
+            if (!p.Hand!.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected)
+            {
+                _currentTurnPlayerPosition = next;
+                return;
+            }
         }
 
         throw new InvalidOperationException("No eligible players.");
     }
 
-    public bool IsBettingRoundComplete(int currentBet)
+    internal bool IsBettingRoundComplete(int currentBet)
     {
-        var activePlayers = Players
+        var activePlayers = _players
             .Where(p => !p.Hand!.IsFolded && !p.Hand.IsAllIn)
             .ToList();
 
         return activePlayers.All(p => p.Hand!.Bet == currentBet);
     }
 
-    public bool OnlyOneActivePlayer()
+    internal bool IsPlayerTurn(string playerId)
     {
-        return Players.Count(p => !p.Hand!.IsFolded) == 1;
-    }
-
-    public bool IsPlayerTurn(string playerId)
-    {
-        if (Players[CurrentTurnPlayerPosition].Id != playerId)
+        if (_players[_currentTurnPlayerPosition].Id != playerId)
             return false;
 
         return true;
     }
 
-    public void ResetHandsForNextRound()
+    internal void ResetHandsForNextRound()
     {
-        foreach (var player in Players)
+        foreach (var player in _players)
             if (player.Hand != null)
                 player.Hand.ResetBet();
     }
 
-
-    public void SetFirstActivePlayer()
+    internal void SetFirstActivePlayer()
     {
-        for (var i = 0; i < Players.Count; i++)
+        for (var i = 0; i < _players.Count; i++)
         {
-            var player = Players[i];
-            if (player.Hand == null || player.Hand.IsFolded || player.Hand.IsAllIn)
-                continue;
-
-            CurrentTurnPlayerPosition = i;
-            return;
+            var p = _players[i];
+            if (p.Hand != null && !p.Hand.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected)
+            {
+                _currentTurnPlayerPosition = i;
+                return;
+            }
         }
     }
 
-    public Result<Player> GetPlayerIfHisTurn(string playerId)
+    internal Result<Player> GetPlayerIfHisTurn(string playerId)
     {
-        if (!PlayerDictionary.TryGetValue(playerId, out var player))
+        if (!_playerDictionary.TryGetValue(playerId, out var player))
             return Result<Player>.Failure(ResponseList.PlayerNotInGame);
         if (!IsPlayerTurn(playerId))
             return Result<Player>.Failure(ResponseList.NotYourTurn);
 
         return Result<Player>.Success(player);
+    }
+    
+    internal Result KickPlayer(string playerId)
+    {
+        var result = RemovePlayer(playerId);
+        if (result.IsFailure)
+            return result;
+
+        if (DealerPosition >= _players.Count)
+            DealerPosition = 0;
+
+        if (HostPlayerId == playerId && _players.Any())
+            HostPlayerId = _players[0].Id;
+
+        return Result.Success();
+    }
+    
+    private Result RemovePlayer(string playerId)
+    {
+        var index = _players.FindIndex(p => p.Id == playerId);
+        if (index == -1)
+            return Result.Failure(ResponseList.PlayerNotInGame);
+
+        _playerDictionary.Remove(playerId);
+        _players.RemoveAt(index);
+
+        if (index == _currentTurnPlayerPosition)
+        {
+            _currentTurnPlayerPosition %= _players.Count;
+            SetNextActivePosition();
+        }
+        else if (index < _currentTurnPlayerPosition)
+            _currentTurnPlayerPosition--;
+
+        return Result.Success();
+    }
+    
+    internal Result PlayerDisconnected(string playerId)
+    {
+        if (!_playerDictionary.TryGetValue(playerId, out var player))
+            return Result.Failure(ResponseList.PlayerNotInGame);
+
+        player.Disconnect();
+
+        if (IsPlayerTurn(playerId))
+            SetNextActivePosition();
+        
+        return Result.Success();
+    }
+
+    internal Result PlayerReconnected(string playerId)
+    {
+        if (!_playerDictionary.TryGetValue(playerId, out var player))
+            return Result.Failure(ResponseList.PlayerNotInGame);
+
+        player.Reconnect();
+        
+        return Result.Success();
     }
 }

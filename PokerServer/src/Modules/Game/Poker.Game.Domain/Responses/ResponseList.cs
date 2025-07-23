@@ -33,4 +33,5 @@ public static class ResponseList
     public static Response UsernameEmpty => Response.Create(ErrorMessages.UsernameEmpty, HttpStatusCode.BadRequest);
     public static Response BalanceNegative => Response.Create(ErrorMessages.BalanceNegative, HttpStatusCode.BadRequest);
     public static Response NoLobbiesFound => Response.Create(ErrorMessages.NoLobbiesFound, HttpStatusCode.BadRequest);
+    public static Response CannotLeaveDuringActiveHand => Response.Create(ErrorMessages.CannotLeaveDuringActiveHand, HttpStatusCode.Forbidden);
 }

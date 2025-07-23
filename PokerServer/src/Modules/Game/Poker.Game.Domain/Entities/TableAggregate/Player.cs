@@ -18,15 +18,27 @@ public sealed class Player : Entity
         GamesPlayed = gamesPlayed;
         GamesWon = gamesWon;
         TotalEarnings = totalEarnings;
+        IsDisconnected = false;
     }
 
-    public string Username { get; private set; } = null!;
+    public string Username { get; private set; }
     public int Balance { get; private set; }
     public Hand? Hand { get; private set; }
     
     public int GamesPlayed { get; private set; }
     public int GamesWon { get; private set; }
     public decimal TotalEarnings { get; private set; }
+    public bool IsDisconnected { get; private set; }
+
+    public void Disconnect()
+    {
+        IsDisconnected = true;
+    }
+
+    public void Reconnect()
+    {
+        IsDisconnected = false;
+    }
 
     public static Result<Player> Create(string username, int balance)
     {

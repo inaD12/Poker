@@ -6,9 +6,9 @@ using PokerServer.Extensions;
 using PokerServer.Hubs;
 using Serilog;
 
-//TODO: change host when original one leaves,
+//TODO:
+//kick, disconnect, reconnect, leave event handlers
 //delete game/lobby if left empty/not enough players,
-//LeaveGame,
 //Game reconnection(find which game player is in),
 //GetLobby,
 //distribute funds to users module after game,
