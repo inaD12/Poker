@@ -3,12 +3,6 @@ export interface LoginUserRequest{
     password: string;
 }
 
-export interface LoginUserResponse {
-  message: string;
-  data: {
-    token: string;
-  };
-}
 
 export interface RegisterUserRequest{
     email: string;

@@ -1,14 +1,18 @@
 import apiClient from "../../api/apiClients";
 import apiRoutes from "../../api/apiEndpoints.config";
-import type { LoginUserRequest, LoginUserResponse, RegisterUserRequest, RegisterUserResponse } from "../types/users.types";
+import type { LoginUserRequest,RegisterUserRequest, RegisterUserResponse } from "../types/users.types";
 
 const userService = {
-    login: async (data: LoginUserRequest): Promise<LoginUserResponse> => {
-        const response = await apiClient.post<LoginUserResponse>(
-            apiRoutes.users.login,
-            data
-        );
-        return response.data;
+    login: async (data: LoginUserRequest) => {
+        return await apiClient.post(apiRoutes.users.login, data);
+    },
+
+    logout: async () => {
+        return await apiClient.post(apiRoutes.users.logout);
+    },
+
+    checkAuth: async () => {
+        return await apiClient.get(apiRoutes.users.checkAuth);
     },
 
     register: async (data: RegisterUserRequest): Promise<RegisterUserResponse> => {

@@ -19,15 +19,23 @@ namespace Poker.Users.Presentation.Features.Endpoints;
 
 internal class UserEndpoints : IEndpoints
 {
+    private const string AuthTokenKey = "auth_token";
+    
     public void RegisterEndpoints(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/users");
+        var group = app.MapGroup("api/users").WithTags("Users");
 
         group.MapPost("login", Login)
-            .Produces<LoginUserResponse>()
+            .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .AllowAnonymous();
+        
+        group.MapPost("logout", Logout)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError)
             .AllowAnonymous();
 
@@ -76,12 +84,18 @@ internal class UserEndpoints : IEndpoints
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status500InternalServerError);
         //.RequireAuthorization();
+        
+        group.MapGet("auth/me", () => Results.Ok())
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .RequireAuthorization();
     }
 
     private async Task<IResult> Login(
         [FromBody] LoginUserRequest request,
         [FromServices] ISender sender,
         [FromServices] IPokerMapper mapper,
+        HttpResponse response,
         CancellationToken cancellationToken)
     {
         var command = mapper.Map<LoginUserCommand>(request);
@@ -89,8 +103,32 @@ internal class UserEndpoints : IEndpoints
         if (res.IsFailure)
             return ControllerResponse.ParseAndReturnMessage(res);
 
-        var loginUserResponse = mapper.Map<LoginUserResponse>(res.Value!);
-        return ControllerResponse.ParseAndReturnMessage(res, loginUserResponse);
+        var token = res.Value!.Token;
+
+        response.Cookies.Append(AuthTokenKey, token, new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = false,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(5),
+            Path = "/"
+        });
+
+        return Results.Ok();
+    }
+    
+    private IResult Logout(HttpResponse response)
+    {
+        response.Cookies.Append(AuthTokenKey, "", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(-1),
+            Path = "/"
+        });
+
+        return Results.NoContent();
     }
 
     private async Task<IResult> Register(

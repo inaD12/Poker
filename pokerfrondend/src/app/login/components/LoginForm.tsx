@@ -18,8 +18,8 @@ const LoginForm = () => {
         const data: LoginUserRequest = { email, password };
 
         try {
-            const response = await userService.login(data);
-            login(response.data.token);
+            await userService.login(data);
+            login();
             window.location.href = "/";
         } catch (error: any) {
             if (error.response?.data?.errors) {

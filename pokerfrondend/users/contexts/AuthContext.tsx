@@ -5,13 +5,13 @@ import {
   useContext,
   useEffect,
   useState,
-  type ReactNode
+  type ReactNode,
 } from "react";
-import { tokenService } from "../../utilities/token.service";
+import userService from "../services/users.services";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: () => void;
   logout: () => void;
 }
 
@@ -20,49 +20,31 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const isValid = tokenService.isTokenValid();
-    setIsAuthenticated(isValid);
+   useEffect(() => {
+    checkAuth();
   }, []);
 
-  const login = (token: string) => {
-    tokenService.setToken(token);
+  const checkAuth = async () => {
+    try {
+      await userService.checkAuth();
+      setIsAuthenticated(true);
+    } catch {
+      setIsAuthenticated(false);
+    }
+  };
+
+  const login = async () => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    tokenService.removeToken();
-    setIsAuthenticated(false);
-    if (typeof window !== "undefined") {
+  const logout = async () => {
+    try {
+      await userService.logout();
+    } finally {
+      setIsAuthenticated(false);
       window.location.href = "/login";
     }
   };
-
-  const checkAuth = () => {
-    const isValid = tokenService.isTokenValid();
-    if (!isValid && isAuthenticated) {
-      logout();
-    }
-  };
-
-  useEffect(() => {
-    checkAuth();
-
-    const interval = setInterval(checkAuth, 30 * 1000);
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "auth_token") {
-        checkAuth();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [isAuthenticated]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
@@ -73,8 +55,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
