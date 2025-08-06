@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Options;
@@ -13,14 +14,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDateTimeProvider(this IServiceCollection services)
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddUnitOfWork<TContext>(this IServiceCollection services)
-        where TContext : DbContext
-    {
-        services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
 
         return services;
     }
@@ -49,7 +42,8 @@ public static class ServiceCollectionExtensions
                 {
                     npgsqlOptions.EnableRetryOnFailure();
                     optionsAction?.Invoke(npgsqlOptions);
-                }).UseSnakeCaseNamingConvention();
+                }).UseSnakeCaseNamingConvention()
+                .LogTo(Console.WriteLine, LogLevel.Information);
         });
 
         services

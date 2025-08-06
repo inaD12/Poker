@@ -14,15 +14,15 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
 {
     private readonly IPokerMapper _hamsMapper;
     private readonly IPasswordManager _passwordManager;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUsersUnitOfWork _usersUnitOfWork;
     private readonly IUserRepository _userRepository;
 
-    public RegisterUserCommandHandler(IPasswordManager passwordManager, IPokerMapper hamsMapper, IUnitOfWork unitOfWork,
+    public RegisterUserCommandHandler(IPasswordManager passwordManager, IPokerMapper hamsMapper, IUsersUnitOfWork usersUnitOfWork,
         IUserRepository userRepository)
     {
         _passwordManager = passwordManager;
         _hamsMapper = hamsMapper;
-        _unitOfWork = unitOfWork;
+        _usersUnitOfWork = usersUnitOfWork;
         _userRepository = userRepository;
     }
 
@@ -37,7 +37,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         var user = User.Create(request.Email, passwordHashResult.PasswordHash, passwordHashResult.Salt,
             request.Username);
         await _userRepository.AddAsync(user, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _usersUnitOfWork.SaveChangesAsync(cancellationToken);
 
         var userCommandViewModel = _hamsMapper.Map<UserCommandViewModel>(user);
         return Result<UserCommandViewModel>.Success(userCommandViewModel);

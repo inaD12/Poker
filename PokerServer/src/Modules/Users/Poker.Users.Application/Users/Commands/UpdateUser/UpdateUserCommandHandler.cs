@@ -11,12 +11,12 @@ namespace Poker.Users.Application.Users.Commands.UpdateUser;
 internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UserCommandViewModel>
 {
     private readonly IPokerMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUsersUnitOfWork _usersUnitOfWork;
     private readonly IUserRepository _userRepository;
 
-    public UpdateUserCommandHandler(IUnitOfWork unitOfWork, IPokerMapper mapper, IUserRepository userRepository)
+    public UpdateUserCommandHandler(IUsersUnitOfWork usersUnitOfWork, IPokerMapper mapper, IUserRepository userRepository)
     {
-        _unitOfWork = unitOfWork;
+        _usersUnitOfWork = usersUnitOfWork;
         _mapper = mapper;
         _userRepository = userRepository;
     }
@@ -34,7 +34,7 @@ internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserComma
 
         _userRepository.Update(user);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _usersUnitOfWork.SaveChangesAsync(cancellationToken);
         var userCommandViewModel = _mapper.Map<UserCommandViewModel>(user);
         return Result<UserCommandViewModel>.Success(userCommandViewModel);
     }

@@ -7,6 +7,7 @@ using Poker.Users.Domain.Abstractions.Auth;
 using Poker.Users.Infrastructure.Features.Auth;
 using Poker.Users.Infrastructure.Features.DBContexts;
 using Poker.Users.Infrastructure.Features.Repositories;
+using Poker.Users.Infrastructure.Features.UnitOfWork;
 
 namespace Poker.Users.Infrastructure.Extensions;
 
@@ -18,10 +19,10 @@ public static class ServiceCollectionExtensions
         services
             .AddTransient<IPasswordManager, PasswordManager>()
             .AddTransient<ITokenFactory, TokenFactory>()
-            .AddScoped<IUserRepository, UserRepository>();
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
 
         services
-            .AddUnitOfWork<UsersDbContext>()
             .AddDateTimeProvider()
             .AddDatabaseContext<UsersDbContext>(configuration, o => o.MigrationsHistoryTable(
                 HistoryRepository.DefaultTableName,

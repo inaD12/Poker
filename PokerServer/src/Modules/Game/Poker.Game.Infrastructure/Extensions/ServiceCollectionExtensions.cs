@@ -5,6 +5,7 @@ using Poker.Common.Infrastructure.Extensions;
 using Poker.Game.Domain.Abstractions.Interfaces;
 using Poker.Game.Infrastructure.Features.DBContexts;
 using Poker.Game.Infrastructure.Features.Repositories;
+using Poker.Game.Infrastructure.Features.UnitOfWork;
 
 namespace Poker.Game.Infrastructure.Extensions;
 
@@ -15,10 +16,10 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddScoped<ITableRepository, TableRepository>()
-            .AddScoped<ILobbyRepository, LobbyRepository>();
+            .AddScoped<ILobbyRepository, LobbyRepository>()
+            .AddScoped<ITablesUnitOfWork, TablesUnitOfWork>();
 
         services
-            .AddUnitOfWork<GameDbContext>()
             .AddDateTimeProvider()
             .AddDatabaseContext<GameDbContext>(configuration, o => o.MigrationsHistoryTable(
                 HistoryRepository.DefaultTableName,

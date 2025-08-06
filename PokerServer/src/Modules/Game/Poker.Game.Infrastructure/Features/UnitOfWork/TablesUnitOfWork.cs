@@ -1,17 +1,18 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Poker.Common.Domain;
-using Poker.Common.Domain.Abstractions.Interfaces;
 using Poker.Common.Domain.Exceptions;
+using Poker.Game.Domain.Abstractions.Interfaces;
+using Poker.Game.Infrastructure.Features.DBContexts;
 
-namespace Poker.Common.Infrastructure;
+namespace Poker.Game.Infrastructure.Features.UnitOfWork;
 
-internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
+internal class TablesUnitOfWork : ITablesUnitOfWork
 {
-    private readonly TContext _dbContext;
+    private readonly GameDbContext _dbContext;
     private readonly IMediator _notificationPublisher;
 
-    public UnitOfWork(TContext dbContext, IMediator notificationPublisher)
+    public TablesUnitOfWork(GameDbContext dbContext, IMediator notificationPublisher)
     {
         _dbContext = dbContext;
         _notificationPublisher = notificationPublisher;
@@ -22,7 +23,6 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         try
         {
             await PublishDomainEventsAsync(cancellationToken);
-
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException ex)
@@ -38,14 +38,13 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
             .Select(e => e.Entity)
             .SelectMany(e =>
             {
-                var domainEvents = e.GetDomainEvents();
-
+                var events = e.GetDomainEvents();
                 e.ClearDomainEvents();
-
-                return domainEvents;
+                return events;
             })
             .ToList();
 
-        foreach (var domainEvent in domainEvents) await _notificationPublisher.Publish(domainEvent, cancellationToken);
+        foreach (var domainEvent in domainEvents)
+            await _notificationPublisher.Publish(domainEvent, cancellationToken);
     }
 }

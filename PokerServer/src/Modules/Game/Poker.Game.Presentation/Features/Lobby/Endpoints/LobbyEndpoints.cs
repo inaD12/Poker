@@ -21,9 +21,8 @@ internal class LobbyEndpoints : IEndpoints
         group.MapGet("get-all", GetAll)
             .Produces<LobbyPaginatedQueryViewModel>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status500InternalServerError)
-            .RequireAuthorization();
+            .Produces(StatusCodes.Status500InternalServerError);
+        //.RequireAuthorization();
     }
 
     private async Task<IResult> GetAll(
@@ -37,7 +36,7 @@ internal class LobbyEndpoints : IEndpoints
         if (res.IsFailure)
             return ControllerResponse.ParseAndReturnMessage(res);
 
-        var userCommandResponse = mapper.Map<LobbyPaginatedQueryViewModel>(res.Value!);
+        var userCommandResponse = mapper.Map<LobbyPaginatedQueryResponse>(res.Value!);
         return ControllerResponse.ParseAndReturnMessage(res, userCommandResponse);
     }
 }

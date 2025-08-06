@@ -28,7 +28,7 @@ public class GameHub : Hub<IGameClient>
             return;
         }
 
-        var result = await _gameService.GetTableAsync(tableId, playerId, CancellationToken.None);
+        var result = await _gameService.GetTableAsync(tableId, playerId, Context.ConnectionAborted);
         if (result.IsFailure || result.Value!.Players.All(p => p.Id != playerId))
         {
             Context.Abort();
@@ -44,68 +44,68 @@ public class GameHub : Hub<IGameClient>
         await base.OnConnectedAsync();
     }
 
-    public async Task<Result> PlaceBet(int amount, CancellationToken cancellationToken)
+    public async Task<Result> PlaceBet(int amount)
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerPlacedBetAsync(tableId, playerId, amount, cancellationToken);
+        var result = await _gameService.PlayerPlacedBetAsync(tableId, playerId, amount, Context.ConnectionAborted);
         
         return result;
     }
 
-    public async Task<Result> Fold(CancellationToken cancellationToken)
+    public async Task<Result> Fold()
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerFoldedAsync(tableId, playerId, cancellationToken);
+        var result = await _gameService.PlayerFoldedAsync(tableId, playerId, Context.ConnectionAborted);
 
         return result;
     }
 
-    public async Task<Result> AllIn(CancellationToken cancellationToken)
+    public async Task<Result> AllIn()
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerAllInAsync(tableId, playerId, cancellationToken);
+        var result = await _gameService.PlayerAllInAsync(tableId, playerId, Context.ConnectionAborted);
         
         return result;
     }
 
-    public async Task<Result> Check(CancellationToken cancellationToken)
+    public async Task<Result> Check()
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.PlayerCheckedAsync(tableId, playerId, cancellationToken);
+        var result = await _gameService.PlayerCheckedAsync(tableId, playerId, Context.ConnectionAborted);
 
         return result;
     }
 
-    public async Task<Result> StartNextHand(CancellationToken cancellationToken)
+    public async Task<Result> StartNextHand()
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.StartNextHandAsync(tableId, playerId, cancellationToken);
+        var result = await _gameService.StartNextHandAsync(tableId, playerId, Context.ConnectionAborted);
         
         return result;
     }
     
-    public async Task<Result> CloseGame(CancellationToken cancellationToken)
+    public async Task<Result> CloseGame()
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is null || tableId is null)
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _gameService.GameCloseAsync(tableId, playerId, cancellationToken);
+        var result = await _gameService.GameCloseAsync(tableId, playerId, Context.ConnectionAborted);
         
         return result;
     }
