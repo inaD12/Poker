@@ -1,10 +1,11 @@
 using Poker.Common.Domain.Dtos;
-using Poker.Game.Domain.Entities.TableAggregate;
 
 namespace Poker.Game.Presentation.Features.Lobby.Models;
 
 public record LobbyQueryResponse(
     string Id,
+    string Name,
+    string Creator,
     DateTime CreatedAt,
     List<PlayerInfoDto> Players,
     bool IsFull,

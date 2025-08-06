@@ -16,9 +16,9 @@ internal class LobbyService : ILobbyService
         _sender = sender;
     }
 
-    public async Task<Result<LobbyCommandViewModel>> CreateLobbyAsync(string startingPlayerId, CancellationToken cancellationToken)
+    public async Task<Result<LobbyCommandViewModel>> CreateLobbyAsync(string startingPlayerId, string lobbyName, CancellationToken cancellationToken)
     {
-        var command = new CreateLobbyCommand(startingPlayerId);
+        var command = new CreateLobbyCommand(startingPlayerId,  lobbyName);
 
         var result = await _sender.Send(command, cancellationToken);
 

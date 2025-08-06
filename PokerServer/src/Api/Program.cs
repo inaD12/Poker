@@ -11,6 +11,7 @@ using Serilog;
 //delete game/lobby if left empty/not enough players,
 //Game reconnection(find which game player is in),
 //GetLobby,
+//LobbyName validation
 //distribute funds to users module after game,
 //Optional: timeouts, chat, game history, admin controls, refunds if game is canceled, rejoin period, extract lobby to its module?
 

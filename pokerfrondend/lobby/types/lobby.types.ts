@@ -10,19 +10,26 @@ export interface PlayerInfoDto {
   totalEarnings: number;
 }
 
-export interface LobbyQueryViewModel {
+export interface LobbyQueryResponse {
   id: string;
+  name:string,
+  creator:string,
   createdAt: string;
   players: PlayerInfoDto[];
   isFull: boolean;
   isReadyToStart: boolean;
 }
 
-export interface LobbyPaginatedQueryViewModel {
-  items: LobbyQueryViewModel[];
+export interface LobbyPaginatedQueryResponse {
+  items: LobbyQueryResponse[];
   page: number;
   pageSize: number;
   totalCount: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+}
+
+export interface APIResponse<T> {
+  data: T;
+  message: string;
 }
