@@ -1,4 +1,4 @@
-const apiRoutes = {
+export const apiRoutes = {
   baseUrl: 'http://localhost:5000',
   users: {
     login: `/api/users/login`,
@@ -17,4 +17,11 @@ const apiRoutes = {
   }
 };
 
-export default apiRoutes;
+export const signalRRoutes = {
+  game: {
+    hub: `${apiRoutes.baseUrl}/hubs/game`,
+  },
+  lobby: {
+    hub: `${apiRoutes.baseUrl}/hubs/lobby`
+  }
+};

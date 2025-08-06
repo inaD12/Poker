@@ -1,5 +1,5 @@
 import apiClient from "../../api/apiClients";
-import apiRoutes from "../../api/apiEndpoints.config";
+import { apiRoutes } from "../../api/apiEndpoints.config";
 import type { LoginUserRequest,RegisterUserRequest, RegisterUserResponse } from "../types/users.types";
 
 const userService = {
