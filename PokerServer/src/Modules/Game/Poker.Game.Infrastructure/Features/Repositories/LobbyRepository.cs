@@ -47,6 +47,7 @@ public class LobbyRepository : ILobbyRepository
     public async Task<PagedList<Lobby>> GetAllLobbiesPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var lobbiesQuery = _context.Lobbies
+            .Include(l => l.Players)
             .OrderByDescending(l => l.CreatedAt);
         
         var lobbies = await PagedList<Lobby>.CreateAsync(lobbiesQuery, pageNumber, pageSize, cancellationToken);

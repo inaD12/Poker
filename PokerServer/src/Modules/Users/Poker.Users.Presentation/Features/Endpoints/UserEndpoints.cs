@@ -110,7 +110,7 @@ internal class UserEndpoints : IEndpoints
             HttpOnly = true,
             SameSite = SameSiteMode.Lax,
             Secure = false,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(5),
+            Expires = DateTimeOffset.UtcNow.AddSeconds(30000000),
             Path = "/"
         });
 

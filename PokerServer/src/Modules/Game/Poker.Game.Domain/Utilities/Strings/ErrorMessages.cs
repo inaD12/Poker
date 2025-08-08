@@ -26,6 +26,6 @@ public static class ErrorMessages
     public const string NotHost = "Only the host can do this";
     public const string UsernameEmpty = "Username cannot be empty";
     public const string BalanceNegative = "Balance cannot be negative";
-    public const string NoLobbiesFound = "No lobbies exist at the moment";
+    public const string PlayerAlreadyIsInAnotherLobby = "Player is already in another lobby";
     public const string CannotLeaveDuringActiveHand = "You cannot leave during a hand unless you folded or are all-in.";
 }

@@ -1,5 +1,6 @@
 import { signalRRoutes } from "../../api/apiEndpoints.config";
 import signalRService, { ISignalRService } from "../../utilities/signalr.service";
+import { HubResponse, HubResult, CreateLobbyResponse, LobbyQueryResponse } from "../types/lobby.types";
 
 export default class lobbyClient{
  private signalRService: ISignalRService;
@@ -18,8 +19,16 @@ export default class lobbyClient{
     // // other event handlers...
   }
 
-  createLobby(lobbyName: string) {
-    return this.signalRService.send("CreateLobby", lobbyName);
+  async createLobby(lobbyName: string): Promise<CreateLobbyResponse> {
+    const result = await this.signalRService.send("CreateLobby", lobbyName);
+    return result.value.id;
+  }
+
+
+  async joinLobby(lobbyId: string): Promise<HubResult<LobbyQueryResponse>>{
+    const result =  await this.signalRService.send("JoinLobby", lobbyId);
+
+    return result
   }
 
   disconnect() {
@@ -30,10 +39,10 @@ export default class lobbyClient{
 
 let clientInstance: lobbyClient | null = null;
 
-export function getLobbyClient() {
+export async function getLobbyClient() {
   if (!clientInstance) {
     clientInstance = new lobbyClient(signalRService);
-    clientInstance.connect();
+    await clientInstance.connect();
   }
   return clientInstance;
 }

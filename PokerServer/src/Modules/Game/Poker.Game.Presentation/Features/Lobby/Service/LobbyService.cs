@@ -25,7 +25,7 @@ internal class LobbyService : ILobbyService
         return result;
     }
 
-    public async Task<Result> AddPlayerToLobbyAsync(string lobbyId, string playerId, CancellationToken cancellationToken)
+    public async Task<Result<LobbyViewModel>> AddPlayerToLobbyAsync(string lobbyId, string playerId, CancellationToken cancellationToken)
     {
         var command = new AddPlayerToLobbyCommand(lobbyId, playerId);
 

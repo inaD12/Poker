@@ -1,6 +1,6 @@
 import apiClient from "../../api/apiClients";
 import { apiRoutes } from "../../api/apiEndpoints.config";
-import {APIResponse, LobbyPaginatedQueryResponse } from "../types/lobby.types";
+import { APIResponse, HubResult, LobbyPaginatedQueryResponse } from "../types/lobby.types";
 
 const lobbyService = {
     getAll: async (pageNumber = 1, pageSize = 10): Promise<APIResponse<LobbyPaginatedQueryResponse>> => {

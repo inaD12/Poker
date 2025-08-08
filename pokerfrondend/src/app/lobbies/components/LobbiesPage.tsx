@@ -1,4 +1,4 @@
-import { APIResponse, LobbyPaginatedQueryResponse, LobbyQueryResponse } from "../../../../lobby/types/lobby.types";
+import { APIResponse, HubResult, LobbyPaginatedQueryResponse, LobbyQueryResponse } from "../../../../lobby/types/lobby.types";
 import CreateLobbyButton from "./CreateLobbyButton";
 import Pagination from "../../../../components/Pagination";
 import LobbyBox from "./LobbyBox";
@@ -28,7 +28,8 @@ const lobbies: LobbyQueryResponse[] = response?.data.items ?? [];
           lobbies.map((lobby) => (
             <LobbyBox
               key={lobby.id}
-              gameName={lobby.name}
+              lobbyId={lobby.id}
+              lobbyName={lobby.name}
               creator={lobby.creator}
               createdAt={lobby.createdAt}
               players={`${lobby.players.length}/6`}

@@ -22,8 +22,8 @@ internal class TablesUnitOfWork : ITablesUnitOfWork
     {
         try
         {
-            await PublishDomainEventsAsync(cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await PublishDomainEventsAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException ex)
         {

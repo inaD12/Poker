@@ -58,4 +58,10 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
         var cacheKey = $"{_cacheKeyPrefix}{id}";
         _cache.Remove(cacheKey);
     }
+    
+    public void DeleteFromCacheAsync(string id)
+    {
+        var cacheKey = $"{_cacheKeyPrefix}{id}";
+        _cache.Remove(cacheKey);
+    }
 }

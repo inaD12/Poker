@@ -1,7 +1,7 @@
 namespace Poker.Game.Application.Features.Lobby.Models;
 
 public record LobbyPaginatedQueryViewModel(
-    ICollection<LobbyQueryViewModel> Items,
+    ICollection<LobbyViewModel> Items,
     int Page,
     int PageSize,
     int TotalCount,

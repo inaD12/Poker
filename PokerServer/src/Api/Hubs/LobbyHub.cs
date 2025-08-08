@@ -33,18 +33,14 @@ public class LobbyHub : Hub<ILobbyClient>
         if (result.IsFailure)
             return Result<LobbyCommandViewModel>.Failure(result.Response);
 
-        string lobbyId = result.Value!.Id;
-        Context.Items["lobbyId"] = lobbyId;
-        
-        await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, Context.ConnectionAborted);
         return result;
     }
 
-    public async Task<Result> JoinLobby(string lobbyId)
+    public async Task<Result<LobbyViewModel>> JoinLobby(string lobbyId)
     {
         var playerId = _claimsExtractorService.GetUserId();
         if (string.IsNullOrWhiteSpace(playerId))
-            return Result.Failure(SharedResponses.InternalError);
+            return Result<LobbyViewModel>.Failure(SharedResponses.InternalError);
 
         var result = await _lobbyService.AddPlayerToLobbyAsync(lobbyId, playerId, Context.ConnectionAborted);
         if (result.IsFailure)
@@ -52,7 +48,7 @@ public class LobbyHub : Hub<ILobbyClient>
 
         Context.Items["lobbyId"] = lobbyId;
         await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, Context.ConnectionAborted);
-        return Result.Success();
+        return result;
     }
 
     public async Task<Result> LeaveLobby(string lobbyId)
@@ -82,7 +78,7 @@ public class LobbyHub : Hub<ILobbyClient>
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
-    {
+        {
         var httpContext = Context.GetHttpContext();
         var lobbyId = httpContext?.Request.Query["lobbyId"].ToString();
 

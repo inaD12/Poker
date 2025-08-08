@@ -9,18 +9,18 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(async (config) => {
   if (typeof window === "undefined") {
     try {
       const { cookies } = require("next/headers");
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       const authToken = cookieStore.get("auth_token")?.value;
       if (authToken) {
         config.headers = config.headers || {};
         config.headers["Cookie"] = `auth_token=${authToken}`;
       }
     } catch (e) {
-      //TODO: Log
+      // TODO: Log error
     }
   }
   return config;

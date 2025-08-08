@@ -14,7 +14,7 @@ public class LobbyQueryProfile : Profile
 
         CreateMap<GetAllLobbiesRequest, GetAllLobbiesPagedQuery>();
 
-        CreateMap<LobbyQueryViewModel, LobbyQueryResponse>();
+        CreateMap<LobbyViewModel, LobbyQueryResponse>();
 
         CreateMap<LobbyPaginatedQueryViewModel, LobbyPaginatedQueryResponse>();
     }

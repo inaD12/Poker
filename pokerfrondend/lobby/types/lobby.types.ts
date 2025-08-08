@@ -29,7 +29,22 @@ export interface LobbyPaginatedQueryResponse {
   hasPreviousPage: boolean;
 }
 
-export interface APIResponse<T> {
-  data: T;
+export interface HubResponse{
+  message: Message;
+}
+
+export interface Message{
   message: string;
+}
+
+export interface HubResult<T> {
+  isFailure: boolean;
+  isSuccess: boolean;
+  response: HubResponse;
+  value: T;
+}
+
+export interface APIResponse<T>{
+  message:string;
+  data: T;
 }
