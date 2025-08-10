@@ -78,10 +78,9 @@ public class LobbyHub : Hub<ILobbyClient>
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-        var httpContext = Context.GetHttpContext();
-        var lobbyId = httpContext?.Request.Query["lobbyId"].ToString();
-
+    {
+        var lobbyId = Context.Items.TryGetValue("lobbyId", out var id) && id is string gid ? gid : null;
+        
         var playerId = _claimsExtractorService.GetUserId();
         if (!string.IsNullOrWhiteSpace(lobbyId) && !string.IsNullOrWhiteSpace(playerId))
         {

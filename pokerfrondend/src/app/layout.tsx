@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../../users/contexts/AuthContext";
+import { RouteChangeListener } from "./route-change-listener";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en">
+        <RouteChangeListener />
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
