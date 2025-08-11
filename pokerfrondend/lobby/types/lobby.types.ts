@@ -8,6 +8,7 @@ export interface PlayerInfoDto {
   gamesPlayed: number;
   gamesWon: number;
   totalEarnings: number;
+  isSelf: boolean;
 }
 
 export interface LobbyQueryResponse {

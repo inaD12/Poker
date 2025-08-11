@@ -6,7 +6,6 @@ using Poker.Game.Application.Features.Lobby.Models;
 using Poker.Game.Domain.Entities.TableAggregate;
 using Poker.Game.Domain.Responses;
 using Poker.Users.Presentation.Features.Services;
-using Serilog;
 
 namespace Poker.Game.Application.Features.Lobby.Commands.AddPlayerToLobby;
 
@@ -50,7 +49,7 @@ public sealed class AddPlayerToLobbyCommandHandler : ICommandHandler<AddPlayerTo
             {
                 await _lobbyStore.SaveAsync(lobby, cancellationToken);
             }
-            catch (Exception e)
+            catch
             {
                 _lobbyStore.DeleteFromCacheAsync(request.LobbyId);
                 return Result<LobbyViewModel>.Failure(ResponseList.PlayerAlreadyIsInAnotherLobby);
@@ -58,6 +57,7 @@ public sealed class AddPlayerToLobbyCommandHandler : ICommandHandler<AddPlayerTo
         }
 
         var lobbyViewModel = _pokerMapper.Map<LobbyViewModel>(lobby);
+        lobbyViewModel.Players.Find(p => p.Id == player.Id)!.IsSelf = true;
         return Result<LobbyViewModel>.Success(lobbyViewModel);
     }
 }

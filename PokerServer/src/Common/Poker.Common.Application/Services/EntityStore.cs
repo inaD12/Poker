@@ -46,6 +46,7 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
         _repository.Update(entity);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        entity.ClearDomainEvents();
         var cacheKey = $"{_cacheKeyPrefix}{entity.Id}";
         _cache.Set(cacheKey, entity);
     }

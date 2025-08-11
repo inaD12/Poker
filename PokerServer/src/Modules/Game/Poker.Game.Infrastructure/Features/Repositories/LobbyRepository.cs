@@ -49,6 +49,14 @@ public class LobbyRepository : ILobbyRepository
                 _context.Set<Player>().Remove(dbPlayer);
             }
         );
+        
+        var domainEvents = lobby.GetDomainEvents();
+        existingLobby.ClearDomainEvents();
+
+        foreach (var domainEvent in domainEvents)
+        {
+            existingLobby.RaiseDomainEvent(domainEvent);
+        }
     }
 
     public async Task<Lobby?> GetByIdAsync(string id, CancellationToken cancellationToken)

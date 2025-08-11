@@ -1,6 +1,7 @@
 using Poker.Common.Domain;
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Entities.TableAggregate;
+using Poker.Game.Domain.Events;
 using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Domain.Entities;
@@ -48,6 +49,8 @@ public class Lobby : Entity
             return Result.Failure(ResponseList.PlayerAlreadyInTheLobby);
 
         Players.Add(player);
+        
+        RaiseDomainEvent(new PlayerJoinedLobbyDomainEvent(Id, player));
         return Result.Success();
     }
 

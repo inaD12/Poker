@@ -22,8 +22,8 @@ internal class UsersUnitOfWork : IUsersUnitOfWork
     {
         try
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
             await PublishDomainEventsAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException ex)
         {
