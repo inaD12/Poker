@@ -61,6 +61,8 @@ public class Lobby : Entity
             return Result.Failure(ResponseList.PlayerNotInLobby);
 
         Players.Remove(player);
+        
+        RaiseDomainEvent(new PlayerLeftLobbyDomainEvent(Id, playerId));
         return Result.Success();
     }
 }
