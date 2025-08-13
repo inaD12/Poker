@@ -1,4 +1,5 @@
-﻿using Poker.Common.Domain;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain;
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Enums;
 using Poker.Common.Domain.Results;
@@ -16,13 +17,43 @@ public sealed class Table : Entity
     {
     }
 #pragma warning restore CS8618
+    [JsonConstructor]
     private Table(
         List<Card> communityCards,
         int currentPot,
         List<Player> players,
         int currentTurnPlayerPosition,
         int dealerPosition,
-        GamePhase phase,
+        GamePhase currentPhase,
+        int currentBet,
+        int minimumRaise,
+        string hostPlayerId,
+        Deck deck,
+        bool waitingForNextHand,
+        string id,
+        DateTime createdAt
+    )
+    {
+        CommunityCards = communityCards;
+        CurrentPot = currentPot;
+        CurrentPhase = currentPhase;
+        CurrentBet = currentBet;
+        MinimumRaise = minimumRaise;
+        Deck = deck;
+        WaitingForNextHand = waitingForNextHand;
+        _playerManager = new PlayerManager(players, currentTurnPlayerPosition, hostPlayerId, dealerPosition);
+        Id = id;
+        CreatedAt = createdAt;
+    }
+
+    
+    private Table(
+        List<Card> communityCards,
+        int currentPot,
+        List<Player> players,
+        int currentTurnPlayerPosition,
+        int dealerPosition,
+        GamePhase currentPhase,
         int currentBet,
         int minimumRaise,
         string hostPlayerId,
@@ -30,7 +61,7 @@ public sealed class Table : Entity
     {
         CommunityCards = communityCards;
         CurrentPot = currentPot;
-        CurrentPhase = phase;
+        CurrentPhase = currentPhase;
         CurrentBet = currentBet;
         MinimumRaise = minimumRaise;
         Deck = deck;
@@ -47,6 +78,8 @@ public sealed class Table : Entity
     public Deck Deck { get; private set; }
     public string HostPlayerId => _playerManager.HostPlayerId;
     public IReadOnlyCollection<Player> Players => _playerManager.Players;
+    public int CurrentTurnPlayerPosition => _playerManager.CurrentTurnPlayerPosition;
+    public int DealerPosition => _playerManager.DealerPosition;
     
     
     private readonly PlayerManager _playerManager;

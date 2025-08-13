@@ -25,6 +25,14 @@ export default function Lobby() {
     }
   }, [lobbyId, router]);
 
+  const handleClickStartGame = useCallback(async () => {
+    const lobbyClient = await getLobbyClient();
+    const result = await lobbyClient.startGame(lobbyId);
+    if (result.isFailure) {
+      alert(result.response.message.message);
+    }
+  }, [lobbyId, router]);
+
   useEffect(() => {
     if (!lobby) return;
     const selfPlayer = lobby.players.find(p => p.isSelf);
@@ -46,6 +54,11 @@ export default function Lobby() {
         if (!prev) return prev;
         return { ...prev, players: prev.players.filter(p => p.id !== playerId) };
       });
+    });
+
+     lobbyClient.onGameStarted((gameId: string) => {
+      lobbyClient.disconnect();
+      router.push(`/table/${gameId}`);
     });
   }, []);
 
@@ -105,7 +118,10 @@ export default function Lobby() {
               Leave Game
             </button>
             {isCreator && (
-              <button className="bg-green-700 hover:bg-green-800 rounded-md h-[50px] w-[150px]">
+              <button 
+                className="bg-green-700 hover:bg-green-800 rounded-md h-[50px] w-[150px]"
+                onClick={handleClickStartGame}
+              >
                 Start Game
               </button>
             )}

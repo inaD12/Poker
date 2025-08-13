@@ -122,7 +122,9 @@ public class GameHub : Hub<IGameClient>
     private (string? userId, string? gameId) GetUserAndGameId()
     {
         var userId = _claimsExtractor.GetUserId();
-        var gameId = Context.Items.TryGetValue("tableId", out var id) && id is string gid ? gid : null;
+        //var gameId = Context.Items.TryGetValue("tableId", out var id) && id is string gid ? gid : null;
+        var httpContext = Context.GetHttpContext();
+        var gameId = httpContext?.Request.Query["tableId"].FirstOrDefault();
         return (userId, gameId);
     }
 }

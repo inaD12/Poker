@@ -26,6 +26,12 @@ export default class lobbyClient{
     });
   }
 
+  onGameStarted(callback: (gameId: string) => void) {
+    this.signalRService.on("GameStarted", (gameId: string) => {
+      callback(gameId);
+    });
+  }
+
   async createLobby(lobbyName: string): Promise<CreateLobbyResponse> {
     const result = await this.signalRService.send("CreateLobby", lobbyName);
     return result.value.id;
@@ -40,6 +46,12 @@ export default class lobbyClient{
 
   async leaveLobby(lobbyId: string): Promise<HubResult<null>>{
     const result =  await this.signalRService.send("LeaveLobby", lobbyId);
+
+    return result
+  }
+
+  async startGame(lobbyId: string): Promise<HubResult<null>>{
+    const result =  await this.signalRService.send("StartGame", lobbyId);
 
     return result
   }

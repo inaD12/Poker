@@ -24,7 +24,11 @@ public sealed class RemovePlayerFromLobbyCommandHandler : ICommandHandler<Remove
         if (removePlayerResult.IsFailure)
             return removePlayerResult;
 
-        await _lobbyStore.SaveAsync(lobby, cancellationToken);
+        if (lobby.Players.Count == 0)
+            await _lobbyStore.DeleteAsync(lobby.Id, cancellationToken);
+        else
+            await _lobbyStore.SaveAsync(lobby, cancellationToken);
+
         return Result.Success();
     }
 }

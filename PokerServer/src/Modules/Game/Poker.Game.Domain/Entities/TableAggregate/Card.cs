@@ -1,4 +1,5 @@
-﻿using Poker.Common.Domain.Enums;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain.Enums;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
 
@@ -8,6 +9,7 @@ public sealed class Card
     {
     }
 
+    [JsonConstructor]
     private Card(CardSuit suit, CardRank rank)
     {
         Suit = suit;

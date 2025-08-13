@@ -17,19 +17,11 @@
       "pathMappings": [
         {
           "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobby/[id]/page.tsx"
+          "path": "${workspaceFolder}/src/app/table/[id]/page.tsx"
         },
         {
           "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
           "path": "${workspaceFolder}/src/app/lobby/[id]/page.tsx"
-        },
-        {
-          "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobbies/[pageNumber]/page.tsx"
-        },
-        {
-          "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobbies/[pageNumber]/page.tsx"
         },
         {
           "url": "webpack:///src/app/lobby/[id]/page.tsx",

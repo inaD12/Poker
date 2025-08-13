@@ -10,20 +10,20 @@ public class PlayerManager
     {
         _players = players;
         _playerDictionary = players.ToDictionary(p => p.Id);
-        _currentTurnPlayerPosition = currentTurnPlayerPosition;
+        CurrentTurnPlayerPosition = currentTurnPlayerPosition;
         HostPlayerId = hostPlayerId;
         DealerPosition = dealerPosition;
     }
 
-    private int _currentTurnPlayerPosition;
     private readonly List<Player> _players;
     private readonly Dictionary<string, Player> _playerDictionary;
+    public int CurrentTurnPlayerPosition {get; private set;}
     public string HostPlayerId {get; private set;}
     public int DealerPosition {get; set;}
 
     internal IReadOnlyCollection<Player> Players => _players.AsReadOnly();
     internal Player Dealer => _players[DealerPosition];
-    internal Player CurrentTurnPlayer =>  _players[_currentTurnPlayerPosition];
+    internal Player CurrentTurnPlayer =>  _players[CurrentTurnPlayerPosition];
     internal Player? GetPlayer(string playerId) =>
         _playerDictionary.GetValueOrDefault(playerId);
     internal int ActivePlayerCount => 
@@ -33,7 +33,7 @@ public class PlayerManager
     {
         for (var i = 1; i <= _players.Count; i++)
         {
-            var next = (_currentTurnPlayerPosition + i) % _players.Count;
+            var next = (CurrentTurnPlayerPosition + i) % _players.Count;
             var p = _players[next];
             
             if (p.IsDisconnected)
@@ -41,7 +41,7 @@ public class PlayerManager
 
             if (!p.Hand!.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected)
             {
-                _currentTurnPlayerPosition = next;
+                CurrentTurnPlayerPosition = next;
                 return;
             }
         }
@@ -60,7 +60,7 @@ public class PlayerManager
 
     internal bool IsPlayerTurn(string playerId)
     {
-        if (_players[_currentTurnPlayerPosition].Id != playerId)
+        if (_players[CurrentTurnPlayerPosition].Id != playerId)
             return false;
 
         return true;
@@ -80,7 +80,7 @@ public class PlayerManager
             var p = _players[i];
             if (p.Hand != null && !p.Hand.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected)
             {
-                _currentTurnPlayerPosition = i;
+                CurrentTurnPlayerPosition = i;
                 return;
             }
         }
@@ -120,13 +120,13 @@ public class PlayerManager
         _playerDictionary.Remove(playerId);
         _players.RemoveAt(index);
 
-        if (index == _currentTurnPlayerPosition)
+        if (index == CurrentTurnPlayerPosition)
         {
-            _currentTurnPlayerPosition %= _players.Count;
+            CurrentTurnPlayerPosition %= _players.Count;
             SetNextActivePosition();
         }
-        else if (index < _currentTurnPlayerPosition)
-            _currentTurnPlayerPosition--;
+        else if (index < CurrentTurnPlayerPosition)
+            CurrentTurnPlayerPosition--;
 
         return Result.Success();
     }
