@@ -1,7 +1,7 @@
 import { signalRRoutes } from "../../api/apiEndpoints.config";
 import { HubResult } from "../../lobby/types/lobby.types";
 import signalRService, { ISignalRService } from "../../utilities/signalr.service";
-import { GameStateDto } from "../types/table.types";
+import { CardDto, GamePhase, GameStateDto, PlayerActionNotification } from "../types/table.types";
 
 export default class tableClient{
  private signalRService: ISignalRService;
@@ -19,6 +19,36 @@ export default class tableClient{
   onReceiveGameState(callback: (gameStateDto: GameStateDto) => void) {
     this.signalRService.on("ReceiveGameState", (gameStateDto: GameStateDto) => {
       callback(gameStateDto);
+    });
+  }
+
+  onPlayerAction(callback: (notification: PlayerActionNotification) => void) {
+    this.signalRService.on("PlayerAction", (notification: PlayerActionNotification) => {
+      callback(notification);
+    });
+  }
+
+  onGamePhaseUpdate(callback: (gamePhase: GamePhase, cards:CardDto[]) => void) {
+    this.signalRService.on("GamePhaseUpdate", (gamePhase: GamePhase, cards:CardDto[]) => {
+      callback(gamePhase, cards);
+    });
+  }
+
+  onShowdown(callback: (winnerPlayerIds: string[], winningsEach:number) => void) {
+    this.signalRService.on("Showdown", (winnerPlayerIds: string[], winningsEach:number) => {
+      callback(winnerPlayerIds, winningsEach);
+    });
+  }
+
+  onTurn(callback: () => void) {
+    this.signalRService.on("YourTurn", () => {
+      callback();
+    });
+  }
+
+  onGameClose(callback: () => void) {
+    this.signalRService.on("GameClose", () => {
+      callback();
     });
   }
 

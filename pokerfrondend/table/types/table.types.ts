@@ -55,3 +55,32 @@ export interface GameStateDto {
   dealerPlayerId: string;
   players: PlayerStateDto[];
 }
+
+export type PlayerActionNotification =
+  | PlayerBetNotification
+  | PlayerFoldNotification
+  | PlayerAllInNotification
+  | PlayerCheckNotification
+  | PlayerTurnNotification;
+
+export interface PlayerBetNotification {
+  type: "Bet";
+  amount: number;
+}
+
+export interface PlayerFoldNotification {
+  type: "Fold";
+}
+
+export interface PlayerAllInNotification {
+  type: "AllIn";
+}
+
+export interface PlayerCheckNotification {
+  type: "Check";
+}
+
+export interface PlayerTurnNotification {
+  type: "Turn";
+}
+
