@@ -82,7 +82,7 @@ export default class tableClient{
     return result
   }
 
-  async closeGame(amount: number): Promise<HubResult<null>>{
+  async closeGame(): Promise<HubResult<null>>{
     const result =  await this.signalRService.send("CloseGame");
 
     return result

@@ -118,7 +118,7 @@ public sealed class Table : Entity
             shuffledDeck);
 
         return Result<Table>.Success(gameRoom);
-    }
+        }
 
     public Result PlayerPlaceBet(string playerId, int amount)
     {

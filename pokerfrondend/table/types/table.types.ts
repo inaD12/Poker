@@ -7,32 +7,33 @@ export enum GamePhase {
 }
 
 export enum CardSuit {
-  Hearts = "Hearts",
-  Diamonds = "Diamonds",
-  Clubs = "Clubs",
-  Spades = "Spades",
+  Hearts = 0,
+  Diamonds = 1,
+  Clubs = 2,
+  Spades = 3,
 }
 
 export enum CardRank {
-  Two = "Two",
-  Three = "Three",
-  Four = "Four",
-  Five = "Five",
-  Six = "Six",
-  Seven = "Seven",
-  Eight = "Eight",
-  Nine = "Nine",
-  Ten = "Ten",
-  Jack = "Jack",
-  Queen = "Queen",
-  King = "King",
-  Ace = "Ace",
+  Two = 0,
+  Three = 1,
+  Four = 2,
+  Five = 3,
+  Six = 4,
+  Seven = 5,
+  Eight = 6,
+  Nine = 7,
+  Ten = 8,
+  Jack = 9,
+  Queen = 10,
+  King = 11,
+  Ace = 12,
 }
 
 export interface CardDto {
   suit: CardSuit;
   rank: CardRank;
 }
+
 
 export interface PlayerStateDto {
   id: string;

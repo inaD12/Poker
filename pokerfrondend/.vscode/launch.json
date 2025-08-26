@@ -2,56 +2,44 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Next.js: debug server-side (Turbopack)",
+      "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev"
     },
     {
-      "name": "Next.js: debug client-side (Firefox, Turbopack)",
+      "name": "Next.js: debug client-side",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "Next.js: debug client-side (Firefox)",
       "type": "firefox",
       "request": "launch",
       "url": "http://localhost:3000",
       "reAttach": true,
-      "webRoot": "${workspaceFolder}",
       "pathMappings": [
         {
-          "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/table/[id]/page.tsx"
-        },
-        {
-          "url": "file:///home/inad/Desktop/Projects/Poker/pokerfrondend/src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobby/[id]/page.tsx"
-        },
-        {
-          "url": "webpack:///src/app/lobby/[id]/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobby/[id]/page.tsx"
-        },
-        {
-          "url": "webpack:///src/app/lobbies/[pageNumber]/page.tsx",
-          "path": "${workspaceFolder}/src/app/lobbies/[pageNumber]/page.tsx"
-        },
-        {
-          "url": "webpack:///src/app/page.tsx",
-          "path": "${workspaceFolder}/src/app/page.tsx"
+          "url": "webpack://_N_E",
+          "path": "${workspaceFolder}"
         }
       ]
     },
     {
-      "name": "Next.js: debug full stack (Turbopack)",
+      "name": "Next.js: debug full stack",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
-      "args": [
-        "dev"
-      ],
-      "runtimeArgs": [
-        "--inspect"
-      ],
-      "cwd": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "runtimeArgs": ["--inspect"],
+      "skipFiles": ["<node_internals>/**"],
+      "serverReadyAction": {
+        "action": "debugWithEdge",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
     }
   ]
 }
