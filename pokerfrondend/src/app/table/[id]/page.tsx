@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, GameStateDto } from "../../../../table/types/table.types";
+import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -25,6 +25,11 @@ export default function Table() {
       const player = gameStateDto.players.find(p => p.cards !== null);
       setCards(player?.cards ?? []);
     });
+
+    tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
+      setPublicCards((prevPublicCards) => [...prevPublicCards, ...cards]);
+    });
+    
   }, [tableId]);
 
   useEffect(() => {
@@ -80,7 +85,6 @@ export default function Table() {
       alert(result.response.message.message);
     }
   }, [tableId]);
-
   return (
     <div className="relative w-full h-screen flex items-center justify-center">
       {/* Table container */}
@@ -95,7 +99,7 @@ export default function Table() {
 
         {/* Community Cards */}
         {gameState && gameState.communityCards.length > 0 && (
-          <div className="absolute top-[39%] left-[41.7%] -translate-x-1/2 flex gap-[3%] w-[37%] justify-center">
+          <div className="absolute top-[38.9%] left-[50%] -translate-x-1/2 flex gap-[1.9%] w-[39%]">
             {gameState.communityCards.map((card, index) => (
               <div key={index} className="w-[18%]">
                 <Card rank={card.rank} suit={card.suit} />
