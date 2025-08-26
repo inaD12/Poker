@@ -31,8 +31,9 @@ public sealed class Table : Entity
         Deck deck,
         bool waitingForNextHand,
         string id,
-        DateTime createdAt
-    )
+        DateTime createdAt,
+        HashSet<string> playersWhoActed
+        )
     {
         CommunityCards = communityCards;
         CurrentPot = currentPot;
@@ -41,7 +42,7 @@ public sealed class Table : Entity
         MinimumRaise = minimumRaise;
         Deck = deck;
         WaitingForNextHand = waitingForNextHand;
-        _playerManager = new PlayerManager(players, currentTurnPlayerPosition, hostPlayerId, dealerPosition);
+        _playerManager = new PlayerManager(players, currentTurnPlayerPosition, hostPlayerId, dealerPosition, playersWhoActed);
         Id = id;
         CreatedAt = createdAt;
     }
@@ -57,7 +58,9 @@ public sealed class Table : Entity
         int currentBet,
         int minimumRaise,
         string hostPlayerId,
-        Deck deck)
+        Deck deck,
+        HashSet<string> playersWhoActed
+        )
     {
         CommunityCards = communityCards;
         CurrentPot = currentPot;
@@ -66,7 +69,7 @@ public sealed class Table : Entity
         MinimumRaise = minimumRaise;
         Deck = deck;
         WaitingForNextHand = false;
-        _playerManager = new PlayerManager(players, currentTurnPlayerPosition,  hostPlayerId, dealerPosition);
+        _playerManager = new PlayerManager(players, currentTurnPlayerPosition,  hostPlayerId, dealerPosition, playersWhoActed);
     }
 
     public List<Card> CommunityCards { get; }
@@ -80,6 +83,7 @@ public sealed class Table : Entity
     public IReadOnlyCollection<Player> Players => _playerManager.Players;
     public int CurrentTurnPlayerPosition => _playerManager.CurrentTurnPlayerPosition;
     public int DealerPosition => _playerManager.DealerPosition;
+    public HashSet<string> PlayersWhoActed => _playerManager.PlayersWhoActed;
     
     
     private readonly PlayerManager _playerManager;
@@ -115,7 +119,8 @@ public sealed class Table : Entity
             0,
             10,
             hostPlayerId,
-            shuffledDeck);
+            shuffledDeck,
+            new HashSet<string>());
 
         return Result<Table>.Success(gameRoom);
         }
@@ -153,6 +158,7 @@ public sealed class Table : Entity
         player.RemoveFromBalance(amount);
         CurrentBet = player.Hand.Bet;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -174,6 +180,7 @@ public sealed class Table : Entity
         if (playerResult.Value!.Hand!.Bet != CurrentBet)
             return Result.Failure(ResponseList.MustMatchBet);
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -197,6 +204,7 @@ public sealed class Table : Entity
         if (result.IsFailure)
             return result;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -232,6 +240,7 @@ public sealed class Table : Entity
         if (hand.Bet > CurrentBet)
             CurrentBet = hand.Bet;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -387,6 +396,7 @@ public sealed class Table : Entity
 
             _playerManager.ResetHandsForNextRound();
             CurrentBet = 0;
+            _playerManager.ResetPlayersActed();
             _playerManager.SetFirstActivePlayer();
         }
         else

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto } from "../../../../table/types/table.types";
+import { CardDto, GamePhase, GameStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -14,6 +14,7 @@ export default function Table() {
   const [publicCards, setPublicCards] = useState<CardDto[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const [showBetInput, setShowBetInput] = useState<boolean>(false);
+  const [playerTurn, setPlayerTurn] = useState<boolean>(false);
 
   const attachLobbyListeners = useCallback(async () => {
     const tableClient = await getTableClient(tableId);
@@ -24,6 +25,7 @@ export default function Table() {
 
       const player = gameStateDto.players.find(p => p.cards !== null);
       setCards(player?.cards ?? []);
+      setPlayerTurn(player?.isCurrentTurn ?? false);
     });
 
     tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
@@ -98,9 +100,9 @@ export default function Table() {
         />
 
         {/* Community Cards */}
-        {gameState && gameState.communityCards.length > 0 && (
+        {publicCards.length > 0 && (
           <div className="absolute top-[38.9%] left-[50%] -translate-x-1/2 flex gap-[1.9%] w-[39%]">
-            {gameState.communityCards.map((card, index) => (
+            {publicCards.map((card, index) => (
               <div key={index} className="w-[18%]">
                 <Card rank={card.rank} suit={card.suit} />
               </div>
@@ -141,6 +143,9 @@ export default function Table() {
           <button className="bg-amber-600 p-2" onClick={handleClickCheck}>Check</button>
           <button className="bg-amber-600 p-2" onClick={handleClickStartNextHand}>Start Next Hand</button>
           <button className="bg-amber-600 p-2" onClick={handleClickCloseGame}>Close Game</button>
+          {playerTurn && (
+            <h1>Your turn</h1>
+          )}
         </div>
       </div>
     </div>

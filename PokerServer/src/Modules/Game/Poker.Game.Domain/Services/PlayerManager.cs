@@ -6,17 +6,20 @@ namespace Poker.Game.Domain.Services;
 
 public class PlayerManager
 {
-    public PlayerManager(List<Player> players, int currentTurnPlayerPosition, string hostPlayerId, int dealerPosition)
+    public PlayerManager(List<Player> players, int currentTurnPlayerPosition, string hostPlayerId, int dealerPosition, HashSet<string> playersWhoActed)
     {
         _players = players;
         _playerDictionary = players.ToDictionary(p => p.Id);
         CurrentTurnPlayerPosition = currentTurnPlayerPosition;
         HostPlayerId = hostPlayerId;
         DealerPosition = dealerPosition;
+        PlayersWhoActed = playersWhoActed;
     }
 
     private readonly List<Player> _players;
     private readonly Dictionary<string, Player> _playerDictionary;
+
+    public HashSet<string> PlayersWhoActed {get; private set;}
     public int CurrentTurnPlayerPosition {get; private set;}
     public string HostPlayerId {get; private set;}
     public int DealerPosition {get; set;}
@@ -28,6 +31,11 @@ public class PlayerManager
         _playerDictionary.GetValueOrDefault(playerId);
     internal int ActivePlayerCount => 
         Players.Count(p => p.Hand is not null && !p.Hand.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected);
+
+    
+    internal void MarkPlayerActed(string playerId) => PlayersWhoActed.Add(playerId);
+    
+    internal void ResetPlayersActed() => PlayersWhoActed.Clear();
 
     internal void SetNextActivePosition()
     {
@@ -55,7 +63,7 @@ public class PlayerManager
             .Where(p => !p.Hand!.IsFolded && !p.Hand.IsAllIn)
             .ToList();
 
-        return activePlayers.All(p => p.Hand!.Bet == currentBet);
+        return activePlayers.All(p => PlayersWhoActed.Contains(p.Id) && p.Hand!.Bet == currentBet);
     }
 
     internal bool IsPlayerTurn(string playerId)
