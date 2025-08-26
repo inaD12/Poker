@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
@@ -9,6 +10,7 @@ using Poker.Common.Presentation.Helpers;
 using Poker.Common.Presentation.Options;
 using Poker.Common.Utilities;
 using PokerServer.ExceptionHandlers;
+using PokerServer.IDProvider;
 using PokerServer.Notifiers;
 
 namespace PokerServer.Extensions;
@@ -21,6 +23,7 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddTransient<ILobbyNotifier, LobbyNotifier>()
             .AddTransient<ITableNotifier, TableNotifier>()
+            .AddSingleton<IUserIdProvider, CustomUserIdProvider>()
             .AddSignalR();
 
         serviceCollection

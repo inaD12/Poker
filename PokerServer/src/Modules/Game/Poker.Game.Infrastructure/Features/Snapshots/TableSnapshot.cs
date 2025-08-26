@@ -14,6 +14,10 @@ public class TableSnapshot : Entity
     {
         TableJson = JsonConvert.SerializeObject(table);
         Id = table.Id;
+        foreach (var domainEvent in table.GetDomainEvents())
+        {
+            RaiseDomainEvent(domainEvent);
+        }
     }
 
     public string TableJson { get; } = null!;

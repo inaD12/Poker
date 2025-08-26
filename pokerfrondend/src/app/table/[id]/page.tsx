@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, GamePhase, GameStateDto } from "../../../../table/types/table.types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import tableClient, { getTableClient } from "../../../../table/services/table.client";
+import { CardDto, GamePhase, GameStateDto, PlayerActionNotification } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
   const { id: tableId } = useParams<{ id: string }>();
+
   const [gameState, setGameState] = useState<GameStateDto | null>(null);
   const [cards, setCards] = useState<CardDto[]>([]);
   const [publicCards, setPublicCards] = useState<CardDto[]>([]);
@@ -16,29 +17,38 @@ export default function Table() {
   const [showBetInput, setShowBetInput] = useState<boolean>(false);
   const [playerTurn, setPlayerTurn] = useState<boolean>(false);
 
+  const playerIdRef = useRef<string | null>(null);
+  const tableClientRef = useRef<tableClient | null>(null);
+
   const attachLobbyListeners = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);
+    if (!tableClientRef.current) {
+      tableClientRef.current = await getTableClient(tableId);
+    }
+    const tableClient = tableClientRef.current;
 
     tableClient.onReceiveGameState((gameStateDto: GameStateDto) => {
       setGameState(gameStateDto);
       setPublicCards(gameStateDto.communityCards);
 
       const player = gameStateDto.players.find(p => p.cards !== null);
-      setCards(player?.cards ?? []);
-      setPlayerTurn(player?.isCurrentTurn ?? false);
+      if (player) {
+        playerIdRef.current = player.id;
+        setCards(player.cards ?? []);
+        setPlayerTurn(player.isCurrentTurn ?? false);
+      }
     });
 
     tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
-      setPublicCards((prevPublicCards) => [...prevPublicCards, ...cards]);
+      setPublicCards(prev => [...prev, ...cards]);
     });
-    
+
+    tableClient.onTurn(() => {
+      setPlayerTurn(true);
+    });
   }, [tableId]);
 
   useEffect(() => {
-    const joinTable = async () => {
-      await attachLobbyListeners();
-    };
-    joinTable();
+    attachLobbyListeners();
   }, [attachLobbyListeners]);
 
   const handleClickPlaceBet = useCallback(async () => {
@@ -50,6 +60,7 @@ export default function Table() {
     const tableClient = await getTableClient(tableId);
     const result = await tableClient.placeBet(amount);
     if (result.isFailure) alert(result.response.message.message);
+    else setPlayerTurn(false);
 
     setShowBetInput(false);
   }, [amount, tableId, showBetInput]);
@@ -58,18 +69,21 @@ export default function Table() {
     const tableClient = await getTableClient(tableId);
     const result = await tableClient.fold();
     if (result.isFailure) alert(result.response.message.message);
+    else setPlayerTurn(false);
   }, [tableId]);
 
   const handleClickAllIn = useCallback(async () => {
     const tableClient = await getTableClient(tableId);
     const result = await tableClient.allIn();
     if (result.isFailure) alert(result.response.message.message);
+    else setPlayerTurn(false);
   }, [tableId]);
 
   const handleClickCheck = useCallback(async () => {
     const tableClient = await getTableClient(tableId);
     const result = await tableClient.check();
     if (result.isFailure) alert(result.response.message.message);
+    else setPlayerTurn(false);
   }, [tableId]);
 
   const handleClickStartNextHand = useCallback(async () => {
@@ -78,6 +92,7 @@ export default function Table() {
     if (result.isFailure) {
       alert(result.response.message.message);
     }
+    else setPlayerTurn(false);
   }, [tableId]);
 
   const handleClickCloseGame = useCallback(async () => {
