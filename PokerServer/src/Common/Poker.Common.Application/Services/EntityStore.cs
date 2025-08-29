@@ -36,9 +36,6 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
     {
         await _repository.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var cacheKey = $"{_cacheKeyPrefix}{entity.Id}";
-        _cache.Set(cacheKey, entity);
     }
 
     public async Task SaveAsync(T entity, CancellationToken cancellationToken = default)

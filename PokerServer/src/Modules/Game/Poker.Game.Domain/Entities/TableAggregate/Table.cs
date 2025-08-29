@@ -311,6 +311,7 @@ public sealed class Table : Entity
         var players = _playerManager.Players
             .Select(p => new PlayerStateDto(
                 p.Id,
+                p.Username,
                 p.Balance,
                 p.Hand?.IsFolded ?? false,
                 p.Hand?.IsAllIn ?? false,

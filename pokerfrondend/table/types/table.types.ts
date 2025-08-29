@@ -37,6 +37,7 @@ export interface CardDto {
 
 export interface PlayerStateDto {
   id: string;
+  username: string;
   balance: number;
   isFolded: boolean;
   isAllIn: boolean;

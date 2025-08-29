@@ -18,7 +18,7 @@ public class TableNotifier : ITableNotifier
 
     public async Task NotifyGameStartedAsync(string playerId, GameStateDto state)
     {
-        await _hubContext.Clients.User(playerId).GameInfo(state);
+        await _hubContext.Clients.User(playerId).ReceiveGameState(state);
     }
 
     public async Task NotifyPlayerActionAsync(string tableId, string playerId, PlayerActionNotification action)
