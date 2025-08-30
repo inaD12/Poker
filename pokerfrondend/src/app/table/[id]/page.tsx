@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, GamePhase, GameStateDto } from "../../../../table/types/table.types";
+import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -20,6 +20,18 @@ export default function Table() {
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
   const playersRef = useRef<GameStateDto["players"]>([]);
+
+
+  const testPlayers: { id: string; username: string; cards: CardDto[] }[] = [ 
+  { id: "1", username: "Alice", cards: [{ rank: CardRank.Ace, suit: CardSuit.Spades }, { rank: CardRank.King, suit: CardSuit.Hearts }] }, 
+  { id: "2", username: "Bob", cards: [{ rank: CardRank.Queen, suit: CardSuit.Diamonds }, { rank: CardRank.Jack, suit: CardSuit.Clubs }] }, 
+  { id: "3", username: "Charlie", cards: [{ rank: CardRank.Ten, suit: CardSuit.Spades }, { rank: CardRank.Nine, suit: CardSuit.Hearts }] }, 
+  { id: "4", username: "Diana", cards: [{ rank: CardRank.Eight, suit: CardSuit.Diamonds }, { rank: CardRank.Seven, suit: CardSuit.Clubs }] }, 
+  { id: "5", username: "Eve", cards: [{ rank: CardRank.Six, suit: CardSuit.Spades }, { rank: CardRank.Five, suit: CardSuit.Hearts }] }, 
+];
+
+  const otherPlayers = testPlayers.filter(p => p.id !== playerIdRef.current);
+  const seatPositions = getSeatPositions(otherPlayers.length);
 
   const attachLobbyListeners = useCallback(async () => {
     if (!tableClientRef.current) {
@@ -113,7 +125,7 @@ export default function Table() {
       alert(result.response.message.message);
     }
   }, [tableId]);
-  return (
+    return (
   <div className="relative w-full h-screen flex items-center justify-center">
     
     {/* Winner announcement */}
@@ -144,7 +156,33 @@ export default function Table() {
         </div>
       )}
 
-      {/* Player Cards */}
+    {/* Other Players */}
+    {otherPlayers.map((player, index) => (
+      <div
+        key={player.id}
+        className={`${seatPositions[index]} -translate-x-1/2 flex flex-col gap-[4%] w-[25%] items-center`}
+      >
+        <div className="flex gap-[2%] w-[55%]">
+          {player.cards && winnerNames
+            ? player.cards.map((card, i) => (
+                <div key={i}>
+                  <Card rank={card.rank} suit={card.suit} />
+                </div>
+              ))
+            : [0, 1].map((_, i) => (
+                <div key={i}>
+                  <Card back />
+                </div>
+              ))}
+        </div>
+
+        <div className="bg-black/50 text-white px-2 mt-2 rounded text-center">
+          {player.username}
+        </div>
+      </div>
+    ))}
+
+      {/* Self Player Cards */}
       {cards.length === 2 && (
         <div className="absolute bottom-[1%] left-[50%] -translate-x-1/2 flex gap-[4%] w-[25%] justify-center">
           {cards.map((card, index) => (
@@ -185,3 +223,38 @@ export default function Table() {
   </div>
 );
 }
+
+const getSeatPositions = (numPlayers: number) => {
+  switch (numPlayers) {
+    case 1:
+      return ["absolute top-[5%] left-1/2"];
+    case 2:
+      return [
+        "absolute top-[5%] left-[25%]",
+        "absolute top-[5%] left-[75%]",
+      ];
+    case 3:
+      return [
+        "absolute top-[5%] left-1/2",
+        "absolute top-[20%] left-[85%]",
+        "absolute top-[20%] left-[15%]",
+      ];
+    case 4:
+      return [
+        "absolute top-[5%] left-[75%]",
+        "absolute top-[70%] left-[85%]",
+        "absolute top-[70%] left-[15%]",
+        "absolute top-[5%] left-[25%]",
+      ];
+    case 5:
+      return [
+        "absolute top-[5%] left-1/2",
+        "absolute top-[20%] left-[85%]",
+        "absolute top-[70%] left-[85%]",
+        "absolute top-[70%] left-[15%]",
+        "absolute top-[20%] left-[15%]",
+      ];
+    default:
+      return [];
+  }
+};
