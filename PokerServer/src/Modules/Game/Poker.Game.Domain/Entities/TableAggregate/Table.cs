@@ -453,6 +453,12 @@ public sealed class Table : Entity
         {
             var winner = activePlayers[0];
             winner.AddToBalance(CurrentPot);
+            
+            RaiseDomainEvent(new ShowdownDomainEvent(
+                Id,
+                [winner.Id],
+                CurrentPot,
+                GetPlayersStateDtosWithCards()));
             return;
         }
 
