@@ -319,6 +319,9 @@ public sealed class Table : Entity
                 _playerManager.IsPlayerTurn(p.Id),
                 p.IsDisconnected,
                 p.Id == requestingPlayerId
+                    ? true
+                    : false,
+                p.Id == requestingPlayerId
                     ? p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
                     : null
             ))
@@ -472,6 +475,27 @@ public sealed class Table : Entity
         RaiseDomainEvent(new ShowdownDomainEvent(
             Id,
             winners.Select(w => w.Player.Id).ToList(),
-            share));
+            share,
+            GetPlayersStateDtosWithCards()));
+    }
+
+    private List<PlayerStateDto> GetPlayersStateDtosWithCards()
+    {
+        var players = _playerManager.Players
+            .Select(p => new PlayerStateDto(
+                p.Id,
+                p.Username,
+                p.Balance,
+                p.Hand?.IsFolded ?? false,
+                p.Hand?.IsAllIn ?? false,
+                p.Hand?.Bet ?? 0,
+                _playerManager.IsPlayerTurn(p.Id),
+                p.IsDisconnected, 
+                false,
+                p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
+            ))
+            .ToList();
+        
+        return players;
     }
 }

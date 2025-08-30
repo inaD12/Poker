@@ -31,9 +31,9 @@ public class TableNotifier : ITableNotifier
         await _hubContext.Clients.Group(tableId).GamePhaseUpdate(gamePhase, cards);
     }
 
-    public async Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach)
+    public async Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates)
     {
-        await _hubContext.Clients.Group(tableId).Showdown(winnerPlayerIds, winningsEach);
+        await _hubContext.Clients.Group(tableId).Showdown(winnerPlayerIds, winningsEach, playerStates);
     }
 
     public async Task NotifyNextPlayerAsync(string playerId)

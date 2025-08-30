@@ -44,6 +44,7 @@ export interface PlayerStateDto {
   currentBet: number;
   isCurrentTurn: boolean;
   isDisconnected: boolean;
+  isSelf: boolean;
   cards?: CardDto[];
 }
 

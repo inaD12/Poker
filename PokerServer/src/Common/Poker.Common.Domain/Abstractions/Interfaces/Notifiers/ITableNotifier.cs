@@ -9,7 +9,7 @@ public interface ITableNotifier
     Task NotifyGameStartedAsync(string playerId, GameStateDto state);
     Task NotifyPlayerActionAsync(string tableId, string playerId, PlayerActionNotification action);
     Task NotifyGamePhaseUpdateAsync(string tableId, GamePhase gamePhase, List<CardDto> cards);
-    Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach);
+    Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates);
     Task NotifyNextPlayerAsync(string playerId);
     Task NotifyGameClosingAsync(string tableId);
 }

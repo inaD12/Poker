@@ -1,7 +1,7 @@
 import { signalRRoutes } from "../../api/apiEndpoints.config";
 import { HubResult } from "../../lobby/types/lobby.types";
 import signalRService, { ISignalRService } from "../../utilities/signalr.service";
-import { CardDto, GamePhase, GameStateDto, PlayerActionNotification } from "../types/table.types";
+import { CardDto, GamePhase, GameStateDto, PlayerActionNotification, PlayerStateDto } from "../types/table.types";
 
 export default class tableClient{
  private signalRService: ISignalRService;
@@ -34,9 +34,9 @@ export default class tableClient{
     });
   }
 
-  onShowdown(callback: (winnerPlayerIds: string[], winningsEach:number) => void) {
-    this.signalRService.on("Showdown", (winnerPlayerIds: string[], winningsEach:number) => {
-      callback(winnerPlayerIds, winningsEach);
+  onShowdown(callback: (winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => void) {
+    this.signalRService.on("Showdown", (winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
+      callback(winnerPlayerIds, winningsEach, playerStates);
     });
   }
 

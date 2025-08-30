@@ -9,5 +9,6 @@ public record PlayerStateDto(
     int CurrentBet,
     bool IsCurrentTurn,
     bool isDisconnected,
+    bool isSelf,
     IReadOnlyList<CardDto>? Cards
 );

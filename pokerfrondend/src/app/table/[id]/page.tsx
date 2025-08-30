@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto } from "../../../../table/types/table.types";
+import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto, PlayerStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -19,18 +19,9 @@ export default function Table() {
 
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
-  const playersRef = useRef<GameStateDto["players"]>([]);
+  const playersRef = useRef<PlayerStateDto[]>([]);
 
-
-  const testPlayers: { id: string; username: string; cards: CardDto[] }[] = [ 
-  { id: "1", username: "Alice", cards: [{ rank: CardRank.Ace, suit: CardSuit.Spades }, { rank: CardRank.King, suit: CardSuit.Hearts }] }, 
-  { id: "2", username: "Bob", cards: [{ rank: CardRank.Queen, suit: CardSuit.Diamonds }, { rank: CardRank.Jack, suit: CardSuit.Clubs }] }, 
-  { id: "3", username: "Charlie", cards: [{ rank: CardRank.Ten, suit: CardSuit.Spades }, { rank: CardRank.Nine, suit: CardSuit.Hearts }] }, 
-  { id: "4", username: "Diana", cards: [{ rank: CardRank.Eight, suit: CardSuit.Diamonds }, { rank: CardRank.Seven, suit: CardSuit.Clubs }] }, 
-  { id: "5", username: "Eve", cards: [{ rank: CardRank.Six, suit: CardSuit.Spades }, { rank: CardRank.Five, suit: CardSuit.Hearts }] }, 
-];
-
-  const otherPlayers = testPlayers.filter(p => p.id !== playerIdRef.current);
+  const otherPlayers = playersRef.current.filter(p => p.id !== playerIdRef.current);
   const seatPositions = getSeatPositions(otherPlayers.length);
 
   const attachLobbyListeners = useCallback(async () => {
@@ -44,7 +35,7 @@ export default function Table() {
       playersRef.current = gameStateDto.players;
       setPublicCards(gameStateDto.communityCards);
 
-      const player = gameStateDto.players.find(p => p.cards !== null);
+      const player = gameStateDto.players.find(p => p.isSelf);
       if (player) {
         playerIdRef.current = player.id;
         setCards(player.cards ?? []);
@@ -60,7 +51,7 @@ export default function Table() {
       setPlayerTurn(true);
     });
 
-    tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number) => {
+    tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
       const winningPlayerNames = playersRef.current
         .filter(p => winnerPlayerIds.includes(p.id))
         .map(p => p.username);
@@ -68,6 +59,8 @@ export default function Table() {
       if (winningPlayerNames.length > 0) {
         setWinnerNames(winningPlayerNames);
       }
+
+      playersRef.current = playerStates;
     });
   }, [tableId]);
 
