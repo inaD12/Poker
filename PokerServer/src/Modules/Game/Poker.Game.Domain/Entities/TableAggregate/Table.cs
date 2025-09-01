@@ -440,50 +440,71 @@ public sealed class Table : Entity
     private void HandleShowdown()
     {
         WaitingForNextHand = true;
-
         CurrentPhase = GamePhase.Showdown;
 
         var players = _playerManager.Players;
-
         var activePlayers = players
             .Where(p => !p.Hand!.IsFolded)
             .ToList();
+
+        Dictionary<string, decimal> earnings = new();
 
         if (activePlayers.Count == 1)
         {
             var winner = activePlayers[0];
             winner.AddToBalance(CurrentPot);
-            
+            earnings[winner.Id] = CurrentPot;
+
             RaiseDomainEvent(new ShowdownDomainEvent(
                 Id,
-                [winner.Id],
+                new List<string> { winner.Id },
                 CurrentPot,
                 GetPlayersStateDtosWithCards()));
-            return;
+        }
+        else
+        {
+            var evaluated = activePlayers
+                .Select(p => new
+                {
+                    Player = p,
+                    Score = HandEvaluator.EvaluateHand(
+                        p.Hand!.Cards.Concat(CommunityCards).ToList()
+                    )
+                })
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+            var topScore = evaluated.First().Score;
+            var winners = evaluated.Where(x => x.Score == topScore).ToList();
+
+            var share = CurrentPot / winners.Count;
+
+            foreach (var winner in winners)
+            {
+                winner.Player.AddToBalance(share);
+                earnings[winner.Player.Id] = share;
+            }
+
+            RaiseDomainEvent(new ShowdownDomainEvent(
+                Id,
+                winners.Select(w => w.Player.Id).ToList(),
+                share,
+                GetPlayersStateDtosWithCards()));
         }
 
-        var evaluated = activePlayers
-            .Select(p => new
-            {
-                Player = p,
-                Score = HandEvaluator.EvaluateHand(p.Hand!.Cards.Concat(CommunityCards).ToList())
-            })
-            .OrderByDescending(x => x.Score)
-            .ToList();
+        foreach (var player in players)
+        {
+            var won = earnings.ContainsKey(player.Id);
+            var playerEarnings = earnings.GetValueOrDefault(player.Id, 0);
 
-        var topScore = evaluated.First().Score;
-        var winners = evaluated.Where(x => x.Score == topScore).ToList();
-
-        var share = CurrentPot / winners.Count();
-
-        foreach (var winner in winners) winner.Player.AddToBalance(share);
-
-        RaiseDomainEvent(new ShowdownDomainEvent(
-            Id,
-            winners.Select(w => w.Player.Id).ToList(),
-            share,
-            GetPlayersStateDtosWithCards()));
+            RaiseDomainEvent(new PlayerPlayedGameDomainEvent(
+                player.Id,
+                won,
+                playerEarnings
+            ));
+        }
     }
+
 
     private List<PlayerStateDto> GetPlayersStateDtosWithCards()
     {

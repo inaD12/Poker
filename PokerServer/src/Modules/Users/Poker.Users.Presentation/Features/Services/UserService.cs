@@ -2,6 +2,7 @@ using MediatR;
 using Poker.Common.Application.Abstractions.Interfaces;
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Results;
+using Poker.Users.Application.Users.Commands.UserPlayedGame;
 using Poker.Users.Application.Users.Queries.GetUserById;
 
 namespace Poker.Users.Presentation.Features.Services;
@@ -27,5 +28,16 @@ internal class UserService : IUserService
 
         var userData = _mapper.Map<UserDataDto>(result.Value!);
         return Result<UserDataDto>.Success(userData);
+    }
+
+    public async Task<Result> UserPlayedGame(string id, bool won = false, decimal earnings = 0, CancellationToken cancellationToken = default)
+    {
+        var command = new UserPlayedGameCommand(id, won, earnings);
+        
+        var result = await _sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+            return Result.Failure(result.Response);
+
+        return Result.Success();
     }
 }
