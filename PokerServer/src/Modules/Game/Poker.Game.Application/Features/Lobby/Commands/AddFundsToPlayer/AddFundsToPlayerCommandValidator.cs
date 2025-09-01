@@ -1,0 +1,18 @@
+using FluentValidation;
+using Poker.Game.Domain.Utilities;
+
+namespace Poker.Game.Application.Features.Lobby.Commands.AddFundsToPlayer;
+
+public class AddFundsToPlayerCommandValidator : AbstractValidator<AddFundsToPlayerCommand>
+{
+    public AddFundsToPlayerCommandValidator()
+    {
+        RuleFor(x => x.PlayerId)
+            .NotEmpty()
+            .MinimumLength(GameBusinessConfiguration.ID_MIN_LENGTH)
+            .MaximumLength(GameBusinessConfiguration.ID_MAX_LENGTH);
+
+        RuleFor(x => x.Funds)
+            .GreaterThan(0);
+    }
+}

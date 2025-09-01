@@ -50,6 +50,17 @@ public class LobbyHub : Hub<ILobbyClient>
         await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, Context.ConnectionAborted);
         return result;
     }
+    
+    public async Task<Result> AddFunds(string lobbyId, int funds)
+    {
+        var playerId = _claimsExtractorService.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
+            return Result.Failure(SharedResponses.InternalError);
+
+        var result = await _lobbyService.AddFundsToPlayer(lobbyId, playerId, funds, Context.ConnectionAborted);
+        
+        return result;
+    }
 
     public async Task<Result> LeaveLobby(string lobbyId)
     {

@@ -5,6 +5,7 @@ export interface CreateLobbyResponse{
 export interface PlayerInfoDto {
   id: string;
   username: string;
+  balance: number
   handsPlayed: number;
   handsWon: number;
   totalEarnings: number;

@@ -65,4 +65,15 @@ public class Lobby : Entity
         RaiseDomainEvent(new PlayerLeftLobbyDomainEvent(Id, playerId));
         return Result.Success();
     }
+
+    public Result AddFundsToPlayer(string playerId, int funds)
+    {
+        var player = Players.FirstOrDefault(p => p.Id == playerId);
+        if (player is null)
+            return Result.Failure(ResponseList.PlayerNotInLobby);
+        
+        player.AddToBalance(funds);
+        
+        return Result.Success();
+    }
 }

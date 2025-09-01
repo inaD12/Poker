@@ -50,6 +50,12 @@ export default class lobbyClient{
     return result
   }
 
+  async addFunds(lobbyId: string, funds: number): Promise<HubResult<null>>{
+    const result =  await this.signalRService.send("AddFunds", lobbyId, funds);
+
+    return result
+  }
+
   async startGame(lobbyId: string): Promise<HubResult<null>>{
     const result =  await this.signalRService.send("StartGame", lobbyId);
 
