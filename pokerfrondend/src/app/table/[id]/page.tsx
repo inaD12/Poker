@@ -1,14 +1,16 @@
 'use client'
 
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, CardRank, CardSuit, GamePhase, GameStateDto, PlayerStateDto } from "../../../../table/types/table.types";
+import { CardDto, GamePhase, GameStateDto, PlayerStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
   const { id: tableId } = useParams<{ id: string }>();
+
+  const router = useRouter();
 
   const [cards, setCards] = useState<CardDto[]>([]);
   const [publicCards, setPublicCards] = useState<CardDto[]>([]);
@@ -49,6 +51,11 @@ export default function Table() {
 
     tableClient.onTurn(() => {
       setPlayerTurn(true);
+    });
+
+    tableClient.onGameClose(() => {
+      alert("Game closed");
+      router.push(`/`);
     });
 
     tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
@@ -116,6 +123,9 @@ export default function Table() {
     const result = await tableClient.closeGame();
     if (result.isFailure) {
       alert(result.response.message.message);
+    }
+    else{
+      router.push(`/`);
     }
   }, [tableId]);
     return (
