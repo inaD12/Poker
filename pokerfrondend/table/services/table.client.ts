@@ -22,9 +22,9 @@ export default class tableClient{
     });
   }
 
-  onPlayerAction(callback: (notification: PlayerActionNotification) => void) {
-    this.signalRService.on("PlayerAction", (notification: PlayerActionNotification) => {
-      callback(notification);
+  onPlayerAction(callback: (playerId: string, notification: PlayerActionNotification) => void) {
+    this.signalRService.on("PlayerAction", (playerId: string, notification: PlayerActionNotification) => {
+      callback(playerId, notification);
     });
   }
 

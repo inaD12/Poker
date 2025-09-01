@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, GamePhase, GameStateDto, PlayerStateDto } from "../../../../table/types/table.types";
+import { CardDto, GamePhase, GameStateDto, PlayerActionNotification, PlayerBetNotification, PlayerStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -18,6 +18,8 @@ export default function Table() {
   const [showBetInput, setShowBetInput] = useState<boolean>(false);
   const [playerTurn, setPlayerTurn] = useState<boolean>(false);
   const [winnerNames, setWinnerNames] = useState<string[] | null>(null);
+  const [playerActions, setPlayerActions] = useState<Record<string, PlayerActionNotification | null>>({});
+  const [currentTurn, setCurrentTurn] = useState<string | null>(null);
 
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
@@ -34,6 +36,7 @@ export default function Table() {
 
     tableClient.onReceiveGameState((gameStateDto: GameStateDto) => {
       setWinnerNames(null);
+      setPlayerActions({});
       playersRef.current = gameStateDto.players;
       setPublicCards(gameStateDto.communityCards);
 
@@ -47,6 +50,7 @@ export default function Table() {
 
     tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
       setPublicCards(prev => [...prev, ...cards]);
+       setPlayerActions({});
     });
 
     tableClient.onTurn(() => {
@@ -56,6 +60,25 @@ export default function Table() {
     tableClient.onGameClose(() => {
       alert("Game closed");
       router.push(`/`);
+    });
+
+    tableClient.onPlayerAction((playerId: string, notification: PlayerActionNotification) => {
+      if (notification.type === "Turn") {
+        setCurrentTurn(playerId);
+
+        setPlayerActions((prev) => {
+          const { [playerId]: _, ...rest } = prev;
+          return rest;
+  });
+      } else {
+        setPlayerActions((prev) => ({
+        ...prev,
+        [playerId]: notification,
+      }));
+      if (currentTurn === playerId) {
+        setCurrentTurn(null);
+      }
+      }
     });
 
     tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
@@ -128,6 +151,7 @@ export default function Table() {
       router.push(`/`);
     }
   }, [tableId]);
+
     return (
   <div className="relative w-full h-screen flex items-center justify-center">
     
@@ -163,8 +187,20 @@ export default function Table() {
     {otherPlayers.map((player, index) => (
       <div
         key={player.id}
-        className={`${seatPositions[index]} -translate-x-1/2 flex flex-col gap-[4%] w-[25%] items-center`}
+        className={`${seatPositions[index]} -translate-x-1/2 flex flex-col gap-[4%] w-[25%] items-center relative`}
       >
+        {playerActions[player.id] && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm shadow-md">
+            {formatAction(playerActions[player.id]!)}
+          </div>
+        )}
+
+        {currentTurn === player.id && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">
+            Thinking...
+          </div>
+        )}
+
         <div className="flex gap-[2%] w-[55%]">
           {player.cards && winnerNames
             ? player.cards.map((card, i) => (
@@ -219,7 +255,7 @@ export default function Table() {
         <button className="bg-amber-600 p-2" onClick={handleClickStartNextHand}>Start Next Hand</button>
         <button className="bg-amber-600 p-2" onClick={handleClickCloseGame}>Close Game</button>
         {playerTurn && (
-          <h1>Your turn</h1>
+          <div className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">Your turn</div>
         )}
       </div>
     </div>
@@ -261,3 +297,19 @@ const getSeatPositions = (numPlayers: number) => {
       return [];
   }
 };
+
+
+function formatAction(action: PlayerActionNotification): string {
+  switch (action.type) {
+    case "Bet":
+      return `Bet ${action.amount}`;
+    case "Fold":
+      return "Folded";
+    case "AllIn":
+      return "All-in!";
+    case "Check":
+      return "Checked";
+    default:
+      return "";
+  }
+}

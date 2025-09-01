@@ -26,7 +26,7 @@ class SignalRService implements ISignalRService {
     });
 
     this.connection.onclose((error) => {
-      console.error("Connection closed due to error:", error);
+      console.log("Connection closed due to error:", error);
     });
 
     try {
