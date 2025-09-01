@@ -5,8 +5,8 @@ export interface CreateLobbyResponse{
 export interface PlayerInfoDto {
   id: string;
   username: string;
-  gamesPlayed: number;
-  gamesWon: number;
+  handsPlayed: number;
+  handsWon: number;
   totalEarnings: number;
   isSelf: boolean;
 }

@@ -1,10 +1,8 @@
 using Poker.Common.Domain.Abstractions.Interfaces;
-using Poker.Common.Domain.Dtos;
-using Poker.Common.Domain.Enums;
 
 namespace Poker.Game.Domain.Events;
 
-public record PlayerPlayedGameDomainEvent(
+public record PlayerPlayedHandDomainEvent(
     string Id,
     bool Won = false,
     decimal Earnings = 0) : IDomainEvent;

@@ -12,13 +12,13 @@ public sealed class Player : Entity
     }
 
     [JsonConstructor]
-    private Player(string username, int balance, Hand? hand, int gamesPlayed, int gamesWon, decimal totalEarnings, bool isDisconnected)
+    private Player(string username, int balance, Hand? hand, int handsPlayed, int handsWon, decimal totalEarnings, bool isDisconnected)
     {
         Username = username;
         Balance = balance;
         Hand = hand;
-        GamesPlayed = gamesPlayed;
-        GamesWon = gamesWon;
+        HandsPlayed = handsPlayed;
+        HandsWon = handsWon;
         TotalEarnings = totalEarnings;
         IsDisconnected = isDisconnected;
     }
@@ -27,8 +27,8 @@ public sealed class Player : Entity
     public int Balance { get; private set; }
     public Hand? Hand { get; private set; }
     
-    public int GamesPlayed { get; private set; }
-    public int GamesWon { get; private set; }
+    public int HandsPlayed { get; private set; }
+    public int HandsWon { get; private set; }
     public decimal TotalEarnings { get; private set; }
     public bool IsDisconnected { get; private set; }
 

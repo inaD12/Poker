@@ -4,6 +4,6 @@ public sealed record UserQueryResponse(
     string Id,
     string Email,
     string Username,
-    int GamesPlayed,
-    int GamesWon,
+    int HandsPlayed,
+    int HandsWon,
     decimal TotalEarnings);

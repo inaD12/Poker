@@ -3,9 +3,9 @@ using Poker.Users.Domain.Utilities;
 
 namespace Poker.Users.Application.Users.Commands.UserPlayedGame;
 
-internal class UserPlayedGameCommandValidator : AbstractValidator<UserPlayedGameCommand>
+internal class UserPlayedHandCommandValidator : AbstractValidator<UserPlayedHandCommand>
 {
-    public UserPlayedGameCommandValidator()
+    public UserPlayedHandCommandValidator()
     {
         RuleFor(x => x.Id)
             .NotEmpty()

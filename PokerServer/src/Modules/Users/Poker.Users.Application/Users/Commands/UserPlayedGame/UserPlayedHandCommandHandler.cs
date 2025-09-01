@@ -7,26 +7,26 @@ using Poker.Users.Domain.Responses;
 
 namespace Poker.Users.Application.Users.Commands.UserPlayedGame;
 
-internal sealed class UserPlayedGameCommandHandler : ICommandHandler<UserPlayedGameCommand, UserCommandViewModel>
+internal sealed class UserPlayedHandCommandHandler : ICommandHandler<UserPlayedHandCommand, UserCommandViewModel>
 {
     private readonly IPokerMapper _mapper;
     private readonly IUsersUnitOfWork _usersUnitOfWork;
     private readonly IUserRepository _userRepository;
 
-    public UserPlayedGameCommandHandler(IUsersUnitOfWork usersUnitOfWork, IPokerMapper mapper, IUserRepository userRepository)
+    public UserPlayedHandCommandHandler(IUsersUnitOfWork usersUnitOfWork, IPokerMapper mapper, IUserRepository userRepository)
     {
         _usersUnitOfWork = usersUnitOfWork;
         _mapper = mapper;
         _userRepository = userRepository;
     }
 
-    public async Task<Result<UserCommandViewModel>> Handle(UserPlayedGameCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UserCommandViewModel>> Handle(UserPlayedHandCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
         if (user == null)
             return Result<UserCommandViewModel>.Failure(ResponseList.UserNotFound);
 
-        user.PlayedGame(request.Won, request.Earnings);
+        user.PlayedHand(request.Won, request.Earnings);
 
         _userRepository.Update(user);
 

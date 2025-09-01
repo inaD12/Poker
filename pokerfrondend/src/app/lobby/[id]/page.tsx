@@ -139,8 +139,8 @@ export default function Lobby() {
                 <PlayerBox
                   key={player.id || index}
                   username={player.username}
-                  gamesPlayed={player.gamesPlayed}
-                  gamesWon={player.gamesWon}
+                  handsPlayed={player.handsPlayed}
+                  handsWon={player.handsWon}
                   totalEarnings={player.totalEarnings}
                 />
               ) : (

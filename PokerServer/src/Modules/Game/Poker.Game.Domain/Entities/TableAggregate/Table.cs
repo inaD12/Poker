@@ -497,7 +497,7 @@ public sealed class Table : Entity
             var won = earnings.ContainsKey(player.Id);
             var playerEarnings = earnings.GetValueOrDefault(player.Id, 0);
 
-            RaiseDomainEvent(new PlayerPlayedGameDomainEvent(
+            RaiseDomainEvent(new PlayerPlayedHandDomainEvent(
                 player.Id,
                 won,
                 playerEarnings

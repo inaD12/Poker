@@ -30,9 +30,9 @@ internal class UserService : IUserService
         return Result<UserDataDto>.Success(userData);
     }
 
-    public async Task<Result> UserPlayedGame(string id, bool won = false, decimal earnings = 0, CancellationToken cancellationToken = default)
+    public async Task<Result> UserPlayedHand(string id, bool won = false, decimal earnings = 0, CancellationToken cancellationToken = default)
     {
-        var command = new UserPlayedGameCommand(id, won, earnings);
+        var command = new UserPlayedHandCommand(id, won, earnings);
         
         var result = await _sender.Send(command, cancellationToken);
         if (result.IsFailure)

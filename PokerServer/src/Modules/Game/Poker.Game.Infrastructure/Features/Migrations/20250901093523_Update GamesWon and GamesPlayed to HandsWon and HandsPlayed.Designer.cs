@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Poker.Game.Infrastructure.Features.DBContexts;
@@ -11,9 +12,11 @@ using Poker.Game.Infrastructure.Features.DBContexts;
 namespace Poker.Game.Infrastructure.Features.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    partial class GameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250901093523_Update GamesWon and GamesPlayed to HandsWon and HandsPlayed")]
+    partial class UpdateGamesWonandGamesPlayedtoHandsWonandHandsPlayed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

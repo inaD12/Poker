@@ -17,16 +17,16 @@ public sealed class User : Entity
         string passwordHash,
         string salt,
         string username,
-        int gamesPlayed,
-        int gamesWon,
+        int handsPlayed,
+        int handsWon,
         decimal totalEarnings)
     {
         Email = email;
         PasswordHash = passwordHash;
         Salt = salt;
         Username = username;
-        GamesPlayed = gamesPlayed;
-        GamesWon = gamesWon;
+        HandsPlayed = handsPlayed;
+        HandsWon = handsWon;
         TotalEarnings = totalEarnings;
     }
 
@@ -34,8 +34,8 @@ public sealed class User : Entity
     public string PasswordHash { get; private set; }
     public string Salt { get; private set; }
     public string Username { get; private set; }
-    public int GamesPlayed { get; private set; }
-    public int GamesWon { get; private set; }
+    public int HandsPlayed { get; private set; }
+    public int HandsWon { get; private set; }
     public decimal TotalEarnings { get; private set; }
 
     public static User Create(
@@ -68,13 +68,13 @@ public sealed class User : Entity
         return Result.Success();
     }
 
-    public void PlayedGame(bool won = false, decimal? earnings = null)
+    public void PlayedHand(bool won = false, decimal? earnings = null)
     {
-        GamesPlayed++;
+        HandsPlayed++;
 
         if (won)
         {
-            GamesWon++;
+            HandsWon++;
 
             if (earnings is > 0)
                 TotalEarnings += earnings.Value;
