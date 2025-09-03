@@ -23,7 +23,7 @@ internal sealed class PlayerDisconnectedCommandHandler: ICommandHandler<PlayerDi
             return Result.Failure(ResponseList.TableNotFound);
         
         var result = game.PlayerDisconnected(request.PlayerId);
-
+        
         await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }

@@ -41,7 +41,7 @@ const LoginForm = () => {
     return (
         <form
             onSubmit={onSubmit}
-            className="flex flex-col gap-4 bg-white w-screen h-screen sm:h-auto sm:min-w-80 sm:max-w-[30%] sm:rounded-xl justify-center text-center text-black p-6 outline-3 outline-blue-700"
+            className="flex flex-col gap-4 bg-[#437057] w-screen h-screen sm:h-auto sm:min-w-80 sm:max-w-[30%] sm:rounded-xl justify-center text-center text-white p-6 outline-3 outline-white"
         >
             <h1 className="text-4xl mb-6">Login</h1>
 
@@ -50,7 +50,7 @@ const LoginForm = () => {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-gray-300 p-2 rounded-md"
+                className="text-black bg-gray-300 p-2 rounded-md"
             />
 
             <input
@@ -58,14 +58,14 @@ const LoginForm = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-gray-300 p-2 rounded-md"
+                className="text-black bg-gray-300 p-2 rounded-md"
             />
 
             {apiError && <div className="text-red-700 text-sm">{apiError}</div>}
 
             <button
                 type="submit"
-                className="mx-auto bg-blue-500 text-white p-2 h-[50px] w-[150px] rounded-md hover:bg-blue-600 transition"
+                className="mx-auto bg-[#2F5249] text-white p-2 h-[50px] w-[150px] rounded-md hover:bg-[#223b35] transition"
             >
                 Submit
             </button>
