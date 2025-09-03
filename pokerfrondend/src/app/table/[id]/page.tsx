@@ -5,11 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
 import { CardDto, GamePhase, GameStateDto, PlayerActionNotification, PlayerStateDto } from "../../../../table/types/table.types";
+import { getSeatPositions } from "../../../../utilities/table";
+import CommunityCards from "./components/CommunityCards";
+import Player from "./components/Player";
+import Controls from "./components/Controls";
 import Card from "../../../../components/Card";
+
 
 export default function Table() {
   const { id: tableId } = useParams<{ id: string }>();
-
   const router = useRouter();
 
   const [cards, setCards] = useState<CardDto[]>([]);
@@ -22,7 +26,7 @@ export default function Table() {
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
   const [isHost, setIsHost] = useState<boolean>(false);
   const [players, setPlayers] = useState<PlayerStateDto[]>([]);
-  
+
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
 
@@ -30,338 +34,129 @@ export default function Table() {
   const seatPositions = getSeatPositions(otherPlayers.length);
 
   const attachLobbyListeners = useCallback(async () => {
-  if (!tableClientRef.current) {
-    tableClientRef.current = await getTableClient(tableId);
-  }
-  const tableClient = tableClientRef.current;
+    if (!tableClientRef.current) tableClientRef.current = await getTableClient(tableId);
+    const client = tableClientRef.current;
 
-  tableClient.onReceiveGameState((gameStateDto: GameStateDto) => {
-    setWinnerNames(null);
-    setPlayerActions({});
-    setPlayers(gameStateDto.players);
-    setPublicCards(gameStateDto.communityCards);
-    setCurrentTurn(gameStateDto.currentTurnPlayerId ?? null);
+    client.onReceiveGameState((gameState: GameStateDto) => {
+      setWinnerNames(null);
+      setPlayerActions({});
+      setPlayers(gameState.players);
+      setPublicCards(gameState.communityCards);
+      setCurrentTurn(gameState.currentTurnPlayerId ?? null);
 
-    const player = gameStateDto.players.find(p => p.isSelf);
-    if (player) {
-      playerIdRef.current = player.id;
-      setCards(player.cards ?? []);
-      setPlayerTurn(player.isCurrentTurn ?? false);
-    }
-
-    if (gameStateDto.hostingPlayerId === playerIdRef.current) {
-      setIsHost(true);
-    }
-  });
-
-  tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
-    setPublicCards(prev => [...prev, ...cards]);
-    setPlayerActions({});
-  });
-
-  tableClient.onTurn(() => {
-    setPlayerTurn(true);
-  });
-
-  tableClient.onGameClose(() => {
-    alert("Game closed");
-    router.push(`/`);
-  });
-
-  tableClient.onPlayerAction((playerId: string, notification: PlayerActionNotification) => {
-    if (notification.type === "Turn") {
-      setCurrentTurn(playerId);
-
-      setPlayerActions(prev => {
-        const { [playerId]: _, ...rest } = prev;
-        return rest;
-      });
-
-    } else if (notification.type === "Disconnect") {
-      setPlayers(prev =>
-        prev.map(p => p.id === playerId ? { ...p, isDisconnected: true } : p)
-      );
-
-    } else if (notification.type === "Reconnect") {
-      setPlayers(prev =>
-        prev.map(p => p.id === playerId ? { ...p, isDisconnected: false } : p)
-      );
-
-    } else if (notification.type === "Fold" || notification.type === "AllIn") {
-      setPlayers(prev =>
-        prev.map(p =>
-          p.id === playerId
-            ? {
-                ...p,
-                isFolded: notification.type === "Fold" ? true : p.isFolded,
-                isAllIn: notification.type === "AllIn" ? true : p.isAllIn,
-              }
-            : p
-        )
-      );
-
-    } else {
-      setPlayerActions(prev => ({
-        ...prev,
-        [playerId]: notification,
-      }));
-
-      setCurrentTurn(prev => (prev === playerId ? null : prev));
-    }
-  });
-
-  tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
-    setPlayers(prevPlayers => {
-      const winningPlayerNames = prevPlayers
-        .filter(p => winnerPlayerIds.includes(p.id))
-        .map(p => p.username);
-
-      if (winningPlayerNames.length > 0) {
-        setWinnerNames(winningPlayerNames);
+      const self = gameState.players.find(p => p.isSelf);
+      if (self) {
+        playerIdRef.current = self.id;
+        setCards(self.cards ?? []);
+        setPlayerTurn(self.isCurrentTurn ?? false);
       }
 
-      return playerStates;
+      if (gameState.hostingPlayerId === playerIdRef.current) setIsHost(true);
     });
-  });
-}, [tableId]);
 
+    client.onGamePhaseUpdate((_: GamePhase, cards: CardDto[]) => {
+      setPublicCards(prev => [...prev, ...cards]);
+      setPlayerActions({});
+    });
 
-  useEffect(() => {
-    attachLobbyListeners();
-  }, [attachLobbyListeners]);
+    client.onTurn(() => setPlayerTurn(true));
 
-  const handleClickPlaceBet = useCallback(async () => {
-    if (!showBetInput) {
-      setShowBetInput(true);
-      return;
+    client.onGameClose(() => { alert("Game closed"); router.push(`/`); });
+
+    client.onPlayerAction((playerId, notification) => {
+      if (notification.type === "Turn") {
+        setCurrentTurn(playerId);
+        setPlayerActions(prev => { const { [playerId]: _, ...rest } = prev; return rest; });
+      } else if (notification.type === "Disconnect") {
+        setPlayers(prev => prev.map(p => p.id === playerId ? { ...p, isDisconnected: true } : p));
+      } else if (notification.type === "Reconnect") {
+        setPlayers(prev => prev.map(p => p.id === playerId ? { ...p, isDisconnected: false } : p));
+      } else if (notification.type === "Fold" || notification.type === "AllIn") {
+        setPlayers(prev => prev.map(p => p.id === playerId
+          ? { ...p, isFolded: notification.type === "Fold" ? true : p.isFolded, isAllIn: notification.type === "AllIn" ? true : p.isAllIn }
+          : p
+        ));
+      } else {
+        setPlayerActions(prev => ({ ...prev, [playerId]: notification }));
+        setCurrentTurn(prev => (prev === playerId ? null : prev));
+      }
+    });
+
+    client.onShowdown((winnerIds, _, playerStates) => {
+      setPlayers(prev => {
+        const winningNames = prev.filter(p => winnerIds.includes(p.id)).map(p => p.username);
+        if (winningNames.length > 0) setWinnerNames(winningNames);
+        return playerStates;
+      });
+    });
+  }, [tableId, router]);
+
+  useEffect(() => { attachLobbyListeners(); }, [attachLobbyListeners]);
+
+  const handleAction = useCallback(async (action: "placeBet" | "fold" | "allIn" | "check" | "startNextHand" | "closeGame") => {
+    const client = await getTableClient(tableId);
+    let result;
+    switch(action){
+      case "placeBet": result = await client.placeBet(amount); break;
+      case "fold": result = await client.fold(); break;
+      case "allIn": result = await client.allIn(); break;
+      case "check": result = await client.check(); break;
+      case "startNextHand": result = await client.startNextHand(); break;
+      case "closeGame": result = await client.closeGame(); break;
     }
+    if(result?.isFailure) alert(result.response.message.message);
+    else if(["placeBet","fold","allIn","check"].includes(action)) setPlayerTurn(false);
+  }, [amount, tableId]);
 
-    const tableClient = await getTableClient(tableId);
-    const result = await tableClient.placeBet(amount);
-    if (result.isFailure) alert(result.response.message.message);
-    else setPlayerTurn(false);
+  return (
+    <div className="relative w-full h-screen flex items-center justify-center">
 
-    setShowBetInput(false);
-  }, [amount, tableId, showBetInput]);
+      {/* Winner announcement */}
+      {winnerNames && (
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-6 py-3 rounded-xl shadow-lg">
+          <h1 className="text-2xl font-bold">Winner(s): {winnerNames.join(", ")}</h1>
+        </div>
+      )}
 
-  const handleClickFold = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);
-    const result = await tableClient.fold();
-    if (result.isFailure) alert(result.response.message.message);
-    else setPlayerTurn(false);
-  }, [tableId]);
+      {/* Table container */}
+      <div className="relative w-full max-w-screen-xl min-w-[200px] aspect-[16/9]">
+        <Image src="/pokerTable.png" alt="Poker table" fill className="object-cover z-0" priority />
 
-  const handleClickAllIn = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);
-    const result = await tableClient.allIn();
-    if (result.isFailure) alert(result.response.message.message);
-    else setPlayerTurn(false);
-  }, [tableId]);
+        {/* Community Cards */}
+        {publicCards.length > 0 && <CommunityCards cards={publicCards} />}
 
-  const handleClickCheck = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);
-    const result = await tableClient.check();
-    if (result.isFailure) alert(result.response.message.message);
-    else setPlayerTurn(false);
-  }, [tableId]);
+        {/* Other Players */}
+        {otherPlayers.map((p, i) => (
+          <Player
+            key={p.id}
+            player={p}
+            index={i}
+            seatPosition={seatPositions[i]}
+            playerActions={playerActions}
+            currentTurn={currentTurn}
+            winnerNames={winnerNames}
+          />
+        ))}
 
-  const handleClickStartNextHand = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);
-    const result = await tableClient.startNextHand();
-    if (result.isFailure) {
-      alert(result.response.message.message);
-    }
-  }, [tableId]);
-
-  const handleClickCloseGame = useCallback(async () => {
-    const tableClient = await getTableClient(tableId);  
-    const result = await tableClient.closeGame();
-    if (result.isFailure) {
-      alert(result.response.message.message);
-    }
-    else{
-      router.push(`/`);
-    }
-  }, [tableId]);
-
-    return (
-  <div className="relative w-full h-screen flex items-center justify-center">
-    
-    {/* Winner announcement */}
-    {winnerNames && (
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-6 py-3 rounded-xl shadow-lg">
-        <h1 className="text-2xl font-bold">Winner(s): {winnerNames.join(", ")}</h1>
+        {/* Self Player Cards */}
+        {cards.length === 2 && (
+          <div className="absolute bottom-[1%] left-[50%] -translate-x-1/2 flex gap-[4%] w-[25%] justify-center">
+            {cards.map((card, i) => <div key={i} className="w-[45%]"><Card rank={card.rank} suit={card.suit} /></div>)}
+          </div>
+        )}
       </div>
-    )}
 
-    {/* Table container */}
-    <div className="relative w-full max-w-screen-xl min-w-[200px] aspect-[16/9]">
-      <Image
-        src="/pokerTable.png"
-        alt="Poker table"
-        fill
-        className="object-cover z-0"
-        priority
+      {/* Bottom Controls */}
+      <Controls
+        amount={amount} setAmount={setAmount} showBetInput={showBetInput} playerTurn={playerTurn}
+        isHost={isHost} winnerNames={winnerNames}
+        onPlaceBet={() => handleAction("placeBet")}
+        onFold={() => handleAction("fold")}
+        onAllIn={() => handleAction("allIn")}
+        onCheck={() => handleAction("check")}
+        onStartNextHand={() => handleAction("startNextHand")}
+        onCloseGame={() => handleAction("closeGame")}
       />
-
-      {/* Community Cards */}
-      {publicCards.length > 0 && (
-        <div className="absolute top-[38.9%] left-[50%] -translate-x-1/2 flex gap-[1.9%] w-[39%]">
-          {publicCards.map((card, index) => (
-            <div key={index} className="w-[18%]">
-              <Card rank={card.rank} suit={card.suit} />
-            </div>
-          ))}
-        </div>
-      )}
-
-    {/* Other Players */}
-    {otherPlayers.map((player, index) => (
-      <div
-        key={player.id}
-        className={`${seatPositions[index]} -translate-x-1/2 flex flex-col gap-[4%] w-[25%] items-center relative`}
-      >
-        {/* Above player bubbles */}
-        {player.isFolded && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            Folded
-          </div>
-        )}
-
-        {player.isDisconnected && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-500 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            Disconnected
-          </div>
-        )}
-
-        {player.isAllIn && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            All-In!
-          </div>
-        )}
-
-        {playerActions[player.id] && (
-          <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            {formatAction(playerActions[player.id]!)}
-          </div>
-        )}
-
-        {currentTurn === player.id && !player.isDisconnected && !player.isFolded && !player.isAllIn &&  (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">
-            Thinking...
-          </div>
-        )}
-
-        <div className="flex gap-[2%] w-[55%]">
-          {player.cards && winnerNames
-            ? player.cards.map((card, i) => (
-                <div key={i}>
-                  <Card rank={card.rank} suit={card.suit} />
-                </div>
-              ))
-            : [0, 1].map((_, i) => (
-                <div key={i}>
-                  <Card back />
-                </div>
-              ))}
-        </div>
-
-        <div className="bg-black/50 text-white px-2 mt-2 rounded text-center">
-          {player.username}
-        </div>
-      </div>
-    ))}
-
-      {/* Self Player Cards */}
-      {cards.length === 2 && (
-        <div className="absolute bottom-[1%] left-[50%] -translate-x-1/2 flex gap-[4%] w-[25%] justify-center">
-          {cards.map((card, index) => (
-            <div key={index} className="w-[45%]">
-              <Card rank={card.rank} suit={card.suit} />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
-
-    {/* Bottom controls */}
-    <div className="absolute bottom-4 w-full flex flex-col items-center gap-3 z-10">
-      {showBetInput && (
-        <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-        className="border p-2 w-40 text-center"
-        placeholder="Bet amount"
-        />
-      )}
-
-      {playerTurn && (
-        <div className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">Your turn</div>
-      )}
-
-      <div className="flex gap-2">
-        <button className="bg-amber-600 p-2" onClick={handleClickPlaceBet}>
-          {showBetInput ? "Confirm Bet" : "Place Bet"}
-        </button>
-        <button className="bg-amber-600 p-2" onClick={handleClickFold}>Fold</button>
-        <button className="bg-amber-600 p-2" onClick={handleClickAllIn}>All In</button>
-        <button className="bg-amber-600 p-2" onClick={handleClickCheck}>Check</button>
-        {isHost && winnerNames && (
-          <>
-            <button className="bg-amber-600 p-2" onClick={handleClickStartNextHand}>Start Next Hand</button>
-            <button className="bg-amber-600 p-2" onClick={handleClickCloseGame}>Close Game</button>
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-);
-}
-
-const getSeatPositions = (numPlayers: number) => {
-  switch (numPlayers) {
-    case 1:
-      return ["absolute top-[5%] left-1/2"];
-    case 2:
-      return [
-        "absolute top-[5%] left-[25%]",
-        "absolute top-[5%] left-[75%]",
-      ];
-    case 3:
-      return [
-        "absolute top-[5%] left-1/2",
-        "absolute top-[20%] left-[85%]",
-        "absolute top-[20%] left-[15%]",
-      ];
-    case 4:
-      return [
-        "absolute top-[5%] left-[75%]",
-        "absolute top-[70%] left-[85%]",
-        "absolute top-[70%] left-[15%]",
-        "absolute top-[5%] left-[25%]",
-      ];
-    case 5:
-      return [
-        "absolute top-[5%] left-1/2",
-        "absolute top-[20%] left-[85%]",
-        "absolute top-[70%] left-[85%]",
-        "absolute top-[70%] left-[15%]",
-        "absolute top-[20%] left-[15%]",
-      ];
-    default:
-      return [];
-  }
-};
-
-
-function formatAction(action: PlayerActionNotification): string {
-  switch (action.type) {
-    case "Bet":
-      return `Bet ${action.amount}`;
-    case "Check":
-      return "Checked";
-    default:
-      return "";
-  }
+  );
 }
