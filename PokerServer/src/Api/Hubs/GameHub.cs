@@ -4,6 +4,7 @@ using Poker.Common.Domain.Responses;
 using Poker.Common.Domain.Results;
 using Poker.Common.Presentation.Abstractions;
 using Poker.Game.Presentation.Features.Game.Service;
+using Serilog;
 
 namespace PokerServer.Hubs;
 
@@ -28,8 +29,12 @@ public class GameHub : Hub<IGameClient>
             return;
         }
 
-        var result = await _gameService.GetTableAsync(tableId, playerId, Context.ConnectionAborted);
-        if (result.IsFailure || result.Value!.Players.All(p => p.Id != playerId))
+        var tableResult = await _gameService.GetTableAsync(tableId, playerId, Context.ConnectionAborted);
+        
+        var gameState = tableResult.Value!;
+        var player = gameState.Players.FirstOrDefault(p => p.Id == playerId);
+        
+        if (tableResult.IsFailure || player is null)
         {
             Context.Abort();
             return;
@@ -37,8 +42,18 @@ public class GameHub : Hub<IGameClient>
         Context.Items["tableId"] = tableId;
 
         await Groups.AddToGroupAsync(Context.ConnectionId, tableId);
+
+        if (player.isDisconnected)
+        {
+            var reconnectedResult = await _gameService.PlayerReconnectedAsync(tableId, playerId, Context.ConnectionAborted);
+
+            if (reconnectedResult.IsFailure)
+            {
+                Log.Error("Reconnection Failure in GameHub");
+                Context.Abort();
+            }
+        }
         
-        var gameState = result.Value!;
         await Clients.Caller.ReceiveGameState(gameState);
         
         await base.OnConnectedAsync();
@@ -110,11 +125,25 @@ public class GameHub : Hub<IGameClient>
         return result;
     }
     
+    public async Task<Result> Disconnect(string tableId)
+    {
+        var playerId = _claimsExtractor.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
+            return Result.Failure(SharedResponses.InternalError);
+
+        var result = await _gameService.PlayerDisconnectedAsync(tableId, playerId, Context.ConnectionAborted);
+        if (result.IsFailure)
+            return result;
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, tableId, Context.ConnectionAborted);
+        return Result.Success();
+    }
+    
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var (playerId, tableId) = GetUserAndGameId();
         if (playerId is not null && tableId is not null)
-           // await _gameService.PlayerDisconnectedAsync(lobbyId, playerId, CancellationToken.None);
+            await _gameService.PlayerDisconnectedAsync(tableId, playerId, CancellationToken.None);
 
         await base.OnDisconnectedAsync(exception);
     }

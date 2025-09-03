@@ -145,9 +145,6 @@ public class PlayerManager
             return Result.Failure(ResponseList.PlayerNotInGame);
 
         player.Disconnect();
-
-        if (IsPlayerTurn(playerId))
-            SetNextActivePosition();
         
         return Result.Success();
     }

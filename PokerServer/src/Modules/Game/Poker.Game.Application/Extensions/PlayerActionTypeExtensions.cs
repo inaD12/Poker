@@ -13,6 +13,8 @@ public static class PlayerActionTypeExtensions
             PlayerActionType.Fold => new PlayerFoldNotification(),
             PlayerActionType.AllIn => new PlayerAllInNotification(),
             PlayerActionType.Check => new PlayerCheckNotification(),
+            PlayerActionType.Disconnect => new PlayerDisconnectNotification(),
+            PlayerActionType.Reconnected => new PlayerReconnectNotification(),
             _ => throw new InvalidOperationException("Unknown player action")
         };
     }

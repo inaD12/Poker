@@ -24,6 +24,7 @@ internal sealed class PlayerDisconnectedCommandHandler: ICommandHandler<PlayerDi
         
         var result = game.PlayerDisconnected(request.PlayerId);
 
+        await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }
 }

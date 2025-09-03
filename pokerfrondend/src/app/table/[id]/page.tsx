@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import tableClient, { getTableClient } from "../../../../table/services/table.client";
-import { CardDto, GamePhase, GameStateDto, PlayerActionNotification, PlayerBetNotification, PlayerStateDto } from "../../../../table/types/table.types";
+import { CardDto, GamePhase, GameStateDto, PlayerActionNotification, PlayerStateDto } from "../../../../table/types/table.types";
 import Card from "../../../../components/Card";
 
 export default function Table() {
@@ -20,69 +20,99 @@ export default function Table() {
   const [winnerNames, setWinnerNames] = useState<string[] | null>(null);
   const [playerActions, setPlayerActions] = useState<Record<string, PlayerActionNotification | null>>({});
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
-
+  const [isHost, setIsHost] = useState<boolean>(false);
+  const [players, setPlayers] = useState<PlayerStateDto[]>([]);
+  
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
-  const playersRef = useRef<PlayerStateDto[]>([]);
 
-  const otherPlayers = playersRef.current.filter(p => p.id !== playerIdRef.current);
+  const otherPlayers = players.filter(p => p.id !== playerIdRef.current);
   const seatPositions = getSeatPositions(otherPlayers.length);
 
   const attachLobbyListeners = useCallback(async () => {
-    if (!tableClientRef.current) {
-      tableClientRef.current = await getTableClient(tableId);
+  if (!tableClientRef.current) {
+    tableClientRef.current = await getTableClient(tableId);
+  }
+  const tableClient = tableClientRef.current;
+
+  tableClient.onReceiveGameState((gameStateDto: GameStateDto) => {
+    setWinnerNames(null);
+    setPlayerActions({});
+    setPlayers(gameStateDto.players);
+    setPublicCards(gameStateDto.communityCards);
+    setCurrentTurn(gameStateDto.currentTurnPlayerId ?? null);
+
+    const player = gameStateDto.players.find(p => p.isSelf);
+    if (player) {
+      playerIdRef.current = player.id;
+      setCards(player.cards ?? []);
+      setPlayerTurn(player.isCurrentTurn ?? false);
     }
-    const tableClient = tableClientRef.current;
 
-    tableClient.onReceiveGameState((gameStateDto: GameStateDto) => {
-      setWinnerNames(null);
-      setPlayerActions({});
-      playersRef.current = gameStateDto.players;
-      setPublicCards(gameStateDto.communityCards);
-
-      const player = gameStateDto.players.find(p => p.isSelf);
-      if (player) {
-        playerIdRef.current = player.id;
-        setCards(player.cards ?? []);
-        setPlayerTurn(player.isCurrentTurn ?? false);
-      }
-    });
-
-    tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
-      setPublicCards(prev => [...prev, ...cards]);
-       setPlayerActions({});
-    });
-
-    tableClient.onTurn(() => {
-      setPlayerTurn(true);
-    });
-
-    tableClient.onGameClose(() => {
-      alert("Game closed");
-      router.push(`/`);
-    });
-
-    tableClient.onPlayerAction((playerId: string, notification: PlayerActionNotification) => {
-      if (notification.type === "Turn") {
-        setCurrentTurn(playerId);
-
-        setPlayerActions((prev) => {
-          const { [playerId]: _, ...rest } = prev;
-          return rest;
+    if (gameStateDto.hostingPlayerId === playerIdRef.current) {
+      setIsHost(true);
+    }
   });
-      } else {
-        setPlayerActions((prev) => ({
+
+  tableClient.onGamePhaseUpdate((gamePhase: GamePhase, cards: CardDto[]) => {
+    setPublicCards(prev => [...prev, ...cards]);
+    setPlayerActions({});
+  });
+
+  tableClient.onTurn(() => {
+    setPlayerTurn(true);
+  });
+
+  tableClient.onGameClose(() => {
+    alert("Game closed");
+    router.push(`/`);
+  });
+
+  tableClient.onPlayerAction((playerId: string, notification: PlayerActionNotification) => {
+    if (notification.type === "Turn") {
+      setCurrentTurn(playerId);
+
+      setPlayerActions(prev => {
+        const { [playerId]: _, ...rest } = prev;
+        return rest;
+      });
+
+    } else if (notification.type === "Disconnect") {
+      setPlayers(prev =>
+        prev.map(p => p.id === playerId ? { ...p, isDisconnected: true } : p)
+      );
+
+    } else if (notification.type === "Reconnect") {
+      setPlayers(prev =>
+        prev.map(p => p.id === playerId ? { ...p, isDisconnected: false } : p)
+      );
+
+    } else if (notification.type === "Fold" || notification.type === "AllIn") {
+      setPlayers(prev =>
+        prev.map(p =>
+          p.id === playerId
+            ? {
+                ...p,
+                isFolded: notification.type === "Fold" ? true : p.isFolded,
+                isAllIn: notification.type === "AllIn" ? true : p.isAllIn,
+              }
+            : p
+        )
+      );
+
+    } else {
+      setPlayerActions(prev => ({
         ...prev,
         [playerId]: notification,
       }));
-      if (currentTurn === playerId) {
-        setCurrentTurn(null);
-      }
-      }
-    });
 
-    tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
-      const winningPlayerNames = playersRef.current
+      setCurrentTurn(prev => (prev === playerId ? null : prev));
+    }
+  });
+
+  tableClient.onShowdown((winnerPlayerIds: string[], winningsEach:number, playerStates:PlayerStateDto[]) => {
+    setPlayers(prevPlayers => {
+      const winningPlayerNames = prevPlayers
         .filter(p => winnerPlayerIds.includes(p.id))
         .map(p => p.username);
 
@@ -90,9 +120,11 @@ export default function Table() {
         setWinnerNames(winningPlayerNames);
       }
 
-      playersRef.current = playerStates;
+      return playerStates;
     });
-  }, [tableId]);
+  });
+}, [tableId]);
+
 
   useEffect(() => {
     attachLobbyListeners();
@@ -189,13 +221,32 @@ export default function Table() {
         key={player.id}
         className={`${seatPositions[index]} -translate-x-1/2 flex flex-col gap-[4%] w-[25%] items-center relative`}
       >
+        {/* Above player bubbles */}
+        {player.isFolded && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
+            Folded
+          </div>
+        )}
+
+        {player.isDisconnected && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-500 text-white px-3 py-1 rounded-full text-sm shadow-md">
+            Disconnected
+          </div>
+        )}
+
+        {player.isAllIn && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
+            All-In!
+          </div>
+        )}
+
         {playerActions[player.id] && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm shadow-md">
+          <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm shadow-md">
             {formatAction(playerActions[player.id]!)}
           </div>
         )}
 
-        {currentTurn === player.id && (
+        {currentTurn === player.id && !player.isDisconnected && !player.isFolded && !player.isAllIn &&  (
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">
             Thinking...
           </div>
@@ -237,12 +288,16 @@ export default function Table() {
     <div className="absolute bottom-4 w-full flex flex-col items-center gap-3 z-10">
       {showBetInput && (
         <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
-          className="border p-2 w-40 text-center"
-          placeholder="Bet amount"
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(Number(e.target.value))}
+        className="border p-2 w-40 text-center"
+        placeholder="Bet amount"
         />
+      )}
+
+      {playerTurn && (
+        <div className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">Your turn</div>
       )}
 
       <div className="flex gap-2">
@@ -252,10 +307,11 @@ export default function Table() {
         <button className="bg-amber-600 p-2" onClick={handleClickFold}>Fold</button>
         <button className="bg-amber-600 p-2" onClick={handleClickAllIn}>All In</button>
         <button className="bg-amber-600 p-2" onClick={handleClickCheck}>Check</button>
-        <button className="bg-amber-600 p-2" onClick={handleClickStartNextHand}>Start Next Hand</button>
-        <button className="bg-amber-600 p-2" onClick={handleClickCloseGame}>Close Game</button>
-        {playerTurn && (
-          <div className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm shadow-md animate-pulse">Your turn</div>
+        {isHost && winnerNames && (
+          <>
+            <button className="bg-amber-600 p-2" onClick={handleClickStartNextHand}>Start Next Hand</button>
+            <button className="bg-amber-600 p-2" onClick={handleClickCloseGame}>Close Game</button>
+          </>
         )}
       </div>
     </div>
@@ -303,10 +359,6 @@ function formatAction(action: PlayerActionNotification): string {
   switch (action.type) {
     case "Bet":
       return `Bet ${action.amount}`;
-    case "Fold":
-      return "Folded";
-    case "AllIn":
-      return "All-in!";
     case "Check":
       return "Checked";
     default:

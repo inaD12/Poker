@@ -10,5 +10,6 @@ public record GameStateDto(
     int MinimumRaise,
     string? CurrentTurnPlayerId,
     string DealerPlayerId,
+    string HostingPlayerId,
     IReadOnlyList<PlayerStateDto> Players
 );

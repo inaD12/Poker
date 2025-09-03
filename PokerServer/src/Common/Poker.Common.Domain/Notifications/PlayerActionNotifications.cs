@@ -11,3 +11,7 @@ public record PlayerAllInNotification() : PlayerActionNotification("AllIn");
 public record PlayerCheckNotification() : PlayerActionNotification("Check");
 
 public record PlayerTurnNotification() : PlayerActionNotification("Turn");
+
+public record PlayerDisconnectNotification() : PlayerActionNotification("Disconnect");
+
+public record PlayerReconnectNotification() : PlayerActionNotification("Reconnect");

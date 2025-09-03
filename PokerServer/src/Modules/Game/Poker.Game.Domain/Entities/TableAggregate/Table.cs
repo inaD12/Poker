@@ -283,12 +283,26 @@ public sealed class Table : Entity
     
     public Result PlayerDisconnected(string playerId)
     {
-         var result = _playerManager.PlayerDisconnected(playerId);
-         if (result.IsFailure)
-             return result;
+         var disconnectResult = _playerManager.PlayerDisconnected(playerId);
+         if (disconnectResult.IsFailure)
+             return disconnectResult;
 
-         RaiseDomainEvent(new PlayerDisconnectedDomainEvent(Id, playerId));
-        
+         var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+         if (playerResult.IsSuccess)
+         {
+             var player = playerResult.Value!;
+
+             player.Hand!.Fold();
+             
+            AdvanceTurn();
+         }
+    
+         RaiseDomainEvent(new PlayerTookActionDomainEvent(
+             Id,
+             playerId,
+             PlayerActionType.Disconnect,
+             _playerManager.CurrentTurnPlayer.Id));
+
          return Result.Success();
     }
     
@@ -298,7 +312,11 @@ public sealed class Table : Entity
         if (result.IsFailure)
             return result;
 
-        RaiseDomainEvent(new PlayerReconnectedDomainEvent(Id, playerId));
+        RaiseDomainEvent(new PlayerTookActionDomainEvent(
+            Id,
+            playerId,
+            PlayerActionType.Reconnected,
+            _playerManager.CurrentTurnPlayer.Id));
         
         return Result.Success();
     }
@@ -335,6 +353,7 @@ public sealed class Table : Entity
             MinimumRaise,
             _playerManager.CurrentTurnPlayer.Id,
             _playerManager.Dealer.Id,
+            _playerManager.HostPlayerId,
             players);
             
         return Result<GameStateDto>.Success(dto);

@@ -56,6 +56,7 @@ export interface GameStateDto {
   minimumRaise: number;
   currentTurnPlayerId?: string;
   dealerPlayerId: string;
+  hostingPlayerId: string;
   players: PlayerStateDto[];
 }
 
@@ -64,6 +65,8 @@ export type PlayerActionNotification =
   | PlayerFoldNotification
   | PlayerAllInNotification
   | PlayerCheckNotification
+  | PlayerDisconnectNotification
+  | PlayerReconnectNotification
   | PlayerTurnNotification;
 
 export interface PlayerBetNotification {
@@ -87,3 +90,10 @@ export interface PlayerTurnNotification {
   type: "Turn";
 }
 
+export interface PlayerDisconnectNotification {
+  type: "Disconnect";
+}
+
+export interface PlayerReconnectNotification {
+  type: "Reconnect";
+}

@@ -88,6 +88,12 @@ export default class tableClient{
     return result
   }
 
+  async disconnectGame(tableId: string): Promise<HubResult<null>>{
+    const result =  await this.signalRService.send("Disconnect", tableId);
+
+    return result
+  }
+
   disconnect() {
     this.signalRService.stop();
   }
