@@ -13,7 +13,7 @@ public abstract class Entity
     }
 
     public string Id { get; set; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; set; }
 
     public IReadOnlyList<IDomainEvent> GetDomainEvents()
     {
@@ -25,7 +25,7 @@ public abstract class Entity
         _domainEvents.Clear();
     }
 
-    protected void RaiseDomainEvent(IDomainEvent domainEvent)
+    public void RaiseDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }

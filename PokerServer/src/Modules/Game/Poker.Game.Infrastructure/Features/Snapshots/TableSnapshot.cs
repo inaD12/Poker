@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 using Poker.Common.Domain;
 using Poker.Game.Domain.Entities.TableAggregate;
 
@@ -12,13 +12,20 @@ public class TableSnapshot : Entity
 
     public TableSnapshot(Table table)
     {
-        TableJson = JsonSerializer.Serialize(table);
+        TableJson = JsonConvert.SerializeObject(table);
+        Id = table.Id;
+        foreach (var domainEvent in table.GetDomainEvents())
+        {
+            RaiseDomainEvent(domainEvent);
+        }
     }
 
     public string TableJson { get; } = null!;
 
     public Table ToDomain()
     {
-        return JsonSerializer.Deserialize<Table>(TableJson)!;
+        var table = JsonConvert.DeserializeObject<Table>(TableJson)!;
+        
+        return table;
     }
 }

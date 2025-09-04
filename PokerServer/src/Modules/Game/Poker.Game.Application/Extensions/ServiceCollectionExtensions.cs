@@ -20,8 +20,8 @@ public static class ServiceCollectionExtensions
             .AddCaching();
 
         serviceCollection
-            .AddEntityStore<Table, ITableRepository>("table_")
-            .AddEntityStore<Lobby, ILobbyRepository>("lobby_");
+            .AddEntityStore<Table, ITableRepository, ITablesUnitOfWork>("table_")
+            .AddEntityStore<Lobby, ILobbyRepository, ITablesUnitOfWork>("lobby_");
 
         return serviceCollection;
     }

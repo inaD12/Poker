@@ -36,9 +36,6 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
     {
         await _repository.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var cacheKey = $"{_cacheKeyPrefix}{entity.Id}";
-        _cache.Set(cacheKey, entity);
     }
 
     public async Task SaveAsync(T entity, CancellationToken cancellationToken = default)
@@ -46,6 +43,7 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
         _repository.Update(entity);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        entity.ClearDomainEvents();
         var cacheKey = $"{_cacheKeyPrefix}{entity.Id}";
         _cache.Set(cacheKey, entity);
     }
@@ -55,6 +53,12 @@ internal class EntityStore<T> : IEntityStore<T> where T : Entity
         await _repository.DeleteByIdAsync(id, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var cacheKey = $"{_cacheKeyPrefix}{id}";
+        _cache.Remove(cacheKey);
+    }
+    
+    public void DeleteFromCacheAsync(string id)
+    {
         var cacheKey = $"{_cacheKeyPrefix}{id}";
         _cache.Remove(cacheKey);
     }

@@ -4,4 +4,5 @@ using Poker.Game.Application.Features.Lobby.Models;
 namespace Poker.Game.Application.Features.Lobby.Commands.CreateLobby;
 
 public sealed record CreateLobbyCommand(
-    string StartingPlayerId) : ICommand<LobbyCommandViewModel>;
+    string StartingPlayerId,
+    string LobbyName) : ICommand<LobbyCommandViewModel>;

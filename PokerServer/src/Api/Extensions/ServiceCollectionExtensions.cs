@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
@@ -9,6 +10,7 @@ using Poker.Common.Presentation.Helpers;
 using Poker.Common.Presentation.Options;
 using Poker.Common.Utilities;
 using PokerServer.ExceptionHandlers;
+using PokerServer.IDProvider;
 using PokerServer.Notifiers;
 
 namespace PokerServer.Extensions;
@@ -21,6 +23,7 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddTransient<ILobbyNotifier, LobbyNotifier>()
             .AddTransient<ITableNotifier, TableNotifier>()
+            .AddSingleton<IUserIdProvider, CustomUserIdProvider>()
             .AddSignalR();
 
         serviceCollection
@@ -60,8 +63,7 @@ public static class ServiceCollectionExtensions
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(opts =>
             {
-                var signingKeyBytes = Encoding.UTF8
-                    .GetBytes(tokenOptions.SecretKey);
+                var signingKeyBytes = Encoding.UTF8.GetBytes(tokenOptions.SecretKey);
 
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -72,7 +74,7 @@ public static class ServiceCollectionExtensions
                     ValidateLifetime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
                 };
-                
+
                 opts.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
@@ -80,9 +82,16 @@ public static class ServiceCollectionExtensions
                         var accessToken = context.Request.Query["access_token"];
 
                         var path = context.HttpContext.Request.Path;
+
                         if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
                         {
                             context.Token = accessToken;
+                            return Task.CompletedTask;
+                        }
+
+                        if (context.Request.Cookies.TryGetValue("auth_token", out var tokenFromCookie))
+                        {
+                            context.Token = tokenFromCookie;
                         }
 
                         return Task.CompletedTask;
@@ -107,26 +116,6 @@ public static class ServiceCollectionExtensions
                 Version = "v1",
                 Description = "API documentation for Poker server"
             });
-
-            var securityScheme = new OpenApiSecurityScheme
-            {
-                Name = "JWT Authentication",
-                Description = "Enter JWT Bearer token **_only_**",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                Reference = new OpenApiReference
-                {
-                    Id = JwtBearerDefaults.AuthenticationScheme,
-                    Type = ReferenceType.SecurityScheme
-                }
-            };
-            options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                { securityScheme, [] }
-            });
         });
 
         return services;
@@ -148,15 +137,17 @@ public static class ServiceCollectionExtensions
         {
             options.AddDefaultPolicy(builder =>
             {
-                builder.AllowAnyOrigin()
+                builder.WithOrigins(corsOptions.AllowedOrigins.Split(", "))
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    .AllowAnyHeader()
+                    .AllowCredentials();
             });
 
             options.AddPolicy(AppPolicies.CorsPolicy, builder =>
                 builder.WithOrigins(corsOptions.AllowedOrigins.Split(", "))
                     .AllowAnyHeader()
-                    .AllowAnyMethod());
+                    .AllowAnyMethod()
+                    .AllowCredentials());
         });
 
         return services;

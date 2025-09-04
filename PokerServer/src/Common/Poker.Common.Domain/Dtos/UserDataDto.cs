@@ -1,8 +1,8 @@
 namespace Poker.Common.Domain.Dtos;
 
 public record UserDataDto(
-    string UserId,
+    string Id,
     string UserName,
-    int GamesPlayed,
-    int GamesWon,
+    int HandsPlayed,
+    int HandsWon,
     decimal TotalEarnings);

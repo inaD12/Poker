@@ -8,12 +8,12 @@ namespace Poker.Users.Application.Users.Commands.DeleteUser;
 
 internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUsersUnitOfWork _usersUnitOfWork;
     private readonly IUserRepository _userRepository;
 
-    public DeleteUserCommandHandler(IUnitOfWork unitOfWork, IUserRepository userRepository)
+    public DeleteUserCommandHandler(IUsersUnitOfWork usersUnitOfWork, IUserRepository userRepository)
     {
-        _unitOfWork = unitOfWork;
+        _usersUnitOfWork = usersUnitOfWork;
         _userRepository = userRepository;
     }
 
@@ -24,7 +24,7 @@ internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserComma
             return Result.Failure(ResponseList.UserNotFound);
 
         _userRepository.Delete(user);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _usersUnitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }
 }

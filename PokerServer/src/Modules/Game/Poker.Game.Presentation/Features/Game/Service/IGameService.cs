@@ -14,4 +14,6 @@ public interface IGameService
     Task<Result> StartNextHandAsync(string tableId, string playerId, CancellationToken cancellationToken);
     Task<Result<GameStateDto>> GetTableAsync(string tableId, string playerId, CancellationToken cancellationToken);
     Task<Result> GameCloseAsync(string tableId, string playerId, CancellationToken cancellationToken);
+    Task<Result> PlayerDisconnectedAsync(string tableId, string playerId, CancellationToken cancellationToken);
+    Task<Result> PlayerReconnectedAsync(string tableId, string playerId, CancellationToken cancellationToken);
 }

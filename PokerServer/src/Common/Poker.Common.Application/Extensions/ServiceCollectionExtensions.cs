@@ -45,22 +45,23 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
 
-    public static IServiceCollection AddEntityStore<T, TRepository>(
+    public static IServiceCollection AddEntityStore<T, TRepository, TUnitOfWork>(
         this IServiceCollection services,
-        string cacheKeyPrefix
-    )
+        string cacheKeyPrefix)
         where T : Entity
         where TRepository : class, IRepository<T>
+        where TUnitOfWork : class, IUnitOfWork
     {
         services.AddScoped<IEntityStore<T>>(sp =>
         {
             var repository = sp.GetRequiredService<TRepository>();
             var cache = sp.GetRequiredService<ICacheService>();
-            var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
+            var unitOfWork = sp.GetRequiredService<TUnitOfWork>();
 
             return new EntityStore<T>(repository, cache, unitOfWork, cacheKeyPrefix);
         });
 
         return services;
     }
+
 }

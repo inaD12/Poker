@@ -38,13 +38,13 @@ namespace Poker.Users.Infrastructure.Features.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
-                    b.Property<int>("GamesPlayed")
+                    b.Property<int>("HandsPlayed")
                         .HasColumnType("integer")
-                        .HasColumnName("games_played");
+                        .HasColumnName("hands_played");
 
-                    b.Property<int>("GamesWon")
+                    b.Property<int>("HandsWon")
                         .HasColumnType("integer")
-                        .HasColumnName("games_won");
+                        .HasColumnName("hands_won");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

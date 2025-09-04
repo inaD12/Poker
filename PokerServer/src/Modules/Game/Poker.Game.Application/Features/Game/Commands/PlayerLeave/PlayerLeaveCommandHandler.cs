@@ -23,6 +23,7 @@ internal sealed class PlayerLeaveCommandHandler: ICommandHandler<PlayerLeaveComm
         
         var result = game.PlayerLeave(request.PlayerId);
 
+        await _tableStore.SaveAsync(game, cancellationToken);
         return result;
     }
 }

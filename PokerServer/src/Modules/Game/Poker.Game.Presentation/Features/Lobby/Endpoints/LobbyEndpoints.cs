@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Poker.Common.Application.Abstractions.Interfaces;
+using Poker.Common.Presentation.Abstractions;
 using Poker.Common.Presentation.Endpoints;
 using Poker.Common.Presentation.Helpers;
+using Poker.Game.Application.Features.Lobby.Commands.RemovePlayerFromLobby;
 using Poker.Game.Application.Features.Lobby.Models;
 using Poker.Game.Application.Features.Lobby.Queries.GetAllLobbiesPaged;
 using Poker.Game.Presentation.Features.Lobby.Models;
@@ -21,7 +23,6 @@ internal class LobbyEndpoints : IEndpoints
         group.MapGet("get-all", GetAll)
             .Produces<LobbyPaginatedQueryViewModel>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status500InternalServerError)
             .RequireAuthorization();
     }
@@ -37,7 +38,7 @@ internal class LobbyEndpoints : IEndpoints
         if (res.IsFailure)
             return ControllerResponse.ParseAndReturnMessage(res);
 
-        var userCommandResponse = mapper.Map<LobbyPaginatedQueryViewModel>(res.Value!);
+        var userCommandResponse = mapper.Map<LobbyPaginatedQueryResponse>(res.Value!);
         return ControllerResponse.ParseAndReturnMessage(res, userCommandResponse);
     }
 }

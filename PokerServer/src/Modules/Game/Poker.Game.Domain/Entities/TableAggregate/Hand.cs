@@ -1,4 +1,5 @@
-﻿using Poker.Common.Domain.Results;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Responses;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
@@ -11,6 +12,7 @@ public sealed class Hand
     }
 #pragma warning restore CS8618
 
+    [JsonConstructor]
     private Hand(IReadOnlyList<Card> cards)
     {
         if (cards.Count != 2)

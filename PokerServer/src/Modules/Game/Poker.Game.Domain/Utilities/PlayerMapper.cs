@@ -10,8 +10,9 @@ public static class PlayerMapper
         return new PlayerInfoDto(
             player.Id,
             player.Username,
-            player.GamesPlayed,
-            player.GamesWon,
+            player.Balance,
+            player.HandsPlayed,
+            player.HandsWon,
             player.TotalEarnings
         );
     }

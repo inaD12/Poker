@@ -1,4 +1,5 @@
-﻿using Poker.Common.Domain;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain;
 using Poker.Common.Domain.Dtos;
 using Poker.Common.Domain.Enums;
 using Poker.Common.Domain.Results;
@@ -16,26 +17,59 @@ public sealed class Table : Entity
     {
     }
 #pragma warning restore CS8618
+    [JsonConstructor]
     private Table(
         List<Card> communityCards,
         int currentPot,
         List<Player> players,
         int currentTurnPlayerPosition,
         int dealerPosition,
-        GamePhase phase,
+        GamePhase currentPhase,
         int currentBet,
         int minimumRaise,
         string hostPlayerId,
-        Deck deck)
+        Deck deck,
+        bool waitingForNextHand,
+        string id,
+        DateTime createdAt,
+        HashSet<string> playersWhoActed
+        )
     {
         CommunityCards = communityCards;
         CurrentPot = currentPot;
-        CurrentPhase = phase;
+        CurrentPhase = currentPhase;
+        CurrentBet = currentBet;
+        MinimumRaise = minimumRaise;
+        Deck = deck;
+        WaitingForNextHand = waitingForNextHand;
+        _playerManager = new PlayerManager(players, currentTurnPlayerPosition, hostPlayerId, dealerPosition, playersWhoActed);
+        Id = id;
+        CreatedAt = createdAt;
+    }
+
+    
+    private Table(
+        List<Card> communityCards,
+        int currentPot,
+        List<Player> players,
+        int currentTurnPlayerPosition,
+        int dealerPosition,
+        GamePhase currentPhase,
+        int currentBet,
+        int minimumRaise,
+        string hostPlayerId,
+        Deck deck,
+        HashSet<string> playersWhoActed
+        )
+    {
+        CommunityCards = communityCards;
+        CurrentPot = currentPot;
+        CurrentPhase = currentPhase;
         CurrentBet = currentBet;
         MinimumRaise = minimumRaise;
         Deck = deck;
         WaitingForNextHand = false;
-        _playerManager = new PlayerManager(players, currentTurnPlayerPosition,  hostPlayerId, dealerPosition);
+        _playerManager = new PlayerManager(players, currentTurnPlayerPosition,  hostPlayerId, dealerPosition, playersWhoActed);
     }
 
     public List<Card> CommunityCards { get; }
@@ -47,6 +81,9 @@ public sealed class Table : Entity
     public Deck Deck { get; private set; }
     public string HostPlayerId => _playerManager.HostPlayerId;
     public IReadOnlyCollection<Player> Players => _playerManager.Players;
+    public int CurrentTurnPlayerPosition => _playerManager.CurrentTurnPlayerPosition;
+    public int DealerPosition => _playerManager.DealerPosition;
+    public HashSet<string> PlayersWhoActed => _playerManager.PlayersWhoActed;
     
     
     private readonly PlayerManager _playerManager;
@@ -82,10 +119,11 @@ public sealed class Table : Entity
             0,
             10,
             hostPlayerId,
-            shuffledDeck);
+            shuffledDeck,
+            new HashSet<string>());
 
         return Result<Table>.Success(gameRoom);
-    }
+        }
 
     public Result PlayerPlaceBet(string playerId, int amount)
     {
@@ -120,6 +158,7 @@ public sealed class Table : Entity
         player.RemoveFromBalance(amount);
         CurrentBet = player.Hand.Bet;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -141,6 +180,7 @@ public sealed class Table : Entity
         if (playerResult.Value!.Hand!.Bet != CurrentBet)
             return Result.Failure(ResponseList.MustMatchBet);
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -164,6 +204,7 @@ public sealed class Table : Entity
         if (result.IsFailure)
             return result;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -199,6 +240,7 @@ public sealed class Table : Entity
         if (hand.Bet > CurrentBet)
             CurrentBet = hand.Bet;
 
+        _playerManager.MarkPlayerActed(playerId);
         AdvanceTurn();
 
         RaiseDomainEvent(new PlayerTookActionDomainEvent(
@@ -241,12 +283,33 @@ public sealed class Table : Entity
     
     public Result PlayerDisconnected(string playerId)
     {
-         var result = _playerManager.PlayerDisconnected(playerId);
-         if (result.IsFailure)
-             return result;
+         var disconnectResult = _playerManager.PlayerDisconnected(playerId);
+         if (disconnectResult.IsFailure)
+             return disconnectResult;
 
-         RaiseDomainEvent(new PlayerDisconnectedDomainEvent(Id, playerId));
-        
+         var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
+         if (playerResult.IsSuccess && CurrentPhase != GamePhase.Showdown)
+         {
+             var player = playerResult.Value!;
+
+             player.Hand!.Fold();
+             
+            AdvanceTurn();
+         }
+    
+         RaiseDomainEvent(new PlayerTookActionDomainEvent(
+             Id,
+             playerId,
+             PlayerActionType.Disconnect,
+             _playerManager.CurrentTurnPlayer.Id));
+         
+         if (HostPlayerId == playerId)
+         {
+             _playerManager.SetNewHost();
+             
+             RaiseDomainEvent(new NewHostDomainEvent(HostPlayerId));
+         }
+
          return Result.Success();
     }
     
@@ -256,7 +319,11 @@ public sealed class Table : Entity
         if (result.IsFailure)
             return result;
 
-        RaiseDomainEvent(new PlayerReconnectedDomainEvent(Id, playerId));
+        RaiseDomainEvent(new PlayerTookActionDomainEvent(
+            Id,
+            playerId,
+            PlayerActionType.Reconnected,
+            _playerManager.CurrentTurnPlayer.Id));
         
         return Result.Success();
     }
@@ -269,12 +336,16 @@ public sealed class Table : Entity
         var players = _playerManager.Players
             .Select(p => new PlayerStateDto(
                 p.Id,
+                p.Username,
                 p.Balance,
                 p.Hand?.IsFolded ?? false,
                 p.Hand?.IsAllIn ?? false,
                 p.Hand?.Bet ?? 0,
                 _playerManager.IsPlayerTurn(p.Id),
                 p.IsDisconnected,
+                p.Id == requestingPlayerId
+                    ? true
+                    : false,
                 p.Id == requestingPlayerId
                     ? p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
                     : null
@@ -289,6 +360,7 @@ public sealed class Table : Entity
             MinimumRaise,
             _playerManager.CurrentTurnPlayer.Id,
             _playerManager.Dealer.Id,
+            _playerManager.HostPlayerId,
             players);
             
         return Result<GameStateDto>.Success(dto);
@@ -302,9 +374,9 @@ public sealed class Table : Entity
         if (!WaitingForNextHand)
             return Result.Failure(ResponseList.HandNotFinished);
 
-        var players = _playerManager.Players;
+        var connectedPlayers = _playerManager.ConnectedPlayerCount;
         
-        switch (players.Count)
+        switch (connectedPlayers)
         {
             case > 6:
                 return Result.Failure(ResponseList.SixPlayersMaximum);
@@ -314,6 +386,8 @@ public sealed class Table : Entity
 
         var shuffledDeck = Deck.CreateShuffled();
 
+        var players = _playerManager.Players;
+        
         foreach (var player in players)
         {
             var hand = Hand.Create([shuffledDeck.Draw(), shuffledDeck.Draw()]);
@@ -333,6 +407,9 @@ public sealed class Table : Entity
         RaiseDomainEvent(new NewHandDomainEvent(Id));
         return Result.Success();
     }
+    
+    public int ConnectedPlayerCount()
+        => _playerManager.ConnectedPlayerCount;
 
     private void AdvanceTurn()
     {
@@ -354,6 +431,7 @@ public sealed class Table : Entity
 
             _playerManager.ResetHandsForNextRound();
             CurrentBet = 0;
+            _playerManager.ResetPlayersActed();
             _playerManager.SetFirstActivePlayer();
         }
         else
@@ -393,41 +471,89 @@ public sealed class Table : Entity
     private void HandleShowdown()
     {
         WaitingForNextHand = true;
-
         CurrentPhase = GamePhase.Showdown;
 
         var players = _playerManager.Players;
-
         var activePlayers = players
             .Where(p => !p.Hand!.IsFolded)
             .ToList();
+
+        Dictionary<string, decimal> earnings = new();
 
         if (activePlayers.Count == 1)
         {
             var winner = activePlayers[0];
             winner.AddToBalance(CurrentPot);
-            return;
+            earnings[winner.Id] = CurrentPot;
+
+            RaiseDomainEvent(new ShowdownDomainEvent(
+                Id,
+                new List<string> { winner.Id },
+                CurrentPot,
+                GetPlayersStateDtosWithCards()));
+        }
+        else
+        {
+            var evaluated = activePlayers
+                .Select(p => new
+                {
+                    Player = p,
+                    Score = HandEvaluator.EvaluateHand(
+                        p.Hand!.Cards.Concat(CommunityCards).ToList()
+                    )
+                })
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+            var topScore = evaluated.First().Score;
+            var winners = evaluated.Where(x => x.Score == topScore).ToList();
+
+            var share = CurrentPot / winners.Count;
+
+            foreach (var winner in winners)
+            {
+                winner.Player.AddToBalance(share);
+                earnings[winner.Player.Id] = share;
+            }
+
+            RaiseDomainEvent(new ShowdownDomainEvent(
+                Id,
+                winners.Select(w => w.Player.Id).ToList(),
+                share,
+                GetPlayersStateDtosWithCards()));
         }
 
-        var evaluated = activePlayers
-            .Select(p => new
-            {
-                Player = p,
-                Score = HandEvaluator.EvaluateHand(p.Hand!.Cards.Concat(CommunityCards).ToList())
-            })
-            .OrderByDescending(x => x.Score)
+        foreach (var player in players)
+        {
+            var won = earnings.ContainsKey(player.Id);
+            var playerEarnings = earnings.GetValueOrDefault(player.Id, 0);
+
+            RaiseDomainEvent(new PlayerPlayedHandDomainEvent(
+                player.Id,
+                won,
+                playerEarnings
+            ));
+        }
+    }
+
+
+    private List<PlayerStateDto> GetPlayersStateDtosWithCards()
+    {
+        var players = _playerManager.Players
+            .Select(p => new PlayerStateDto(
+                p.Id,
+                p.Username,
+                p.Balance,
+                p.Hand?.IsFolded ?? false,
+                p.Hand?.IsAllIn ?? false,
+                p.Hand?.Bet ?? 0,
+                _playerManager.IsPlayerTurn(p.Id),
+                p.IsDisconnected, 
+                false,
+                p.Hand?.Cards.Select(c => new CardDto(c.Suit, c.Rank)).ToList()
+            ))
             .ToList();
-
-        var topScore = evaluated.First().Score;
-        var winners = evaluated.Where(x => x.Score == topScore).ToList();
-
-        var share = CurrentPot / winners.Count();
-
-        foreach (var winner in winners) winner.Player.AddToBalance(share);
-
-        RaiseDomainEvent(new ShowdownDomainEvent(
-            Id,
-            winners.Select(w => w.Player.Id).ToList(),
-            share));
+        
+        return players;
     }
 }

@@ -23,55 +23,62 @@ public class LobbyHub : Hub<ILobbyClient>
         _claimsExtractorService = claimsExtractorService;
     }
 
-    public async Task<Result<LobbyCommandViewModel>> CreateLobby(CancellationToken cancellationToken)
+    public async Task<Result<LobbyCommandViewModel>> CreateLobby(string lobbyName)
     {
         var playerId = _claimsExtractorService.GetUserId();
         if (string.IsNullOrWhiteSpace(playerId))
             return Result<LobbyCommandViewModel>.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.CreateLobbyAsync(playerId, CancellationToken.None);
+        var result = await _lobbyService.CreateLobbyAsync(playerId, lobbyName, Context.ConnectionAborted);
         if (result.IsFailure)
             return Result<LobbyCommandViewModel>.Failure(result.Response);
 
-        string lobbyId = result.Value!.Id;
-        Context.Items["lobbyId"] = lobbyId;
-        
-        await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, cancellationToken);
         return result;
     }
 
-    public async Task<Result> JoinLobby(string lobbyId, CancellationToken cancellationToken)
+    public async Task<Result<LobbyViewModel>> JoinLobby(string lobbyId)
     {
         var playerId = _claimsExtractorService.GetUserId();
         if (string.IsNullOrWhiteSpace(playerId))
-            return Result.Failure(SharedResponses.InternalError);
+            return Result<LobbyViewModel>.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.AddPlayerToLobbyAsync(lobbyId, playerId, cancellationToken);
+        var result = await _lobbyService.AddPlayerToLobbyAsync(lobbyId, playerId, Context.ConnectionAborted);
         if (result.IsFailure)
             return result;
 
         Context.Items["lobbyId"] = lobbyId;
-        await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, cancellationToken);
-        return Result.Success();
+        await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId, Context.ConnectionAborted);
+        return result;
     }
-
-    public async Task<Result> LeaveLobby(string lobbyId, CancellationToken cancellationToken)
+    
+    public async Task<Result> AddFunds(string lobbyId, int funds)
     {
         var playerId = _claimsExtractorService.GetUserId();
         if (string.IsNullOrWhiteSpace(playerId))
             return Result.Failure(SharedResponses.InternalError);
 
-        var result = await _lobbyService.RemovePlayerFromLobbyAsync(lobbyId, playerId, cancellationToken);
+        var result = await _lobbyService.AddFundsToPlayer(lobbyId, playerId, funds, Context.ConnectionAborted);
+        
+        return result;
+    }
+
+    public async Task<Result> LeaveLobby(string lobbyId)
+    {
+        var playerId = _claimsExtractorService.GetUserId();
+        if (string.IsNullOrWhiteSpace(playerId))
+            return Result.Failure(SharedResponses.InternalError);
+
+        var result = await _lobbyService.RemovePlayerFromLobbyAsync(lobbyId, playerId, Context.ConnectionAborted);
         if (result.IsFailure)
             return result;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId, cancellationToken);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId, Context.ConnectionAborted);
         return Result.Success();
     }
 
-    public async Task<Result> StartGame(string lobbyId, CancellationToken cancellationToken)
+    public async Task<Result> StartGame(string lobbyId)
     {
-        var gameResult = await _gameService.StartGameAsync(lobbyId, cancellationToken);
+        var gameResult = await _gameService.StartGameAsync(lobbyId, Context.ConnectionAborted);
         if (gameResult.IsFailure)
             return Result.Failure(gameResult.Response);
 
@@ -83,9 +90,8 @@ public class LobbyHub : Hub<ILobbyClient>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var httpContext = Context.GetHttpContext();
-        var lobbyId = httpContext?.Request.Query["lobbyId"].ToString();
-
+        var lobbyId = Context.Items.TryGetValue("lobbyId", out var id) && id is string gid ? gid : null;
+        
         var playerId = _claimsExtractorService.GetUserId();
         if (!string.IsNullOrWhiteSpace(lobbyId) && !string.IsNullOrWhiteSpace(playerId))
         {

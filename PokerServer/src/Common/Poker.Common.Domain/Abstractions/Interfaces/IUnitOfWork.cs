@@ -1,4 +1,4 @@
-﻿namespace Poker.Common.Domain.Abstractions.Interfaces;
+namespace Poker.Common.Domain.Abstractions.Interfaces;
 
 public interface IUnitOfWork
 {

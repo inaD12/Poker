@@ -38,6 +38,16 @@ namespace Poker.Game.Infrastructure.Features.Migrations
                         .HasColumnType("text")
                         .HasColumnName("hosting_player_id");
 
+                    b.Property<string>("HostingPlayerName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hosting_player_name");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
                     b.HasKey("Id")
                         .HasName("pk_lobbies");
 
@@ -58,13 +68,17 @@ namespace Poker.Game.Infrastructure.Features.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("GamesPlayed")
+                    b.Property<int>("HandsPlayed")
                         .HasColumnType("integer")
-                        .HasColumnName("games_played");
+                        .HasColumnName("hands_played");
 
-                    b.Property<int>("GamesWon")
+                    b.Property<int>("HandsWon")
                         .HasColumnType("integer")
-                        .HasColumnName("games_won");
+                        .HasColumnName("hands_won");
+
+                    b.Property<bool>("IsDisconnected")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_disconnected");
 
                     b.Property<string>("LobbyId")
                         .HasColumnType("text")

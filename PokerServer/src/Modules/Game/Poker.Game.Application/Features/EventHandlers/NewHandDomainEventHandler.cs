@@ -37,7 +37,7 @@ public sealed class NewHandDomainEventHandler : INotificationHandler<NewHandDoma
                 throw new InvalidOperationException("Internal error.");
             }
             
-            await _notifier.NotifyGameStartedAsync(notification.TableId, resGameStateDto.Value!);
+            await _notifier.NotifyGameStartedAsync(player.Id, resGameStateDto.Value!);
         }
     }
 }

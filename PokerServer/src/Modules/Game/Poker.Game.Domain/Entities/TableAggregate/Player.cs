@@ -1,4 +1,5 @@
-﻿using Poker.Common.Domain;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain;
 using Poker.Common.Domain.Results;
 using Poker.Game.Domain.Responses;
 
@@ -10,23 +11,24 @@ public sealed class Player : Entity
     {
     }
 
-    private Player(string username, int balance, Hand? hand, int gamesPlayed, int gamesWon, decimal totalEarnings)
+    [JsonConstructor]
+    private Player(string username, int balance, Hand? hand, int handsPlayed, int handsWon, decimal totalEarnings, bool isDisconnected)
     {
         Username = username;
         Balance = balance;
         Hand = hand;
-        GamesPlayed = gamesPlayed;
-        GamesWon = gamesWon;
+        HandsPlayed = handsPlayed;
+        HandsWon = handsWon;
         TotalEarnings = totalEarnings;
-        IsDisconnected = false;
+        IsDisconnected = isDisconnected;
     }
 
     public string Username { get; private set; }
     public int Balance { get; private set; }
     public Hand? Hand { get; private set; }
     
-    public int GamesPlayed { get; private set; }
-    public int GamesWon { get; private set; }
+    public int HandsPlayed { get; private set; }
+    public int HandsWon { get; private set; }
     public decimal TotalEarnings { get; private set; }
     public bool IsDisconnected { get; private set; }
 
@@ -47,7 +49,7 @@ public sealed class Player : Entity
         if (balance < 0)
             return Result<Player>.Failure(ResponseList.BalanceNegative);
 
-        var player = new Player(username, balance, null, 0, 0, 0);
+        var player = new Player(username, balance, null, 0, 0, 0, false);
         return Result<Player>.Success(player);
     }
 

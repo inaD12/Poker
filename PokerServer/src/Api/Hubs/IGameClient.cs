@@ -6,11 +6,11 @@ namespace PokerServer.Hubs;
 
 public interface IGameClient
 {
-    Task GameInfo(GameStateDto state);
     Task PlayerAction(string playerId, PlayerActionNotification action);
     Task GamePhaseUpdate(GamePhase gamePhase, List<CardDto> cards);
     Task ReceiveGameState(GameStateDto state);
-    Task Showdown(List<string> winnerPlayerIds, int winningsEach);
+    Task Showdown(List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates);
     Task YourTurn();
     Task GameClose();
+    Task YouAreTheHost();
 }

@@ -26,8 +26,6 @@ public class UserCommandProfile : Profile
                 src.Item2,
                 src.Item1.NewUsername));
 
-        CreateMap<LoginUserCommandViewModel, LoginUserResponse>();
-
         CreateMap<UserCommandViewModel, UserCommandResponse>();
     }
 }

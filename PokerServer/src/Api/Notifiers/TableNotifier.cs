@@ -18,7 +18,7 @@ public class TableNotifier : ITableNotifier
 
     public async Task NotifyGameStartedAsync(string playerId, GameStateDto state)
     {
-        await _hubContext.Clients.User(playerId).GameInfo(state);
+        await _hubContext.Clients.User(playerId).ReceiveGameState(state);
     }
 
     public async Task NotifyPlayerActionAsync(string tableId, string playerId, PlayerActionNotification action)
@@ -31,9 +31,9 @@ public class TableNotifier : ITableNotifier
         await _hubContext.Clients.Group(tableId).GamePhaseUpdate(gamePhase, cards);
     }
 
-    public async Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach)
+    public async Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates)
     {
-        await _hubContext.Clients.Group(tableId).Showdown(winnerPlayerIds, winningsEach);
+        await _hubContext.Clients.Group(tableId).Showdown(winnerPlayerIds, winningsEach, playerStates);
     }
 
     public async Task NotifyNextPlayerAsync(string playerId)
@@ -44,5 +44,10 @@ public class TableNotifier : ITableNotifier
     public async Task NotifyGameClosingAsync(string tableId)
     {
         await _hubContext.Clients.Group(tableId).GameClose();
+    }
+
+    public async Task NotifyNewHostAsync(string playerId)
+    {
+        await _hubContext.Clients.User(playerId).YouAreTheHost();
     }
 }

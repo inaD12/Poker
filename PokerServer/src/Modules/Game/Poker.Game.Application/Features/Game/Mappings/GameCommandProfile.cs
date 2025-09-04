@@ -10,6 +10,7 @@ public class GameCommandProfile : Profile
     public GameCommandProfile()
     {
         CreateMap<UserDataDto, Player>();
-        CreateMap<string, GameCommandViewModel>();
+        CreateMap<string, GameCommandViewModel>()
+            .ConstructUsing(src => new GameCommandViewModel(src));
     }
 }

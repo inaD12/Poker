@@ -5,5 +5,7 @@ public enum PlayerActionType
     Fold,
     PlaceBet,
     AllIn,
-    Check
+    Check,
+    Disconnect,
+    Reconnected
 }

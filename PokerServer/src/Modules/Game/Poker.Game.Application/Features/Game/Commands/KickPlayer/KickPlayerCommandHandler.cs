@@ -10,7 +10,7 @@ internal sealed class KickPlayerCommandHandler: ICommandHandler<KickPlayerComman
 {
     private readonly IEntityStore<Table> _tableStore;
 
-    public KickPlayerCommandHandler(IEntityStore<Table> tableStore)
+    public KickPlayerCommandHandler(IEntityStore<Table> tableStore) 
     {
         _tableStore = tableStore;
     }

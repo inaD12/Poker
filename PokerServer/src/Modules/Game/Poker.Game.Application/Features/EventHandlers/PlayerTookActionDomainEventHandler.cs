@@ -1,5 +1,6 @@
 using MediatR;
 using Poker.Common.Domain.Abstractions.Interfaces.Notifiers;
+using Poker.Common.Domain.Notifications;
 using Poker.Game.Application.Extensions;
 using Poker.Game.Domain.Events;
 
@@ -16,8 +17,16 @@ public sealed class PlayerTookActionDomainEventHandler : INotificationHandler<Pl
 
     public async Task Handle(PlayerTookActionDomainEvent notification, CancellationToken cancellationToken)
     {
-        await _notifier.NotifyPlayerActionAsync(notification.TableId, notification.PlayerId,
+        await _notifier.NotifyPlayerActionAsync(
+            notification.TableId,
+            notification.PlayerId,
             notification.Action.ToNotification(notification.Amount));
+        
+        await _notifier.NotifyPlayerActionAsync(
+            notification.TableId,
+            notification.NextPlayerId,
+            new PlayerTurnNotification());
+        
         await _notifier.NotifyNextPlayerAsync(notification.NextPlayerId);
     }
 }

@@ -6,4 +6,5 @@ public interface IEntityStore<T>
     Task SaveNewAsync(T entity, CancellationToken cancellationToken);
     Task SaveAsync(T entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(string id, CancellationToken cancellationToken);
+    void DeleteFromCacheAsync(string id);
 }

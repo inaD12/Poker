@@ -5,8 +5,10 @@ using Poker.Game.Application.Features.Game.Commands.GameClose;
 using Poker.Game.Application.Features.Game.Commands.GameStart;
 using Poker.Game.Application.Features.Game.Commands.PlayerAllIn;
 using Poker.Game.Application.Features.Game.Commands.PlayerChecked;
+using Poker.Game.Application.Features.Game.Commands.PlayerDisconnected;
 using Poker.Game.Application.Features.Game.Commands.PlayerFolded;
 using Poker.Game.Application.Features.Game.Commands.PlayerPlacedBet;
+using Poker.Game.Application.Features.Game.Commands.PlayerReconnected;
 using Poker.Game.Application.Features.Game.Commands.StartNextHand;
 using Poker.Game.Application.Features.Game.Models;
 using Poker.Game.Application.Features.Game.Queries.GetTable;
@@ -81,7 +83,7 @@ internal class GameService : IGameService
     {
         var query = new GetTableQuery(tableId, playerId);
         
-        var result = await _sender.Send(query,  cancellationToken);
+        var result = await _sender.Send(query, cancellationToken);
 
         return result;
     }
@@ -90,7 +92,25 @@ internal class GameService : IGameService
     {
         var query = new GameCloseCommand(tableId, playerId);
         
-        var result = await _sender.Send(query,  cancellationToken);
+        var result = await _sender.Send(query, cancellationToken);
+
+        return result;
+    }
+
+    public async Task<Result> PlayerDisconnectedAsync(string tableId, string playerId, CancellationToken cancellationToken)
+    {
+        var command = new PlayerDisconnectedCommand(tableId, playerId);
+        
+        var result = await _sender.Send(command, cancellationToken);
+
+        return result;
+    }
+
+    public async Task<Result> PlayerReconnectedAsync(string tableId, string playerId, CancellationToken cancellationToken)
+    {
+        var command = new PlayerReconnectedCommand(tableId, playerId);
+        
+        var result = await _sender.Send(command, cancellationToken);
 
         return result;
     }

@@ -1,9 +1,11 @@
-﻿using Poker.Common.Domain.Enums;
+﻿using Newtonsoft.Json;
+using Poker.Common.Domain.Enums;
 
 namespace Poker.Game.Domain.Entities.TableAggregate;
 
 public sealed class Deck
 {
+    [JsonConstructor]
     private Deck(IEnumerable<Card> cards)
     {
         Cards = new Stack<Card>(cards);
