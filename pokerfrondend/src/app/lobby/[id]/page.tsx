@@ -4,65 +4,50 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getLobbyClient } from '../../../../lobby/services/lobby.client';
 import { LobbyQueryResponse, PlayerInfoDto } from '../../../../lobby/types/lobby.types';
-import PlayerBox from './components/PlayerBox';
+import LobbyControls from './components/LobbyControls';
+import PlayerList from './components/PlayerList';
 
 export default function Lobby() {
   const router = useRouter();
   const { id: lobbyId } = useParams<{ id: string }>();
 
-  const [isCreator, setIsCreator] = useState(false);
   const [lobby, setLobby] = useState<LobbyQueryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasJoined, setHasJoined] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
   const [funds, setFunds] = useState<number>(0);
   const [isAddingFunds, setIsAddingFunds] = useState(false);
 
   const handleClickLeave = useCallback(async () => {
     const lobbyClient = await getLobbyClient();
     const result = await lobbyClient.leaveLobby(lobbyId);
-    if (result.isFailure) {
-      alert(result.response.message.message);
-    } else {
-      router.push(`/lobbies`);
-    }
+    if (result.isFailure) return alert(result.response.message.message);
+    router.push(`/lobbies`);
   }, [lobbyId, router]);
 
   const handleClickStartGame = useCallback(async () => {
     const lobbyClient = await getLobbyClient();
     const result = await lobbyClient.startGame(lobbyId);
-    if (result.isFailure) {
-      alert(result.response.message.message);
-    }
-  }, [lobbyId, router]);
+    if (result.isFailure) alert(result.response.message.message);
+  }, [lobbyId]);
 
   const handleClickAddFunds = useCallback(async () => {
-    if (!funds || funds <= 0) {
-      alert('Please enter a valid amount.');
-      return;
-    }
+    if (!funds || funds <= 0) return alert('Please enter a valid amount.');
     setIsAddingFunds(true);
+
     try {
       const lobbyClient = await getLobbyClient();
       const result = await lobbyClient.addFunds(lobbyId, funds);
-      if (result.isFailure) {
-        alert(result.response.message.message);
-       } else {
-        setLobby(prev => {
-          if (!prev) return prev;
+      if (result.isFailure) return alert(result.response.message.message);
 
-          const updatedPlayers = prev.players.map(p =>
-            p.isSelf
-              ? { ...p, balance: p.balance + funds }
-              : p
-          );
-
-          return { ...prev, players: updatedPlayers };
-        });
-
-        setFunds(0);
-      }
-    } catch (err) {
-      console.error('Failed to add funds:', err);
+      setLobby(prev => {
+        if (!prev) return prev;
+        const updatedPlayers = prev.players.map(p =>
+          p.isSelf ? { ...p, balance: p.balance + funds } : p
+        );
+        return { ...prev, players: updatedPlayers };
+      });
+      setFunds(0);
     } finally {
       setIsAddingFunds(false);
     }
@@ -77,21 +62,21 @@ export default function Lobby() {
   const attachLobbyListeners = useCallback(async () => {
     const lobbyClient = await getLobbyClient();
 
-    lobbyClient.onPlayerJoined((player: PlayerInfoDto) => {
+    lobbyClient.onPlayerJoined(player => {
       setLobby(prev => {
         if (!prev || prev.players.some(p => p.id === player.id)) return prev;
         return { ...prev, players: [...prev.players, player] };
       });
     });
 
-    lobbyClient.onPlayerLeft((playerId: string) => {
+    lobbyClient.onPlayerLeft(playerId => {
       setLobby(prev => {
         if (!prev) return prev;
         return { ...prev, players: prev.players.filter(p => p.id !== playerId) };
       });
     });
 
-    lobbyClient.onGameStarted((gameId: string) => {
+    lobbyClient.onGameStarted(gameId => {
       lobbyClient.disconnect();
       router.push(`/table/${gameId}`);
     });
@@ -105,7 +90,6 @@ export default function Lobby() {
       try {
         const lobbyClient = await getLobbyClient();
         const result = await lobbyClient.joinLobby(lobbyId);
-
         if (result.isFailure) {
           alert(result.response.message.message);
           router.push(`/lobbies`);
@@ -114,7 +98,6 @@ export default function Lobby() {
 
         setLobby(result.value);
         setHasJoined(true);
-
         await attachLobbyListeners();
       } catch (err) {
         console.error('Failed to join lobby:', err);
@@ -129,90 +112,29 @@ export default function Lobby() {
   if (loading) return <div>Joining lobby...</div>;
   if (!lobby) return <div>Failed to load lobby.</div>;
 
-  const slots: (PlayerInfoDto | null)[] = [...(lobby?.players || [])];
+  const slots: (PlayerInfoDto | null)[] = [...lobby.players];
   while (slots.length < 6) slots.push(null);
 
   return (
-  <div className="h-screen w-full flex flex-col items-center justify-start py-3">
-    <div className="flex items-center justify-center md:py-4 flex-grow w-full max-w-5xl">
-      <div className="relative w-full md:max-w-350 h-auto md:h-182 border-4 border-white bg-[#437057]">
-        
-        <div className="
-          relative md:absolute md:top-10 md:left-30
-          flex flex-col justify-between
-          w-full md:w-[45%] max-w-full md:max-w-50
-          h-auto md:h-150
-          p-3 rounded bg-transparent"
-        >
-          <div className="flex flex-col items-center gap-3">
-            <p className="text-2xl md:text-3xl font-bold">{lobby.name}</p>
-            <p className="text-base md:text-l font-semibold">Creator: {lobby.creator}</p>
+    <div className="h-screen w-full flex flex-col items-center justify-start py-3">
+      <div className="flex items-center justify-center md:py-4 flex-grow w-full max-w-5xl">
+        <div className="relative w-full md:max-w-350 h-auto md:h-182 border-4 border-white bg-[#437057]">
 
-            <button
-              className="bg-red-700 hover:bg-red-800 rounded-md h-[50px] w-[150px]"
-              onClick={handleClickLeave}
-            >
-              Leave Game
-            </button>
-            {isCreator && (
-              <button 
-                className="bg-green-700 hover:bg-green-800 rounded-md h-[50px] w-[150px]"
-                onClick={handleClickStartGame}
-              >
-                Start Game
-              </button>
-            )}
-          </div>
+          <LobbyControls
+            lobby={lobby}
+            isCreator={isCreator}
+            funds={funds}
+            setFunds={setFunds}
+            isAddingFunds={isAddingFunds}
+            onLeave={handleClickLeave}
+            onStartGame={handleClickStartGame}
+            onAddFunds={handleClickAddFunds}
+          />
 
-          <div className="flex flex-col items-center gap-2 mt-4">
-            <button
-              className="bg-blue-700 hover:bg-blue-800 rounded-md h-[40px] w-[100px] text-white disabled:opacity-50"
-              onClick={handleClickAddFunds}
-              disabled={isAddingFunds}
-            >
-              {isAddingFunds ? 'Adding...' : 'Add Funds'}
-            </button>
-            <input
-              type="number"
-              value={funds}
-              onChange={e => setFunds(Number(e.target.value))}
-              className="rounded-md px-2 py-1 w-32 text-black"
-              placeholder="Funds"
-              min="1"
-            />
-          </div>
+          <PlayerList players={slots} />
+
         </div>
-
-        <div className="
-          relative md:absolute md:top-8 md:right-10
-          flex flex-col 
-          w-full md:w-[55%] max-w-full md:max-w-250
-          h-auto md:h-150 
-          bg-[#2f5040] items-start max-h-full overflow-auto p-3 rounded-xl border-1 border-white mt-4 md:mt-0"
-        >
-          {slots.map((player, index) =>
-            player ? (
-              <PlayerBox
-                key={player.id || index}
-                username={player.username}
-                handsPlayed={player.handsPlayed}
-                handsWon={player.handsWon}
-                totalEarnings={player.totalEarnings}
-                balance={player.balance}
-              />
-            ) : (
-              <div
-                key={`empty-${index}`}
-                className="w-full h-20 mb-3 bg-[#465a49] rounded-md border border-dashed border-white flex items-center justify-center text-white font-semibold opacity-50"
-              >
-                Empty slot #{index + 1}
-              </div>
-            )
-          )}
-        </div>
-
       </div>
     </div>
-  </div>
-);
+  );
 }

@@ -29,6 +29,7 @@ export default function Table() {
 
   const playerIdRef = useRef<string | null>(null);
   const tableClientRef = useRef<tableClient | null>(null);
+  const listenersAttached = useRef(false);
 
   const otherPlayers = players.filter(p => p.id !== playerIdRef.current);
   const seatPositions = getSeatPositions(otherPlayers.length);
@@ -89,9 +90,14 @@ export default function Table() {
         return playerStates;
       });
     });
-  }, [tableId, router]);
+  }, []);
 
-  useEffect(() => { attachLobbyListeners(); }, [attachLobbyListeners]);
+  useEffect(() => {
+    if (!listenersAttached.current) {
+      attachLobbyListeners();
+      listenersAttached.current = true;
+    }
+  }, []);
 
   const handleAction = useCallback(async (action: "placeBet" | "fold" | "allIn" | "check" | "startNextHand" | "closeGame") => {
     const client = await getTableClient(tableId);
