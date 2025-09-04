@@ -31,7 +31,9 @@ public class PlayerManager
         _playerDictionary.GetValueOrDefault(playerId);
     internal int ActivePlayerCount => 
         Players.Count(p => p.Hand is not null && !p.Hand.IsFolded && !p.Hand.IsAllIn && !p.IsDisconnected);
-
+    
+    internal int ConnectedPlayerCount => 
+        Players.Count(p => !p.IsDisconnected);
     
     internal void MarkPlayerActed(string playerId) => PlayersWhoActed.Add(playerId);
     
@@ -55,6 +57,12 @@ public class PlayerManager
         }
 
         throw new InvalidOperationException("No eligible players.");
+    }
+    
+    public void SetNewHost()
+    {
+        var remainingPlayers = Players.Where(p => !p.IsDisconnected).ToList();
+        HostPlayerId = remainingPlayers.Any() ? remainingPlayers[0].Id : string.Empty;
     }
 
     internal bool IsBettingRoundComplete(int currentBet)
@@ -110,12 +118,12 @@ public class PlayerManager
         if (result.IsFailure)
             return result;
 
-        if (DealerPosition >= _players.Count)
-            DealerPosition = 0;
-
         if (HostPlayerId == playerId && _players.Any())
             HostPlayerId = _players[0].Id;
 
+        if (DealerPosition >= _players.Count)
+            DealerPosition = 0;
+        
         return Result.Success();
     }
     

@@ -288,7 +288,7 @@ public sealed class Table : Entity
              return disconnectResult;
 
          var playerResult = _playerManager.GetPlayerIfHisTurn(playerId);
-         if (playerResult.IsSuccess)
+         if (playerResult.IsSuccess && CurrentPhase != GamePhase.Showdown)
          {
              var player = playerResult.Value!;
 
@@ -302,6 +302,13 @@ public sealed class Table : Entity
              playerId,
              PlayerActionType.Disconnect,
              _playerManager.CurrentTurnPlayer.Id));
+         
+         if (HostPlayerId == playerId)
+         {
+             _playerManager.SetNewHost();
+             
+             RaiseDomainEvent(new NewHostDomainEvent(HostPlayerId));
+         }
 
          return Result.Success();
     }
@@ -367,9 +374,9 @@ public sealed class Table : Entity
         if (!WaitingForNextHand)
             return Result.Failure(ResponseList.HandNotFinished);
 
-        var players = _playerManager.Players;
+        var connectedPlayers = _playerManager.ConnectedPlayerCount;
         
-        switch (players.Count)
+        switch (connectedPlayers)
         {
             case > 6:
                 return Result.Failure(ResponseList.SixPlayersMaximum);
@@ -379,6 +386,8 @@ public sealed class Table : Entity
 
         var shuffledDeck = Deck.CreateShuffled();
 
+        var players = _playerManager.Players;
+        
         foreach (var player in players)
         {
             var hand = Hand.Create([shuffledDeck.Draw(), shuffledDeck.Draw()]);
@@ -398,6 +407,9 @@ public sealed class Table : Entity
         RaiseDomainEvent(new NewHandDomainEvent(Id));
         return Result.Success();
     }
+    
+    public int ConnectedPlayerCount()
+        => _playerManager.ConnectedPlayerCount;
 
     private void AdvanceTurn()
     {

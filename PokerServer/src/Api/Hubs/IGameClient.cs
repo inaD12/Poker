@@ -12,4 +12,5 @@ public interface IGameClient
     Task Showdown(List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates);
     Task YourTurn();
     Task GameClose();
+    Task YouAreTheHost();
 }

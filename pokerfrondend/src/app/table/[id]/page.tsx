@@ -62,6 +62,8 @@ export default function Table() {
 
     client.onTurn(() => setPlayerTurn(true));
 
+    client.onHostChange(() => setIsHost(true));
+
     client.onGameClose(() => { alert("Game closed"); router.push(`/`); });
 
     client.onPlayerAction((playerId, notification) => {

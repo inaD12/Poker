@@ -45,4 +45,9 @@ public class TableNotifier : ITableNotifier
     {
         await _hubContext.Clients.Group(tableId).GameClose();
     }
+
+    public async Task NotifyNewHostAsync(string playerId)
+    {
+        await _hubContext.Clients.User(playerId).YouAreTheHost();
+    }
 }

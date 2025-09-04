@@ -52,6 +52,12 @@ export default class tableClient{
     });
   }
 
+  onHostChange(callback: () => void) {
+    this.signalRService.on("YouAreTheHost", () => {
+      callback();
+    });
+  }
+
   async placeBet(amount: number): Promise<HubResult<null>>{
     const result =  await this.signalRService.send("PlaceBet", amount);
 

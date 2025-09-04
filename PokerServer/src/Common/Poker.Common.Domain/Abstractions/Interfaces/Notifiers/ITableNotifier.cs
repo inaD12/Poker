@@ -12,4 +12,5 @@ public interface ITableNotifier
     Task NotifyShowdownAsync(string tableId, List<string> winnerPlayerIds, int winningsEach, List<PlayerStateDto> playerStates);
     Task NotifyNextPlayerAsync(string playerId);
     Task NotifyGameClosingAsync(string tableId);
+    Task NotifyNewHostAsync(string playerId);
 }
