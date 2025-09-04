@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="14.0.0"/>
+        <PackageReference Include="FluentValidation" Version="12.0.0"/>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
+        <PackageReference Include="MediatR" Version="13.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Poker.Common.Domain\Poker.Common.Domain.csproj"/>
+        <ProjectReference Include="..\Poker.Common.Infrastructure\Poker.Common.Infrastructure.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="FluentValidation">
+            <HintPath>..\..\..\..\..\..\..\.nuget\packages\fluentvalidation\12.0.0\lib\net8.0\FluentValidation.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>

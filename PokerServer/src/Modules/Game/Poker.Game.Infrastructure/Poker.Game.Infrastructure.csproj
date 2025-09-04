@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Poker.Game.Infrastructure</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="Microsoft.EntityFrameworkCore">
+            <HintPath>..\..\..\..\..\..\..\..\.nuget\packages\microsoft.entityframeworkcore\9.0.1\lib\net8.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Common\Poker.Common.Infrastructure\Poker.Common.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Poker.Game.Domain\Poker.Game.Domain.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Features\Migrations\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
+    </ItemGroup>
+
+</Project>
