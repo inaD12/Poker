@@ -1,7 +1,7 @@
 'use client';
 
-import ReactPaginate from 'react-paginate';
 import { useRouter } from 'next/navigation';
+import ReactPaginate from 'react-paginate';
 
 interface PaginationProps {
   totalCount: number;

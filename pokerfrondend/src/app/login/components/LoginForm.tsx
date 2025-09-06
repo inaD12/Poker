@@ -18,7 +18,7 @@ const LoginForm = () => {
         const data: LoginUserRequest = { email, password };
 
         try {
-            await userService.login(data);
+            const result = await userService.login(data);
             login();
             window.location.href = "/";
         } catch (error: any) {
