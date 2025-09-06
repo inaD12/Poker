@@ -1,5 +1,5 @@
 export const apiRoutes = {
-  baseUrl: 'http://localhost:5000',
+  baseUrl: 'https://poker-api.azurewebsites.net/',
   users: {
     login: `/api/users/login`,
     logout: `/api/users/logout`,

@@ -3,7 +3,7 @@
 import {useEffect, useState } from "react";
 import lobbyService from "../../../../lobby/services/lobby.services";
 import LobbiesPage from "../components/LobbiesPage";
-import { APIResponse, HubResponse, HubResult, LobbyPaginatedQueryResponse } from "../../../../lobby/types/lobby.types";
+import { APIResponse, LobbyPaginatedQueryResponse } from "../../../../lobby/types/lobby.types";
 import React from "react";
 import { useParams } from "next/navigation";
 

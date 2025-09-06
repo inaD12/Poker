@@ -1,7 +1,9 @@
 'use client';
 
+import { LobbyQueryResponse } from "../../../../../lobby/types/lobby.types";
+
 interface LobbyControlsProps {
-  lobby: any;
+  lobby: LobbyQueryResponse;
   isCreator: boolean;
   funds: number;
   setFunds: (val: number) => void;

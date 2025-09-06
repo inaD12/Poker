@@ -1,4 +1,4 @@
-import { APIResponse, HubResult, LobbyPaginatedQueryResponse, LobbyQueryResponse } from "../../../../lobby/types/lobby.types";
+import { APIResponse, LobbyPaginatedQueryResponse, LobbyQueryResponse } from "../../../../lobby/types/lobby.types";
 import CreateLobbyButton from "./CreateLobbyButton";
 import Pagination from "../../../../components/Pagination";
 import LobbyBox from "./LobbyBox";

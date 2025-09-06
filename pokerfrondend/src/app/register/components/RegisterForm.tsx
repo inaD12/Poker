@@ -17,7 +17,7 @@ const RegisterForm = () => {
         const data: RegisterUserRequest = { email, password, username};
 
         try {
-            const response = await userService.register(data);
+            await userService.register(data);
             window.location.href = "/login";
         } catch (error: any) {
             if (error.response?.data?.errors) {

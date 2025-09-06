@@ -7,6 +7,14 @@ import { LobbyQueryResponse, PlayerInfoDto } from '../../../../lobby/types/lobby
 import LobbyControls from './components/LobbyControls';
 import PlayerList from './components/PlayerList';
 
+
+//This is here so the page works with Azure Static Web Apps
+// export async function generateStaticParams() {
+//   const response = await fetch("https://my-dotnet-api.azurewebsites.net/lobbies");
+//   const lobbies = await response.json();
+//   return lobbies.map((lobby: any) => ({ id: lobby.id.toString() }));
+// }
+
 export default function Lobby() {
   const router = useRouter();
   const { id: lobbyId } = useParams<{ id: string }>();

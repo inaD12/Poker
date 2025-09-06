@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 
 export default function CreateLobbyButton() {
   const [name, setName] = useState("");
-  const lobbyClient = getLobbyClient();
   const router = useRouter();
 
   const handleCreateLobby = async () => {
     if (!name.trim()) return alert("Please enter a lobby name.");
     const lobbyClient = await getLobbyClient();
-    var lobbyId = await lobbyClient.createLobby(name);
+    const lobbyId = await lobbyClient.createLobby(name);
     router.push(`/lobby/${lobbyId}`);
   };
 
