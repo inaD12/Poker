@@ -61,15 +61,16 @@ internal class UserEndpoints : IEndpoints
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status409Conflict)
-            .Produces(StatusCodes.Status500InternalServerError);
+            .Produces(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization();
 
         group.MapGet("get/{id}", GetById)
             .Produces<UserQueryResponse>()
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status500InternalServerError);
-        //.RequireAuthorization();
+            .Produces(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization();
 
         group.MapDelete("delete-current", DeleteCurrent)
             .Produces(StatusCodes.Status200OK)
@@ -82,8 +83,8 @@ internal class UserEndpoints : IEndpoints
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status500InternalServerError);
-        //.RequireAuthorization();
+            .Produces(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization();
         
         group.MapGet("auth/me", () => Results.Ok())
             .Produces(StatusCodes.Status200OK)
@@ -108,10 +109,10 @@ internal class UserEndpoints : IEndpoints
         response.Cookies.Append(AuthTokenKey, token, new CookieOptions
         {
             HttpOnly = true,
-            SameSite = SameSiteMode.Lax,
-            Secure = false,
+            Secure = true,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddSeconds(30000000),
-            Path = "/"
+            Path = "/; Partitioned"
         });
 
         return Results.Ok();
@@ -123,7 +124,7 @@ internal class UserEndpoints : IEndpoints
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTime.UtcNow.AddDays(-1),
             Path = "/"
         });

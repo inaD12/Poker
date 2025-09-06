@@ -23,8 +23,7 @@ internal class LobbyEndpoints : IEndpoints
         group.MapGet("get-all", GetAll)
             .Produces<LobbyPaginatedQueryViewModel>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status500InternalServerError)
-            .RequireAuthorization();
+            .Produces(StatusCodes.Status500InternalServerError);
     }
 
     private async Task<IResult> GetAll(

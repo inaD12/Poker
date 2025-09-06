@@ -7,12 +7,8 @@ using PokerServer.Hubs;
 using Serilog;
 
 //TODO:
-//kick, disconnect, reconnect, leave event handlers
-//delete game/lobby if left empty/not enough players,
-//Game reconnection(find which game player is in),
-//GetLobby,
+//kick, reconnect
 //LobbyName validation
-//distribute funds to users module after game,
 //Optional: timeouts, chat, game history, admin controls, refunds if game is canceled, rejoin period, extract lobby to its module?
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,10 +25,12 @@ builder.Services
 
 var app = builder.Build();
 
-await app.ApplyMigrations();
+app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {
+    await app.ApplyMigrations();
+    
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {

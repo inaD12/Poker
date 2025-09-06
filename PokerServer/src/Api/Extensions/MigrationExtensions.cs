@@ -12,6 +12,7 @@ public static class MigrationExtensions
 
         await ApplyMigration<UsersDbContext>(scope);
         await ApplyMigration<GameDbContext>(scope);
+        
     }
 
     private static async Task ApplyMigration<TDbContext>(IServiceScope scope)
