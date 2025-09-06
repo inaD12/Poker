@@ -30,8 +30,6 @@ jobs:
 
           mkdir -p ./standalone
 
-          cp -r .next/standalone/* ./standalone/
-
           cp -r .next/static ./standalone/.next/static
           cp -r public ./standalone/public
 
