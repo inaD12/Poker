@@ -92,14 +92,14 @@ export default function Table() {
         return playerStates;
       });
     });
-  }, []);
+  }, [router, tableId]);
 
   useEffect(() => {
     if (!listenersAttached.current) {
       attachLobbyListeners();
       listenersAttached.current = true;
     }
-  }, []);
+  }, [attachLobbyListeners]);
 
   const handleAction = useCallback(async (action: "placeBet" | "fold" | "allIn" | "check" | "startNextHand" | "closeGame") => {
     const client = await getTableClient(tableId);
@@ -138,7 +138,6 @@ export default function Table() {
           <Player
             key={p.id}
             player={p}
-            index={i}
             seatPosition={seatPositions[i]}
             playerActions={playerActions}
             currentTurn={currentTurn}

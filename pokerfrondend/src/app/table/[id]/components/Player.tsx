@@ -4,14 +4,13 @@ import PlayerCards from "./PlayerCards";
 
 interface PlayerProps {
   player: PlayerStateDto;
-  index: number;
   seatPosition: string;
   playerActions: Record<string, PlayerActionNotification | null>;
   currentTurn: string | null;
   winnerNames: string[] | null;
 }
 
-export default function Player({ player, index, seatPosition, playerActions, currentTurn, winnerNames }: PlayerProps) {
+export default function Player({ player, seatPosition, playerActions, currentTurn, winnerNames }: PlayerProps) {
   const showWinnerCards = !!winnerNames;
 
   return (

@@ -36,7 +36,7 @@ export function RouteChangeListener() {
     const currentGameId = gameMatch ? gameMatch[1] : null;
 
     if (lastLobbyId.current && !currentLobbyId) {
-      //leaveLobby(lastLobbyId.current);
+      leaveLobby(lastLobbyId.current);
     }
 
     if (lastGameId.current && !currentGameId) {
