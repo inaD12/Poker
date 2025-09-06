@@ -4,10 +4,13 @@ import lobbyService from "../../../lobby/services/lobby.services";
 import LobbiesPage from "./components/LobbiesPage";
 
 const LobbiesDefaultPage = async () => {
-
-  const reponse = await lobbyService.getAll(1,6);
-
-  return <LobbiesPage page={1} response={reponse} />;
+  try {
+    const response = await lobbyService.getAll(1,6);
+    return <LobbiesPage page={1} response={response} />;
+  } catch (err) {
+    console.error("SSR error in /lobbies:", err);
+    return <div>Failed to load lobbies.</div>;
+  }
 };
 
 export default LobbiesDefaultPage;
