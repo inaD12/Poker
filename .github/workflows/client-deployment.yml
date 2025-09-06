@@ -23,6 +23,7 @@ jobs:
           node-version: "22.x"
 
       - name: npm install, build, and test
+        working-directory: ./pokerfrontend
         run: |
           npm install
           npm run build
