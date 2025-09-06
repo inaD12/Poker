@@ -30,9 +30,9 @@ jobs:
 
           mkdir -p ./standalone
 
-          cp -r .next/static ./standalone/.next/static
+          cp -r build/standalone/* ./standalone/
+          cp -r build/static ./standalone/.next/static
           cp -r public ./standalone/public
-
           cp next.config.js ./standalone/
 
       - name: Upload artifact
