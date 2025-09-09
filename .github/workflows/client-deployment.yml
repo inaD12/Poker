@@ -29,13 +29,13 @@ jobs:
           npm run build
 
           mkdir -p ./standalone
-          cp -r build/standalone/* ./standalone/
+          cp -r .next/standalone/* ./standalone/
 
           mkdir -p ./standalone/.next
-          cp -r build/static ./standalone/.next/static
+          cp -r .next/static ./standalone/.next/static
 
           mkdir -p ./standalone/_next
-          cp -r build/static ./standalone/_next/static
+          cp -r .next/static ./standalone/_next/static
 
           cp -r public ./standalone/public
           cp next.config.ts ./standalone/
