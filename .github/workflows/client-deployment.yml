@@ -34,9 +34,6 @@ jobs:
           mkdir -p ./standalone/.next
           cp -r .next/static ./standalone/.next/static
 
-          mkdir -p ./standalone/_next
-          cp -r .next/static ./standalone/_next/static
-
           cp -r public ./standalone/public
           cp next.config.ts ./standalone/
 
