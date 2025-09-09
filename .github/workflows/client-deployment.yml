@@ -29,6 +29,7 @@ jobs:
           npm run build
 
           mkdir -p ./standalone
+          mkdir -p ./standalone/.next
 
           cp -r build/standalone/* ./standalone/
           cp -r build/static ./standalone/.next/static
