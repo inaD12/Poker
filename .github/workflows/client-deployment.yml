@@ -28,21 +28,15 @@ jobs:
           npm install
           npm run build
 
-          mkdir -p ./standalone
-          cp -r .next/standalone/* ./standalone/
-
-          mkdir -p ./standalone/.next
-          cp -r .next/static ./standalone/.next/static
-
-          cp -r public ./standalone/public
-          cp next.config.ts ./standalone/
-
+          cp -R ./public ./.next/standalone/public
+          cp -R ./.next/static ./.next/standalone/.next/static
+          cp next.config.ts ./.next/standalone/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: app
-          path: ./Frontend/standalone
+          path: ./Frontend/.next/standalone/
 
   deploy:
     runs-on: ubuntu-latest
