@@ -29,12 +29,17 @@ jobs:
           npm run build
 
           mkdir -p ./standalone
-          mkdir -p ./standalone/.next
-
           cp -r build/standalone/* ./standalone/
+
+          mkdir -p ./standalone/.next
           cp -r build/static ./standalone/.next/static
+
+          mkdir -p ./standalone/_next
+          cp -r build/static ./standalone/_next/static
+
           cp -r public ./standalone/public
           cp next.config.ts ./standalone/
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
